@@ -36,14 +36,11 @@
     <Reference Include="HtmlAgilityPack, Version=1.8.6.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
       <HintPath>..\packages\HtmlAgilityPack.1.8.6\lib\Net45\HtmlAgilityPack.dll</HintPath>
     </Reference>
-    <Reference Include="MegaApiClient, Version=1.7.0.450, Culture=neutral, PublicKeyToken=0480d311efbeb4e2, processorArchitecture=MSIL">
-      <HintPath>..\packages\MegaApiClient.1.7.0\lib\net45\MegaApiClient.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.mshtml, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -131,11 +128,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\treeviewadv-master\Aga.Controls\Aga.Controls.csproj">
+    <ProjectReference Include="..\Aga.Controls\Aga.Controls.csproj">
       <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
       <Name>Aga.Controls</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\YandexDiskSharp-master\YandexDiskSharp\YandexDiskSharp.csproj">
+    <ProjectReference Include="..\MegaApiClient\MegaApiClient.csproj">
+      <Project>{e8c2141e-5e90-47a8-a5a3-ded6ab65ceea}</Project>
+      <Name>MegaApiClient</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\YandexDiskSharp\YandexDiskSharp.csproj">
       <Project>{fe0b453d-1e3b-4ab6-bbad-f6f973356897}</Project>
       <Name>YandexDiskSharp</Name>
     </ProjectReference>
