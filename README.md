@@ -5,6 +5,7 @@ Supported clouds:
 * MEGA
 * Allsync
 * YandexDisk
+
 Web server index:
 * h5ai
 * godir
@@ -17,9 +18,9 @@ Web server index:
 * Now you can [Save to file] loaded content and later [Open from file] to save time
 ### Get links and sync files
 * On right side choose folder on your computer that you wish to use as saving/syncing folder - <sync folder>
-* Check web folders that you wish to download/sync.
+* Check web folders that you wish to download/sync
 * Click [Compare folders content]
 * New window will display all files, that are missing in your <sync folder>
 * Check files that you wish to download
-* Click [Get JDownloader links] or [Mega download] if web folder is mega folder.
+* Click [Get JDownloader links] or [Mega download] if web folder is mega folder
 * JD link container will be created in app folder
