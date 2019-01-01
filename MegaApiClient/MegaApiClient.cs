@@ -1027,13 +1027,11 @@
     private int Wait(int requestDelay)
     {
       requestDelay = (int) Math.Round(requestDelay * this.options.ApiRequestDelayExponentialFactor);
-#if NET40
-      Thread.Sleep(requestDelay);
-#else
+
       Task
         .Delay(requestDelay)
         .Wait();
-#endif
+
 
       return requestDelay;
     }

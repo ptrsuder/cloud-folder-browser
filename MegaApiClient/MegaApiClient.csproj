@@ -1,89 +1,92 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <Description>MegaApiClient is a C# .Net library to access http://mega.co.nz / http://mega.nz cloud storage and file hosting service.</Description>
-    <Copyright>Copyright © 2018</Copyright>
-    <AssemblyTitle>Mega.co.nz client library</AssemblyTitle>
-    <NeutralLanguage>en-US</NeutralLanguage>
-    <VersionPrefix>1.6.0</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
-    <Title>Mega.co.nz client library</Title>
-    <Authors>Gregoire Pailler</Authors>
-    <AssemblyName>MegaApiClient</AssemblyName>
-    <PackageProjectUrl>https://github.com/gpailler/MegaApiClient</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/gpailler/MegaApiClient/LICENSE</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageTags>mega;mega.co.nz;mega.nz;netstandard;netcore;mono;xamarin;uwp;cloud-storage</PackageTags>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/gpailler/MegaApiClient</RepositoryUrl>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>true</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
-    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
-    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
-    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <TargetFrameworks>net40;net45;</TargetFrameworks>
-    <RootNamespace>CG.Web.MegaApiClient</RootNamespace>
-    <SignAssembly>False</SignAssembly>
-    <DocumentationFile></DocumentationFile>
-    <NoWarn></NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DebugType>full</DebugType>
-    <DebugSymbols>True</DebugSymbols>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NetFramework>True</NetFramework>
-    <NetCore>False</NetCore>
-    <AsyncSupport>True</AsyncSupport>
-    <UseHttpClient>True</UseHttpClient>
-    <ApplicationIcon />
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AB158913-2466-4D8F-942E-E88ED2515AFE}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <StartupObject />
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CG.Web.MegaApiClient</RootNamespace>
+    <AssemblyName>MegaApiClient</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
   </PropertyGroup>
-  
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
-    <AsyncSupport>False</AsyncSupport>
-    <UseHttpClient>False</UseHttpClient>
-  </PropertyGroup>
-
-
-
-  <PropertyGroup Condition="$(AsyncSupport) == True">
-    <DefineConstants>ASYNC</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="$(NetFramework) == True">
-    <SignAssembly>false</SignAssembly>    
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
-  <ItemGroup Condition="$(NetFramework) == True">
-    <Reference Include="System" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(NetFramework) == True And $(UseHttpClient) == True">
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
-
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />    
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ApiRequestFailedEventArgs.cs" />
+    <Compile Include="Cryptography\BigInteger.cs" />
+    <Compile Include="Cryptography\CachedCryptoTransform.cs" />
+    <Compile Include="Cryptography\Crc32.cs" />
+    <Compile Include="Cryptography\Crypto.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Interface\IAccountInformation.cs" />
+    <Compile Include="Interface\IMegaApiClient.cs" />
+    <Compile Include="Interface\IMegaApiClientAsync.cs" />
+    <Compile Include="Interface\INode.cs" />
+    <Compile Include="Interface\IWebClient.cs" />
+    <Compile Include="MegaApiClient.cs" />
+    <Compile Include="MegaApiClientAsync.cs" />
+    <Compile Include="Node.cs" />
+    <Compile Include="NodeExtensions.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serialization\AccountInformation.cs" />
+    <Compile Include="Serialization\AnonymousLogin.cs" />
+    <Compile Include="Serialization\Attributes.cs" />
+    <Compile Include="Serialization\CreateNode.cs" />
+    <Compile Include="Serialization\Delete.cs" />
+    <Compile Include="Serialization\DownloadUrl.cs" />
+    <Compile Include="Serialization\GetDownloadLink.cs" />
+    <Compile Include="Serialization\GetNodes.cs" />
+    <Compile Include="Serialization\GetNodesResponseConverter.cs" />
+    <Compile Include="Serialization\Login.cs" />
+    <Compile Include="Serialization\Logout.cs" />
+    <Compile Include="Serialization\Move.cs" />
+    <Compile Include="Serialization\NodeConverter.cs" />
+    <Compile Include="Serialization\Rename.cs" />
+    <Compile Include="Serialization\RequestBase.cs" />
+    <Compile Include="Serialization\Share.cs" />
+    <Compile Include="Serialization\ShareNode.cs" />
+    <Compile Include="Serialization\UploadUrl.cs" />
+    <Compile Include="Stream\CancellableStream.cs" />
+    <Compile Include="Stream\MegaAesCtrStream.cs" />
+    <Compile Include="Stream\ProgressionStream.cs" />
+    <Compile Include="WebClient_HttpClient.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

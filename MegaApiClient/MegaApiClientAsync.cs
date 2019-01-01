@@ -1,4 +1,4 @@
-﻿#if ASYNC
+﻿
 namespace CG.Web.MegaApiClient
 {
   using System;
@@ -165,4 +165,3 @@ namespace CG.Web.MegaApiClient
     #endregion
   }
 }
-#endif

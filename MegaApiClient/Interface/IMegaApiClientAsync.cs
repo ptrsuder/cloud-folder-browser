@@ -1,4 +1,4 @@
-#if ASYNC
+
 namespace CG.Web.MegaApiClient
 {
   using System;
@@ -54,4 +54,3 @@ namespace CG.Web.MegaApiClient
     Task<IEnumerable<INode>> GetNodesFromLinkAsync(Uri uri);
   }
 }
-#endif
