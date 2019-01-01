@@ -1,0 +1,89 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>MegaApiClient is a C# .Net library to access http://mega.co.nz / http://mega.nz cloud storage and file hosting service.</Description>
+    <Copyright>Copyright © 2018</Copyright>
+    <AssemblyTitle>Mega.co.nz client library</AssemblyTitle>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <VersionPrefix>1.6.0</VersionPrefix>
+    <VersionSuffix></VersionSuffix>
+    <Title>Mega.co.nz client library</Title>
+    <Authors>Gregoire Pailler</Authors>
+    <AssemblyName>MegaApiClient</AssemblyName>
+    <PackageProjectUrl>https://github.com/gpailler/MegaApiClient</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/gpailler/MegaApiClient/LICENSE</PackageLicenseUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>mega;mega.co.nz;mega.nz;netstandard;netcore;mono;xamarin;uwp;cloud-storage</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/gpailler/MegaApiClient</RepositoryUrl>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>true</GenerateAssemblyDescriptionAttribute>
+    <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>true</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>net40;net45;</TargetFrameworks>
+    <RootNamespace>CG.Web.MegaApiClient</RootNamespace>
+    <SignAssembly>False</SignAssembly>
+    <DocumentationFile></DocumentationFile>
+    <NoWarn></NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NetFramework>True</NetFramework>
+    <NetCore>False</NetCore>
+    <AsyncSupport>True</AsyncSupport>
+    <UseHttpClient>True</UseHttpClient>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net40'">
+    <AsyncSupport>False</AsyncSupport>
+    <UseHttpClient>False</UseHttpClient>
+  </PropertyGroup>
+
+
+
+  <PropertyGroup Condition="$(AsyncSupport) == True">
+    <DefineConstants>ASYNC</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(NetFramework) == True">
+    <SignAssembly>false</SignAssembly>    
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net40|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup Condition="$(NetFramework) == True">
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(NetFramework) == True And $(UseHttpClient) == True">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />    
+  </ItemGroup>
+</Project>
