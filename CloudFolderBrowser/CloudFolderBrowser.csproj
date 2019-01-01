@@ -133,7 +133,7 @@
       <Name>Aga.Controls</Name>
     </ProjectReference>
     <ProjectReference Include="..\MegaApiClient\MegaApiClient.csproj">
-      <Project>{e8c2141e-5e90-47a8-a5a3-ded6ab65ceea}</Project>
+      <Project>{ab158913-2466-4d8f-942e-e88ed2515afe}</Project>
       <Name>MegaApiClient</Name>
     </ProjectReference>
     <ProjectReference Include="..\YandexDiskSharp\YandexDiskSharp.csproj">
