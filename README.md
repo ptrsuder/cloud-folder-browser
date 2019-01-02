@@ -1,14 +1,14 @@
 # cloud-folder-browser
 Desktop application that allows user to browse shared folders from various cloud services and some web server index folders. 
 
-Supported clouds:
+Cloud storages:
 * MEGA
 * Allsync
 * YandexDisk
 
-Web server index:
-* h5ai
-* godir
+Web server indexes:
+* h5ai (https://dnd.jambrose.info, https://dl.lynxcore.org, http://www.enthusiasticallyconfused.com/ etc)
+* godir (https://thetrove.net/)
 
 ## How to use
 ### Load and store folders:
