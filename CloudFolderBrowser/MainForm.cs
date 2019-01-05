@@ -377,8 +377,7 @@ namespace CloudFolderBrowser
         #region Yadisk
 
         void LoadYadisk(string publicKey)
-        {
-            cloudServiceType = CloudServiceType.Yadisk;
+        {          
             try
             {
                 rl_root = rc.GetPublicResource(publicKey, limit: 999);
@@ -450,11 +449,10 @@ namespace CloudFolderBrowser
 
         #endregion
 
-        #region WebIndexFolder
+        #region h5ai
 
         void Load_h5ai(string url)
-        {
-            cloudServiceType = CloudServiceType.h5ai;
+        {           
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             cloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
@@ -539,8 +537,7 @@ namespace CloudFolderBrowser
         void Load_TheTrove(string url)
         {
             url = url.Replace("index.html", "");
-
-            cloudServiceType = CloudServiceType.TheTrove;
+            
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             cloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
@@ -614,6 +611,66 @@ namespace CloudFolderBrowser
                 }
             }
         }
+             
+        public static string GetFinalRedirect(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return url;
+
+            int maxRedirCount = 5;  // prevent infinite loops
+            string newUrl = url;
+            do
+            {
+                HttpWebRequest req = null;
+                HttpWebResponse resp = null;
+                try
+                {
+                    req = (HttpWebRequest)HttpWebRequest.Create(url);
+                    req.Method = "HEAD";
+                    req.AllowAutoRedirect = false;
+                    resp = (HttpWebResponse)req.GetResponse();
+                    switch (resp.StatusCode)
+                    {
+                        case HttpStatusCode.OK:
+                            return newUrl;
+                        case HttpStatusCode.Redirect:
+                        case HttpStatusCode.MovedPermanently:
+                        case HttpStatusCode.RedirectKeepVerb:
+                        case HttpStatusCode.RedirectMethod:
+                            newUrl = resp.Headers["Location"];
+                            if (newUrl == null)
+                                return url;
+
+                            if (newUrl.IndexOf("://", System.StringComparison.Ordinal) == -1)
+                            {
+                                // Doesn't have a URL Schema, meaning it's a relative or absolute URL
+                                Uri u = new Uri(new Uri(url), newUrl);
+                                newUrl = u.ToString();
+                            }
+                            break;
+                        default:
+                            return newUrl;
+                    }
+                    url = newUrl;
+                }
+                catch (WebException)
+                {
+                    // Return the last known good URL
+                    return newUrl;
+                }
+                catch (System.Exception ex)
+                {
+                    return null;
+                }
+                finally
+                {
+                    if (resp != null)
+                        resp.Close();
+                }
+            } while (newUrl.Contains("snip") || maxRedirCount-- > 0);
+
+            return newUrl;
+        }
 
         long ParseSizeToKb(string size)
         {
@@ -634,9 +691,7 @@ namespace CloudFolderBrowser
         #region Allsync  
         
         async void LoadAllsync(string url, bool onlyCheck = false)
-        {
-            cloudServiceType = CloudServiceType.Allsync;
-
+        {            
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             cloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
@@ -791,7 +846,7 @@ namespace CloudFolderBrowser
 
         void LoadMega(string url)
         {
-            cloudServiceType = CloudServiceType.Mega;
+            
             MegaApiClient megaClient = new MegaApiClient();
             megaClient.LoginAnonymous();
             try
@@ -1141,15 +1196,15 @@ namespace CloudFolderBrowser
 
         CloudServiceType GetCloudServiceType(string url)
         {
-            if (yadiskPublicFolderKey_textBox.Text.Contains("yadi.sk"))
+            if (url.Contains("yadi.sk"))
                 return CloudServiceType.Yadisk;
-            if (yadiskPublicFolderKey_textBox.Text.Contains("cloud.allsync.com"))
+            if (url.Contains("cloud.allsync.com"))
                 return CloudServiceType.Allsync;
-            if (yadiskPublicFolderKey_textBox.Text.Contains("mega.nz"))
+            if (url.Contains("mega.nz"))
                 return CloudServiceType.Mega;
-            if (yadiskPublicFolderKey_textBox.Text.Contains("dl.lynxcore.org") || yadiskPublicFolderKey_textBox.Text.Contains("dnd.jambrose.info") || yadiskPublicFolderKey_textBox.Text.Contains("enthusiasticallyconfused.com"))
+            if (url.Contains("dl.lynxcore.org") || url.Contains("dnd.jambrose.info") || url.Contains("enthusiasticallyconfused.com"))
                 return CloudServiceType.h5ai;
-            if (yadiskPublicFolderKey_textBox.Text.Contains("thetrove.net"))
+            if (url.Contains("thetrove.net"))
                 return CloudServiceType.TheTrove;
 
             return CloudServiceType.Other;
@@ -1159,6 +1214,7 @@ namespace CloudFolderBrowser
 
         private void LoadPublicFolderKey_button_Click(object sender, EventArgs e)
         {
+            string cloudFolderUrl = yadiskPublicFolderKey_textBox.Text;
             if (flatList_checkBox.Checked)
                 flatList_checkBox.Checked = false;
 
@@ -1169,24 +1225,33 @@ namespace CloudFolderBrowser
                 if (publicFolders_comboBox.Text == "secret_folder")                
                     LoadMega(publicFolders["secret_folder"]);
 
-                CloudServiceType caseSwitch = GetCloudServiceType(yadiskPublicFolderKey_textBox.Text);
+                if (yadiskPublicFolderKey_textBox.Text.Contains("snipli.com") || yadiskPublicFolderKey_textBox.Text.Contains("snip.li"))
+                    cloudFolderUrl = GetFinalRedirect(yadiskPublicFolderKey_textBox.Text);
 
-                switch (caseSwitch)
+                if (cloudFolderUrl.Contains("snip.li") || cloudFolderUrl.Contains("snipli.com"))
+                {
+                    MessageBox.Show("Snipli link is likely dead");
+                    return;
+                }
+
+                cloudServiceType = GetCloudServiceType(cloudFolderUrl);                
+
+                switch (cloudServiceType)
                 {
                     case CloudServiceType.Yadisk:
-                        LoadYadisk(yadiskPublicFolderKey_textBox.Text);
+                        LoadYadisk(cloudFolderUrl);
                         break;
                     case CloudServiceType.Allsync:
-                        LoadAllsync(yadiskPublicFolderKey_textBox.Text);
+                        LoadAllsync(cloudFolderUrl);
                         break;
                     case CloudServiceType.Mega:
-                        LoadMega(yadiskPublicFolderKey_textBox.Text);
+                        LoadMega(cloudFolderUrl);
                         break;                    
                     case CloudServiceType.h5ai:
-                        Load_h5ai(yadiskPublicFolderKey_textBox.Text);
+                        Load_h5ai(cloudFolderUrl);
                         break;
                     case CloudServiceType.TheTrove:
-                        Load_TheTrove(yadiskPublicFolderKey_textBox.Text);
+                        Load_TheTrove(cloudFolderUrl);
                         break;
                     case CloudServiceType.Other:
                         MessageBox.Show("Unsupported link!");

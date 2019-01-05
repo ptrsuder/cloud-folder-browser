@@ -67,8 +67,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CloudFile.cs" />
+    <Compile Include="FolderModels.cs" />
     <Compile Include="MegaDownload\MegaDownloadItem.cs" />
     <Compile Include="MegaDownload\MegaDownload.cs" />
+    <Compile Include="ModifyProgressBarColor.cs" />
+    <Compile Include="TreeviewAdv\ColumnNode.cs" />
     <Compile Include="TreeviewAdv\FolderItemSorter.cs" />
     <Compile Include="FolderDialog\FolderSaveDialog.cs" />
     <Compile Include="FolderDialog\FolderSelectDialog.cs" />
