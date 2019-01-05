@@ -673,7 +673,7 @@
             this.loginYandex_button.UseVisualStyleBackColor = true;
             this.loginYandex_button.Click += new System.EventHandler(this.loginYandex_button_Click);
             // 
-            // Form1
+            // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -688,7 +688,7 @@
             this.Controls.Add(this.yadiskSpace_label);
             this.Controls.Add(this.yadiskSpace_progressBar);
             this.MinimumSize = new System.Drawing.Size(612, 500);
-            this.Name = "Form1";
+            this.Name = "MainForm";
             this.Text = "CloudFolderBrowser";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
