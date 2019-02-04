@@ -10,7 +10,8 @@ Web server indexes:
 * h5ai (https://dnd.jambrose.info, https://dl.lynxcore.org, http://www.enthusiasticallyconfused.com/ etc)
 * godir (https://thetrove.net/)
 
-Requires .Net Framework 4.5
+## Requirements
+* .Net Framework 4.5
 
 ## How to use
 ### Load and store folders:
