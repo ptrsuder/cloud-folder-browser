@@ -68,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CloudFile.cs" />
+    <Compile Include="DownloadsFinishedForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DownloadsFinishedForm.Designer.cs">
+      <DependentUpon>DownloadsFinishedForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="FolderModels.cs" />
     <Compile Include="MegaDownload\MegaDownloadItem.cs" />
     <Compile Include="MegaDownload\MegaDownload.cs" />
@@ -98,6 +104,9 @@
       <DependentUpon>SyncFilesForm.cs</DependentUpon>
     </Compile>
     <Compile Include="TreeviewAdv\ToolTipProvider.cs" />
+    <EmbeddedResource Include="DownloadsFinishedForm.resx">
+      <DependentUpon>DownloadsFinishedForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

@@ -25,22 +25,25 @@ namespace CloudFolderBrowser
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
-             downloads = new List<MegaFileDownload>();
+            downloads = new List<MegaFileDownload>();
 
             MegaApiClient megaApiClient = new MegaApiClient();
             megaApiClient.LoginAnonymous();
+
+            downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+
             try
             {
                 foreach (CloudFile file in files)
                 {
-                    MegaFileDownload megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, MainForm.syncFolderPath + "/New Files" + file.Path);
+                    MegaFileDownload megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, downloadFolderPath + file.Path);
                     downloadQueue.Enqueue(megaFileDownload);
                     downloads.Add(megaFileDownload);
                 }
             }
-            catch
+            catch(Exception ex)
             {
-
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -70,14 +73,21 @@ namespace CloudFolderBrowser
             lock (downloadQueue)
             {
                 if (downloadQueue.Count > 0)
+                {
                     if (d.ProgressBar.Tag == null)
                     {
                         MegaFileDownload newd = downloadQueue.Dequeue();
                         newd.ProgressBar = d.ProgressBar;
                         newd.ProgressLabel = d.ProgressLabel;
                         newd.ProgressLabel.Visible = true;
-                        newd.StartDownload();                        
+                        newd.StartDownload();
                     }
+                }
+                if(finishedDownloads == downloads.Count)
+                {                             
+                    DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
+                    downloadsFinishedForm.Show();
+                }
             }
             finishedDownloads++;
             progresslabels[progresslabels.Length - 1].Text = $"{finishedDownloads}/{downloads.Count} files finished";

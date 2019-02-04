@@ -157,11 +157,13 @@ namespace CloudFolderBrowser
             foreach (CloudFile file in checkedFiles)
             {
                 //string[] folders = ParsePath(file.Path);
+            {                
                 string folderPath = file.Path.Replace(file.Name, "");
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
                 {
                     //pak = new JDPackage(folderPath.Replace(@"/", "_"), folderPath);
+                {                    
                     pak = new JDPackage(folderPath, folderPath);
                     pak.numberId = packages.Count.ToString("D3");
                     pak.downloadFolder = folderPath;
@@ -193,6 +195,9 @@ namespace CloudFolderBrowser
             foreach (DirectoryInfo dir in di.EnumerateDirectories())
                 dir.Delete(true);
             Directory.Delete("Links");
+
+            DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(dirPath, @"linkcollector" + number + ".zip created!");
+            downloadsFinishedForm.Show();
         }
 
         void AddCheckedFilesToYadisk()
@@ -473,7 +478,7 @@ namespace CloudFolderBrowser
             if (dialogResult == DialogResult.No)
                 return;
 
-            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files");            
+            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());            
 
             ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
             Label[] usedLabels = new Label[maximumDownloads+1];
