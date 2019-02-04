@@ -68,6 +68,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.newFilesTreeViewAdv.BackColor = System.Drawing.SystemColors.Window;
+            this.newFilesTreeViewAdv.ColumnHeaderHeight = 17;
             this.newFilesTreeViewAdv.Columns.Add(this.name_newTreeColumn);
             this.newFilesTreeViewAdv.Columns.Add(this.created_newTreeColumn);
             this.newFilesTreeViewAdv.Columns.Add(this.modified_newTreeColumn);

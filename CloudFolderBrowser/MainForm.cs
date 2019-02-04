@@ -171,6 +171,9 @@ namespace CloudFolderBrowser
                 $" MB out of {yadiskSpace_progressBar.Maximum - trashSize} MB";
             #endregion
 
+            yadiskSpace_progressBar.Visible = true;
+            yadiskSpace_label.Visible = true;
+
             Properties.Settings.Default.loginedYandex = true;
             Properties.Settings.Default.Save();
         }
@@ -181,6 +184,18 @@ namespace CloudFolderBrowser
             Properties.Settings.Default.accessTokenYandex = "";
             Properties.Settings.Default.loginedYandex = false;
             Properties.Settings.Default.Save();
+        }
+
+        string GetFolderPath()
+        {
+            FolderSelectDialog fldsd = new FolderSelectDialog();
+            fldsd.Title = "Choose folder to sync";
+            if (Properties.Settings.Default.lastSyncFolderPath != "")
+                fldsd.InitialDirectory = Properties.Settings.Default.lastSyncFolderPath;
+            else
+                fldsd.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
+            fldsd.ShowDialog();
+            return fldsd.FileName;
         }
 
 
@@ -933,18 +948,7 @@ namespace CloudFolderBrowser
 
         #endregion
 
-        string GetFolderPath()
-        {
-            FolderSelectDialog fldsd = new FolderSelectDialog();
-            fldsd.Title = "Choose folder to sync";
-            if (Properties.Settings.Default.lastSyncFolderPath != "")
-                fldsd.InitialDirectory = Properties.Settings.Default.lastSyncFolderPath;
-            else
-                fldsd.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
-            fldsd.ShowDialog();
-            return fldsd.FileName;
-        }
-
+        
         #region #LOADING NODES
 
         void UpdateTreeModel()
@@ -1230,7 +1234,7 @@ namespace CloudFolderBrowser
 
                 if (cloudFolderUrl.Contains("snip.li") || cloudFolderUrl.Contains("snipli.com"))
                 {
-                    MessageBox.Show("Snipli link is likely dead");
+                    MessageBox.Show("Timeout or snipli link is dead");
                     return;
                 }
 
@@ -1289,11 +1293,6 @@ namespace CloudFolderBrowser
             UpdatePublicFoldersSetting();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         private void loginYandex_button_Click(object sender, EventArgs e)
         {
             if (!Properties.Settings.Default.loginedYandex)
@@ -1304,13 +1303,15 @@ namespace CloudFolderBrowser
             else
             {
                 LogoutYandex();
-                loginYandex_button.Text = "Login Yandex";
+                yadiskSpace_label.Visible = false;
+                yadiskSpace_progressBar.Visible = false;
+                loginYandex_button.Text = "Sign in Yandex";
             }
         }
 
         private void loginMega_button_Click(object sender, EventArgs e)
         {
-
+            //TODO: loginMega
         }
 
         private void deletePublicFolder_button_Click(object sender, EventArgs e)
