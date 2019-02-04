@@ -58,7 +58,7 @@
             this.maximumDownloads_numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
-            this.openDestFolder_button = new System.Windows.Forms.Button();
+            this.stopDownload_button = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -240,7 +240,6 @@
             this.progressBar4.Size = new System.Drawing.Size(173, 23);
             this.progressBar4.TabIndex = 8;
             // 
-            // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -344,23 +343,24 @@
             this.label5.TabIndex = 16;
             this.label5.Text = "Maximum downloads";
             // 
-            // openDestFolder_button
+            // stopDownload_button
             // 
-            this.openDestFolder_button.Enabled = false;
-            this.openDestFolder_button.Location = new System.Drawing.Point(626, 527);
-            this.openDestFolder_button.Name = "openDestFolder_button";
-            this.openDestFolder_button.Size = new System.Drawing.Size(75, 23);
-            this.openDestFolder_button.TabIndex = 17;
-            this.openDestFolder_button.Text = "Open folder";
-            this.openDestFolder_button.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.openDestFolder_button.UseVisualStyleBackColor = true;
+            this.stopDownload_button.Enabled = false;
+            this.stopDownload_button.Location = new System.Drawing.Point(528, 526);
+            this.stopDownload_button.Name = "stopDownload_button";
+            this.stopDownload_button.Size = new System.Drawing.Size(173, 23);
+            this.stopDownload_button.TabIndex = 18;
+            this.stopDownload_button.Text = "Stop download";
+            this.stopDownload_button.UseVisualStyleBackColor = true;
+            this.stopDownload_button.Visible = false;
+            this.stopDownload_button.Click += new System.EventHandler(this.button1_Click_1);
             // 
-            // SyncFilesForm2
+            // SyncFilesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(707, 556);
-            this.Controls.Add(this.openDestFolder_button);
+            this.Controls.Add(this.stopDownload_button);
             this.Controls.Add(this.addFilesToYadisk_button);
             this.Controls.Add(this.getJdLinks_button);
             this.Controls.Add(this.label5);
@@ -379,7 +379,7 @@
             this.Controls.Add(this.flatList2_checkBox);
             this.Controls.Add(this.newFilesTreeViewAdv);
             this.MinimumSize = new System.Drawing.Size(436, 590);
-            this.Name = "SyncFilesForm2";
+            this.Name = "SyncFilesForm";
             this.Text = "SyncFilesForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SyncFilesForm2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).EndInit();
@@ -419,6 +419,6 @@
         private System.Windows.Forms.NumericUpDown maximumDownloads_numericUpDown;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ToolTip toolTip1;
-        private System.Windows.Forms.Button openDestFolder_button;
+        private System.Windows.Forms.Button stopDownload_button;
     }
 }

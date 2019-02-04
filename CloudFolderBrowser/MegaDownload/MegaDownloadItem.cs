@@ -48,17 +48,33 @@ namespace CloudFolderBrowser
                 ProgressLabel.Text = "";
                 ProgressLabel.Visible = true;
                 Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
-                DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress);
-                await DownloadTask;
-                Finished = true;
-                ProgressBar.Tag = null;
-                ProgressBar.Value = 0;
-                ProgressLabel.Visible = false;
+                FileInfo file = new FileInfo(SavePath);
+                DialogResult overwriteFile = DialogResult.Yes;
+                if (file.Exists)
+                {
+                    overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
+                    if (overwriteFile == DialogResult.Yes)
+                        file.Delete();  
+                }
+                if (overwriteFile == DialogResult.Yes)
+                {
+                    DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress, MegaDownload.cancellationTokenSource.Token);
+                    await DownloadTask;
+                }              
                 MegaDownload.UpdateQueue(this);
             }
             catch(Exception ex)
             {
-                MessageBox.Show(ex.InnerException?.Message);
+                if (DownloadTask.IsCanceled)
+                    DownloadTask.Dispose();
+                //MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                Finished = true;
+                ProgressBar.Tag = null;
+                ProgressBar.Value = 0;
+                ProgressLabel.Visible = false;
             }
         }
     }

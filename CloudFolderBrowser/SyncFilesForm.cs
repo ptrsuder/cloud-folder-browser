@@ -29,6 +29,7 @@ namespace CloudFolderBrowser
         List<ProgressBar> progressBars;
         List<Label> progressLabels;
         bool HideForm = true;
+        MegaDownload megaDownload;
 
         public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName)
         {
@@ -155,13 +156,11 @@ namespace CloudFolderBrowser
             List<JDPackage> packages = new List<JDPackage>();
 
             foreach (CloudFile file in checkedFiles)
-            {
                 //string[] folders = ParsePath(file.Path);
             {                
                 string folderPath = file.Path.Replace(file.Name, "");
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
-                {
                     //pak = new JDPackage(folderPath.Replace(@"/", "_"), folderPath);
                 {                    
                     pak = new JDPackage(folderPath, folderPath);
@@ -492,8 +491,11 @@ namespace CloudFolderBrowser
             MegaApiClient megaApiClient = new MegaApiClient();
             megaApiClient.LoginAnonymous();
 
-            MegaDownload megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
+            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
             megaDownload.Start();
+
+            stopDownload_button.Enabled = true;
+            stopDownload_button.Visible = true;
         }
 
         private void SyncFilesForm2_FormClosing(object sender, FormClosingEventArgs e)
@@ -510,6 +512,10 @@ namespace CloudFolderBrowser
             maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
         }
 
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            megaDownload.Stop();
+        }
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             if (flatList2_checkBox.Checked)

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using CG.Web.MegaApiClient;
-
+using System.Threading;
 
 namespace CloudFolderBrowser
 {
@@ -20,7 +20,10 @@ namespace CloudFolderBrowser
         ProgressBar[] progressbars;
         Label[] progresslabels;
         int finishedDownloads = 0;
-                
+        string downloadFolderPath;
+        public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+
+
         public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels)
         {
             progressbars = progressBars;
@@ -95,7 +98,8 @@ namespace CloudFolderBrowser
 
         public void Stop()
         {
-            //TODO: TO ADD
+            foreach (var fileDownload in this.downloads)
+                cancellationTokenSource.Cancel();            
         }
 
     }
