@@ -29,6 +29,7 @@ namespace CloudFolderBrowser
         List<ProgressBar> progressBars;
         List<Label> progressLabels;
         bool HideForm = true;
+        MegaDownload megaDownload;
 
         public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName)
         {
@@ -155,13 +156,11 @@ namespace CloudFolderBrowser
             List<JDPackage> packages = new List<JDPackage>();
 
             foreach (CloudFile file in checkedFiles)
-            {
-                //string[] folders = ParsePath(file.Path);
+            {                
                 string folderPath = file.Path.Replace(file.Name, "");
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
-                {
-                    //pak = new JDPackage(folderPath.Replace(@"/", "_"), folderPath);
+                {                    
                     pak = new JDPackage(folderPath, folderPath);
                     pak.numberId = packages.Count.ToString("D3");
                     pak.downloadFolder = folderPath;
@@ -193,6 +192,9 @@ namespace CloudFolderBrowser
             foreach (DirectoryInfo dir in di.EnumerateDirectories())
                 dir.Delete(true);
             Directory.Delete("Links");
+
+            DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(dirPath, @"linkcollector" + number + ".zip created!");
+            downloadsFinishedForm.Show();
         }
 
         void AddCheckedFilesToYadisk()
@@ -227,7 +229,7 @@ namespace CloudFolderBrowser
                         }
                         //Uri link = (rc.GetPublicResourceDownloadLink(cloudPublicFolder.PublicKey, file.Path)).Href;  
 
-                        //ДОБАВЛЯТЬ ПАПКИ ЦЕЛИКОМ ЕСЛИ ВСЕ ФАЙЛЫ
+                        //TODO: add whole folders if all files inside are checked
                         Link link = MainForm.rc.SaveToDiskPublicResource(MainForm.cloudPublicFolder.PublicKey, file.Name, file.Path, savePath);
                     }
                     MessageBox.Show("Finished");
@@ -466,14 +468,13 @@ namespace CloudFolderBrowser
             maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
-            //GetCheckedFiles(newFiles_model.Nodes[0]);
+            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);            
 
             DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize/1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
                 return;
 
-            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files");            
+            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());            
 
             ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
             Label[] usedLabels = new Label[maximumDownloads+1];
@@ -487,8 +488,11 @@ namespace CloudFolderBrowser
             MegaApiClient megaApiClient = new MegaApiClient();
             megaApiClient.LoginAnonymous();
 
-            MegaDownload megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
+            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
             megaDownload.Start();
+
+            stopDownload_button.Enabled = true;
+            stopDownload_button.Visible = true;
         }
 
         private void SyncFilesForm2_FormClosing(object sender, FormClosingEventArgs e)
@@ -503,6 +507,16 @@ namespace CloudFolderBrowser
         private void maximumDownloads_numericUpDown_ValueChanged(object sender, EventArgs e)
         {
             maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+            megaDownload.Stop();
+        }
+
+        private void openDestFolder_button_Click(object sender, EventArgs e)
+        {
+
         }
 
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
