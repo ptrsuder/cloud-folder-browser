@@ -400,8 +400,7 @@ namespace CloudFolderBrowser
                 cloudPublicFolder = new CloudFolder(rl_root);
                 GetFolders(new List<CloudFolder> { cloudPublicFolder });
                 cloudPublicFolder.CalculateFolderSize();
-                UpdateTreeModel();
-                syncFolders_button.Enabled = true;
+                UpdateTreeModel();                
             }
             catch
             {
@@ -491,7 +490,7 @@ namespace CloudFolderBrowser
                 ParseWebIndexFolder(cloudPublicFolder, path);
                 cloudPublicFolder.CalculateFolderSize();
                 UpdateTreeModel();
-                syncFolders_button.Enabled = true;
+                
             }
             catch
             {
@@ -578,8 +577,7 @@ namespace CloudFolderBrowser
             ParseTheTroveFolder(cloudPublicFolder, path);
             cloudPublicFolder.Size = cloudPublicFolder.SizeTopDirectoryOnly + cloudPublicFolder.Subfolders.Sum(x => x.Size);
             //cloudPublicFolder.CalculateFolderSize();
-            UpdateTreeModel();
-            syncFolders_button.Enabled = true;
+            UpdateTreeModel();           
         }
 
         void ParseTheTroveFolder(CloudFolder folder, string path)
@@ -765,8 +763,7 @@ namespace CloudFolderBrowser
                 cloudPublicFolder.Name = Regex.Replace(cloudPublicFolder.Name, @"\t|\n|\r", "");
             }
             cloudPublicFolder.CalculateFolderSize();
-            UpdateTreeModel();
-            syncFolders_button.Enabled = true;
+            UpdateTreeModel();         
         }
 
         async Task CheckAllsyncFolder()
@@ -896,8 +893,7 @@ namespace CloudFolderBrowser
                     }
                 }
                 cloudPublicFolder.CalculateFolderSize();
-                UpdateTreeModel();
-                syncFolders_button.Enabled = true;
+                UpdateTreeModel();               
             }
             catch
             {
@@ -968,6 +964,9 @@ namespace CloudFolderBrowser
 
             yadiskPublicFolder_treeViewAdv.EndUpdate();
             yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
+
+            if(syncFolderPath_textBox.Text !="")
+                syncFolders_button.Enabled = true;
         }
 
         public static void BuildSubfolderNodes(ColumnNode node)
@@ -1130,6 +1129,9 @@ namespace CloudFolderBrowser
                 BuildFullFolderStructure(rootNode2);
                 syncFolder_treeViewAdv.EndUpdate();
                 syncFolder_treeViewAdv.Root.Children[0].Expand();
+
+                if (cloudPublicFolder != null)
+                    syncFolders_button.Enabled = true;
             }
         }
 
