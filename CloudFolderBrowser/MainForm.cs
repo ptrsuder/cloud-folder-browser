@@ -628,6 +628,7 @@ namespace CloudFolderBrowser
              
         public static string GetFinalRedirect(string url)
         {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             if (string.IsNullOrWhiteSpace(url))
                 return url;
 
@@ -668,6 +669,7 @@ namespace CloudFolderBrowser
                     url = newUrl;
                 }
                 catch (WebException)
+                catch (WebException ex)
                 {
                     // Return the last known good URL
                     return newUrl;
