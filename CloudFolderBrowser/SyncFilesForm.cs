@@ -29,19 +29,21 @@ namespace CloudFolderBrowser
         List<ProgressBar> progressBars;
         List<Label> progressLabels;
         bool HideForm = true;
+        MegaApiClient megaApiClient;
         MegaDownload megaDownload;
 
         public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName)
         {
             InitializeComponent();
 
-            if (cloudServiceName == CloudServiceType.Mega)
+            cloudServiceType = cloudServiceName;
+            if (cloudServiceType == CloudServiceType.Mega)
             {
                 downloadMega_button.Enabled = true;
                 getJdLinks_button.Enabled = false;
                 downloadFiles_button.Enabled = false;
             }
-            if (cloudServiceName == CloudServiceType.Yadisk)
+            if (cloudServiceType == CloudServiceType.Yadisk)
             {
                 addFilesToYadisk_button.Enabled = true;
                 getJdLinks_button.Enabled = false;
@@ -155,13 +157,17 @@ namespace CloudFolderBrowser
             Directory.CreateDirectory("Links");
             List<JDPackage> packages = new List<JDPackage>();
 
-            foreach (CloudFile file in checkedFiles)
-                //string[] folders = ParsePath(file.Path);
+            if (cloudServiceType == CloudServiceType.Mega && megaApiClient == null)
+            {
+                megaApiClient = new MegaApiClient();
+                megaApiClient.LoginAnonymous();
+            }
+
+                foreach (CloudFile file in checkedFiles)
             {                
                 string folderPath = file.Path.Replace(file.Name, "");
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
-                    //pak = new JDPackage(folderPath.Replace(@"/", "_"), folderPath);
                 {                    
                     pak = new JDPackage(folderPath, folderPath);
                     pak.numberId = packages.Count.ToString("D3");
@@ -173,11 +179,19 @@ namespace CloudFolderBrowser
                 {
                     pak = packages.Find(x => x.name == folderPath);
                 }
-                JDLink link = new JDLink(file.Name, file.PublicUrl.ToString());
+                JDLink link;
+                if (cloudServiceType == CloudServiceType.Mega)
+                {
+                    string downloadLink = ""; //megaApiClient.GetDownloadLink(file.MegaNode).ToString();
+                    link = new JDLink(file.Name, downloadLink);
+                }
+                else                
+                    link = new JDLink(file.Name, file.PublicUrl.ToString());
+                                 
                 link.downloadLink.size = (int)file.Size;
                 File.WriteAllText("Links" + @"\" + pak.numberId + "_" + pak.linksCount.ToString("D3"), JsonConvert.SerializeObject(link));
                 pak.linksCount++;
-            }
+            }          
 
             DialogResult dialogResult = MessageBox.Show("Got links for " + (checkedFiles.Count) + " files! Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
@@ -231,7 +245,7 @@ namespace CloudFolderBrowser
                         }
                         //Uri link = (rc.GetPublicResourceDownloadLink(cloudPublicFolder.PublicKey, file.Path)).Href;  
 
-                        //ДОБАВЛЯТЬ ПАПКИ ЦЕЛИКОМ ЕСЛИ ВСЕ ФАЙЛЫ
+                        //TODO: add whole folders if all files inside are checked
                         Link link = MainForm.rc.SaveToDiskPublicResource(MainForm.cloudPublicFolder.PublicKey, file.Name, file.Path, savePath);
                     }
                     MessageBox.Show("Finished");
@@ -437,7 +451,7 @@ namespace CloudFolderBrowser
             AddCheckedFilesToYadisk();
         }
 
-        private void button1_Click(object sender, EventArgs e) 
+        private void getJdLinks_button_Click(object sender, EventArgs e) 
         {
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
@@ -470,8 +484,7 @@ namespace CloudFolderBrowser
             maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
-            //GetCheckedFiles(newFiles_model.Nodes[0]);
+            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);            
 
             DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize/1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
@@ -488,8 +501,11 @@ namespace CloudFolderBrowser
             }
             usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
 
-            MegaApiClient megaApiClient = new MegaApiClient();
-            megaApiClient.LoginAnonymous();
+            if (megaApiClient == null)
+            {
+                megaApiClient = new MegaApiClient();
+                megaApiClient.LoginAnonymous();
+            }
 
             megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
             megaDownload.Start();

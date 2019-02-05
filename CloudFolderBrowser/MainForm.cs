@@ -69,14 +69,13 @@ namespace CloudFolderBrowser
 
         public MainForm()
         {
-            InitializeComponent();                                    
-
+            InitializeComponent();         
+            
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
 
             beforeDate_dateTimePicker.MaxDate = DateTime.Today;
             afterDate_dateTimePicker.MaxDate = DateTime.Today;
-            beforeDate_dateTimePicker.Value = DateTime.Today;
-
+            beforeDate_dateTimePicker.Value = DateTime.Today;            
             if (Properties.Settings.Default.publicFoldersJson == "")
             {
                 publicFolders = new Dictionary<string, string>();
@@ -628,7 +627,9 @@ namespace CloudFolderBrowser
              
         public static string GetFinalRedirect(string url)
         {
+            //ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             if (string.IsNullOrWhiteSpace(url))
                 return url;
 
@@ -668,7 +669,6 @@ namespace CloudFolderBrowser
                     }
                     url = newUrl;
                 }
-                catch (WebException)
                 catch (WebException ex)
                 {
                     // Return the last known good URL
@@ -869,6 +869,7 @@ namespace CloudFolderBrowser
                 var nodes = megaClient.GetNodesFromLink(new Uri(url));
                 cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
                 cloudPublicFolder.Path = "/";
+                cloudPublicFolder.PublicKey = Regex.Match(url, "(/#F!)(.*)").Groups[2].Value;
                 Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
                 allfolders.Add(nodes.ElementAt(0).Id, cloudPublicFolder);
                 foreach (var node in nodes)
@@ -1046,11 +1047,8 @@ namespace CloudFolderBrowser
                     FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.TopDirectoryOnly);
                     missingFiles.AddRange(CompareFilesLists(folder.Files, flatSyncFolderFilesList));
                 }
-                else
-                {
-                    Directory.CreateDirectory(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
-                    missingFiles.AddRange(folder.Files);
-                }
+                else                                    
+                    missingFiles.AddRange(folder.Files);                
             }
 
             foreach (CloudFolder folder in checkedFolders)

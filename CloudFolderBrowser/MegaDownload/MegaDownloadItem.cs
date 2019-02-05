@@ -11,7 +11,7 @@ namespace CloudFolderBrowser
     {
         public MegaApiClient MegaClient { get; }
         public string SavePath { get; set; }
-        public INode Node { get; set; }
+        INode Node { get; }
         public Task DownloadTask { get; set; }
         public IProgress<double> Progress { get; }
         public double ProgressPercent;
@@ -19,9 +19,10 @@ namespace CloudFolderBrowser
         public ProgressBar ProgressBar { get; set; }
         public Label ProgressLabel { get; set; }
         public MegaDownload MegaDownload { get; set; }
+        
 
         public MegaFileDownload(MegaApiClient megaClient, MegaDownload megaDownload, INode fileNode, string savePath)
-        {
+        {            
             SavePath = savePath;
             Node = fileNode;
             MegaClient = megaClient;            

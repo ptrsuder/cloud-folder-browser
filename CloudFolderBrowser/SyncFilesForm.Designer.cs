@@ -196,11 +196,12 @@
             this.getJdLinks_button.TabIndex = 3;
             this.getJdLinks_button.Text = "Get JDownloader links";
             this.getJdLinks_button.UseVisualStyleBackColor = true;
-            this.getJdLinks_button.Click += new System.EventHandler(this.button1_Click);
+            this.getJdLinks_button.Click += new System.EventHandler(this.getJdLinks_button_Click);
             // 
             // downloadFiles_button
             // 
             this.downloadFiles_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.downloadFiles_button.Enabled = false;
             this.downloadFiles_button.Location = new System.Drawing.Point(528, 247);
             this.downloadFiles_button.Name = "downloadFiles_button";
             this.downloadFiles_button.Size = new System.Drawing.Size(173, 40);

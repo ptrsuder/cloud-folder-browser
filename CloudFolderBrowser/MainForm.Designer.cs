@@ -441,7 +441,7 @@
             this.editPublicFolderKey_button.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.editPublicFolderKey_button.Location = new System.Drawing.Point(50, 1);
+            this.editPublicFolderKey_button.Location = new System.Drawing.Point(50, 0);
             this.editPublicFolderKey_button.Name = "editPublicFolderKey_button";
             this.editPublicFolderKey_button.Size = new System.Drawing.Size(46, 20);
             this.editPublicFolderKey_button.TabIndex = 25;
@@ -455,7 +455,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.savePublicFolderKey_button.Enabled = false;
-            this.savePublicFolderKey_button.Location = new System.Drawing.Point(97, 1);
+            this.savePublicFolderKey_button.Location = new System.Drawing.Point(97, 0);
             this.savePublicFolderKey_button.Name = "savePublicFolderKey_button";
             this.savePublicFolderKey_button.Size = new System.Drawing.Size(50, 20);
             this.savePublicFolderKey_button.TabIndex = 17;
@@ -468,7 +468,7 @@
             this.loadPublicFolderKey_button.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadPublicFolderKey_button.Location = new System.Drawing.Point(3, 1);
+            this.loadPublicFolderKey_button.Location = new System.Drawing.Point(3, 0);
             this.loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
             this.loadPublicFolderKey_button.Size = new System.Drawing.Size(46, 20);
             this.loadPublicFolderKey_button.TabIndex = 9;
