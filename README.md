@@ -25,5 +25,6 @@ Web server indexes:
 * Click [Compare folders content]
 * New window will display all files, that are missing in your <sync folder>
 * Check files that you wish to download
-* Click [Get JDownloader links] or [Mega download] if web folder is mega folder
+* Click [Get JDownloader links]
 * JD link container will be created in app folder
+*  [Mega download] if web folder is mega folder
