@@ -920,7 +920,7 @@ namespace CloudFolderBrowser
                     });
                     UpdateTreeModel();
 
-                    if(cloudServiceType == CloudServiceType.Allsync)
+                    if (cloudServiceType == CloudServiceType.Allsync)
                     {
                         LoadAllsync(yadiskPublicFolderKey_textBox.Text, true);
                         if (continueAfterCheck)
@@ -928,7 +928,14 @@ namespace CloudFolderBrowser
                         continueAfterCheck = true;
                     }
                     else
-                        syncFolders_button.Enabled = true;
+                    {
+                        if (cloudServiceType == CloudServiceType.Mega)
+                        {
+                            syncFolders_button.Enabled = false;
+                        }
+                        else
+                            syncFolders_button.Enabled = true;
+                    }            
                     return;
                 }
             }
