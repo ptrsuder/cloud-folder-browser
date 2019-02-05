@@ -1154,7 +1154,8 @@ namespace CloudFolderBrowser
             else
                 clicked.SortOrder = SortOrder.Ascending;
 
-            (((TreeViewAdv)sender).Model as SortedTreeModel).Comparer = new FolderItemSorter(clicked.Header, clicked.SortOrder);
+            if(((TreeViewAdv)sender).Model != null)
+                (((TreeViewAdv)sender).Model as SortedTreeModel).Comparer = new FolderItemSorter(clicked.Header, clicked.SortOrder);
         }
 
         private bool filter(object obj)
