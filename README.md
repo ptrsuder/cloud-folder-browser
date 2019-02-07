@@ -28,3 +28,5 @@ Web server indexes:
 * Click [Get JDownloader links]
 * JD link container will be created in app folder
 *  [Mega download] if web folder is mega folder
+### Yandex disk support
+* If user is logined in yandex, they can add selected files directly to your ya.disk. If there are enough free space, files will be created in folder <yadisk_browser_folder>.
