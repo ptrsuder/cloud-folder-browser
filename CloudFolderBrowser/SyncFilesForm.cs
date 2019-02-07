@@ -45,8 +45,10 @@ namespace CloudFolderBrowser
             }
             if (cloudServiceType == CloudServiceType.Yadisk)
             {
-                addFilesToYadisk_button.Enabled = true;
-                getJdLinks_button.Enabled = false;
+                if (Properties.Settings.Default.loginedYandex)
+                    addFilesToYadisk_button.Enabled = true;
+
+                getJdLinks_button.Enabled = true;
                 downloadFiles_button.Enabled = false;
             }
 
@@ -180,14 +182,21 @@ namespace CloudFolderBrowser
                     pak = packages.Find(x => x.name == folderPath);
                 }
                 JDLink link;
-                if (cloudServiceType == CloudServiceType.Mega)
+                switch (cloudServiceType)
                 {
-                    string downloadLink = ""; //megaApiClient.GetDownloadLink(file.MegaNode).ToString();
-                    link = new JDLink(file.Name, downloadLink);
-                }
-                else                
-                    link = new JDLink(file.Name, file.PublicUrl.ToString());
-                                 
+                    case CloudServiceType.Mega:
+                        //string downloadLink = ""; //megaApiClient.GetDownloadLink(file.MegaNode).ToString();
+                        link = new JDLink(file.Name, file.PublicUrl.ToString());
+                        break;
+                    case CloudServiceType.Yadisk:
+                        YandexDiskSharp.RestClient restClient = new YandexDiskSharp.RestClient();
+                        string downloadLink = restClient.GetPublicResourceDownloadLink(rootFolder.PublicKey, file.Path).Href.ToString();
+                        link = new JDLink(file.Name, downloadLink);
+                        break;
+                    default:
+                        link = new JDLink(file.Name, file.PublicUrl.ToString());
+                        break;
+                }                
                 link.downloadLink.size = (int)file.Size;
                 File.WriteAllText("Links" + @"\" + pak.numberId + "_" + pak.linksCount.ToString("D3"), JsonConvert.SerializeObject(link));
                 pak.linksCount++;
