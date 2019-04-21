@@ -751,7 +751,7 @@ namespace CloudFolderBrowser
             webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";            
             Task<string> ts = webpage.DownloadStringTaskAsync(new Uri(allsyncRootFolderAddress));
 
-            await LoadAllsyncInOneGo();
+            await LoadAllsyncInOneGo(uriStructure[2]);
             if (cloudPublicFolder.Subfolders.Count == 0)
                 return;
 
@@ -761,8 +761,13 @@ namespace CloudFolderBrowser
                 HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
                 htmlDoc.LoadHtml(ts.Result);
                 HtmlNode rootFolderName = htmlDoc.DocumentNode.SelectSingleNode("//h1[@class='header-appname']");
-                cloudPublicFolder.Name = rootFolderName.InnerText;
-                cloudPublicFolder.Name = Regex.Replace(cloudPublicFolder.Name, @"\t|\n|\r", "");
+                if (rootFolderName == null)
+                    cloudPublicFolder.Name = publicFolders_comboBox.Text;
+                else
+                {
+                    cloudPublicFolder.Name = rootFolderName.InnerText;
+                    cloudPublicFolder.Name = Regex.Replace(cloudPublicFolder.Name, @"\t|\n|\r", "");
+                }               
             }
             cloudPublicFolder.CalculateFolderSize();
             UpdateTreeModel();         
@@ -783,18 +788,36 @@ namespace CloudFolderBrowser
             }
         }
 
-        async Task LoadAllsyncInOneGo()
+        async Task LoadAllsyncInOneGo(string folderKey = "")
         {
             IEnumerable<WebDAVClient.Model.Item> items;
             try
             {
                 items = await webdavClient.List(cloudPublicFolder.Path, 9999);
             }
-            catch (System.Exception ex)
+            catch (WebDAVClient.Helpers.WebDAVException ex)
             {
+                if (ex.GetHttpCode() == 401)
+                {
+                    PasswordForm passwordForm = new PasswordForm();
+                    passwordForm.ShowDialog();
+                    webdavClient = new Client(new NetworkCredential { UserName = folderKey, Password = passwordForm.Password });
+                    webdavClient.Server = allsyncUrl;
+                    webdavClient.BasePath = "/public.php/webdav/";
+                    await LoadAllsyncInOneGo(folderKey);
+                    return;
+                }
+                MessageBox.Show("Bad url of no connection \n" + ex.Message);
+                return;
+            }
+            catch
+            {
+                
                 MessageBox.Show("Bad url of no connection");
                 return;
             }
+            
+            
             List<CloudFolder> allFolders = new List<CloudFolder> { cloudPublicFolder };
 
             foreach (var item in items)
