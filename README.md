@@ -13,6 +13,8 @@ Web server indexes:
 ## Requirements
 * .Net Framework 4.5
 
+![screen](https://i.imgur.com/qdtG7Yt.jpg)
+
 ## How to use
 ### Load and store folders:
 * Click [Add new] button
