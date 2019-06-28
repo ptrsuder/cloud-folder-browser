@@ -165,7 +165,7 @@ namespace CloudFolderBrowser
                 megaApiClient.LoginAnonymous();
             }
 
-                foreach (CloudFile file in checkedFiles)
+            foreach (CloudFile file in checkedFiles)
             {                
                 string folderPath = file.Path.Replace(file.Name, "");
                 JDPackage pak;
@@ -186,7 +186,7 @@ namespace CloudFolderBrowser
                 {
                     case CloudServiceType.Mega:
                         //string downloadLink = ""; //megaApiClient.GetDownloadLink(file.MegaNode).ToString();
-                        link = new JDLink(file.Name, file.PublicUrl.ToString());
+                        link = new JDLink(file.Name, file.PublicUrl.OriginalString);
                         break;
                     case CloudServiceType.Yadisk:
                         YandexDiskSharp.RestClient restClient = new YandexDiskSharp.RestClient();
@@ -194,9 +194,9 @@ namespace CloudFolderBrowser
                         link = new JDLink(file.Name, downloadLink);
                         break;
                     default:
-                        link = new JDLink(file.Name, file.PublicUrl.ToString());
+                        link = new JDLink(file.Name, file.PublicUrl.OriginalString);
                         break;
-                }                
+                }
                 link.downloadLink.size = (int)file.Size;
                 File.WriteAllText("Links" + @"\" + pak.numberId + "_" + pak.linksCount.ToString("D3"), JsonConvert.SerializeObject(link));
                 pak.linksCount++;

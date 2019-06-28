@@ -746,7 +746,7 @@ namespace CloudFolderBrowser
                 return;
             }
 
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             var webpage = new System.Net.WebClient();
             webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";            
             Task<string> ts = webpage.DownloadStringTaskAsync(new Uri(allsyncRootFolderAddress));
@@ -812,7 +812,6 @@ namespace CloudFolderBrowser
             }
             catch
             {
-                
                 MessageBox.Show("Bad url of no connection");
                 return;
             }
@@ -856,9 +855,10 @@ namespace CloudFolderBrowser
             {
                 if (!item.IsCollection)
                 {
+                    string encodedPath = item.Href.Replace("/public.php/webdav", "/download?path=");
                     string path = HttpUtility.UrlDecode(item.Href).Replace("/public.php/webdav", "");
                     string parentFolderPath = path.Remove(path.Length - item.DisplayName.Length, item.DisplayName.Length);
-                    string url = allsyncRootFolderAddress.Replace("?", "/download?") + HttpUtility.UrlEncode(parentFolderPath.Remove(parentFolderPath.Length - 1, 1)) + "&files=" + HttpUtility.UrlEncode(item.DisplayName);
+                    string url = allsyncRootFolderAddress.Replace("?path=", "") + encodedPath;
                     CloudFile file = new CloudFile(
                             item.DisplayName,
                             DateTime.MinValue,
@@ -874,7 +874,6 @@ namespace CloudFolderBrowser
                     else
                         parentFolder = cloudPublicFolder;
                     parentFolder.AddFile(file);
-                    //parentFolder.Files.Add(file);
                     parentFolder.SizeTopDirectoryOnly += file.Size;
                 }
             }
@@ -883,8 +882,7 @@ namespace CloudFolderBrowser
         #endregion
 
         void LoadMega(string url)
-        {
-            
+        {            
             MegaApiClient megaClient = new MegaApiClient();
             megaClient.LoginAnonymous();
             try
