@@ -1,5 +1,5 @@
 # cloud-folder-browser
-Desktop application that allows user to browse shared folders from various cloud services and some web server index folders. 
+Desktop application that allows user to browse (filter, sort) shared folders from various cloud services and some web server index folders. 
 
 Cloud storages:
 * MEGA
@@ -22,13 +22,13 @@ Web server indexes:
 * Click [Load], wait content of folder to load
 * Now you can [Save to file] loaded content and later [Open from file] to save time
 ### Get links and sync files
-* On right side choose folder on your computer that you wish to use as saving/syncing folder - <sync folder>
+* On right side choose folder on your computer that you wish to use as save/sync folder
 * Check web folders that you wish to download/sync
 * Click [Compare folders content]
-* New window will display all files, that are missing in your <sync folder>
-* Check files that you wish to download
+* New window will display all files, that are missing in your sync folder (so if you want just to download all checked folder, select any empty folder as your sync folder)
+* New form will be displayed, check files that you wish to download
 * Click [Get JDownloader links]
 * JD link container will be created in app folder
-*  [Mega download] if web folder is mega folder
+* [Mega download] if web folder is mega folder (no spicy JD links for mega)
 ### Yandex disk support
-* If user is logined in yandex, they can add selected files directly to your ya.disk. If there is enough free space, files will be created in folder <yadisk_browser_folder>.
+* If user is logined in yandex, they can add selected files directly to your ya.disk. If there is enough free space, files will be created in folder <yadisk_browser_folder>
