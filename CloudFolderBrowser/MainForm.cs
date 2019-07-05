@@ -624,11 +624,16 @@ namespace CloudFolderBrowser
                 }
             }
         }
-             
-        public static string GetFinalRedirect(string url)
+
+
+        public async Task<string> GetFinalRedirect(string url)
         {
-            //ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            //ServicePointManager.Expect100Continue = true;
+            //ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
 
             if (string.IsNullOrWhiteSpace(url))
                 return url;
@@ -639,13 +644,16 @@ namespace CloudFolderBrowser
             {
                 HttpWebRequest req = null;
                 HttpWebResponse resp = null;
+                WebRequestHandler webRequestHandler = new WebRequestHandler();
+                webRequestHandler.AllowAutoRedirect = false;
+                HttpClient httpClient = new HttpClient(webRequestHandler);
                 try
                 {
-                    req = (HttpWebRequest)HttpWebRequest.Create(url);
-                    req.Method = "HEAD";
-                    req.AllowAutoRedirect = false;
-                    resp = (HttpWebResponse)req.GetResponse();
-                    switch (resp.StatusCode)
+                    HttpResponseMessage responseMessage = httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result;
+
+                    //req.AllowAutoRedirect = false;
+                    //resp = (HttpWebResponse)req.GetResponse();
+                    switch (responseMessage.StatusCode)
                     {
                         case HttpStatusCode.OK:
                             return newUrl;
@@ -653,11 +661,11 @@ namespace CloudFolderBrowser
                         case HttpStatusCode.MovedPermanently:
                         case HttpStatusCode.RedirectKeepVerb:
                         case HttpStatusCode.RedirectMethod:
-                            newUrl = resp.Headers["Location"];
+                            newUrl = responseMessage.Headers.Location.ToString();
                             if (newUrl == null)
                                 return url;
 
-                            if (newUrl.IndexOf("://", System.StringComparison.Ordinal) == -1)
+                            if (newUrl.IndexOf("://", StringComparison.Ordinal) == -1)
                             {
                                 // Doesn't have a URL Schema, meaning it's a relative or absolute URL
                                 Uri u = new Uri(new Uri(url), newUrl);
@@ -683,7 +691,10 @@ namespace CloudFolderBrowser
                     if (resp != null)
                         resp.Close();
                 }
-            } while (newUrl.Contains("snip") || maxRedirCount-- > 0);
+            }
+            while (
+            (newUrl.ToLower().Contains("snip") || newUrl.ToLower().Contains("rebrand.ly")) &&
+            maxRedirCount-- > 0);
 
             return newUrl;
         }
@@ -1261,12 +1272,16 @@ namespace CloudFolderBrowser
                 if (publicFolders_comboBox.Text == "secret_folder")                
                     LoadMega(publicFolders["secret_folder"]);
 
-                if (yadiskPublicFolderKey_textBox.Text.Contains("snipli.com") || yadiskPublicFolderKey_textBox.Text.Contains("snip.li"))
-                    cloudFolderUrl = GetFinalRedirect(yadiskPublicFolderKey_textBox.Text);
+                if (yadiskPublicFolderKey_textBox.Text.ToLower().Contains("snipli.com") ||
+                    yadiskPublicFolderKey_textBox.Text.ToLower().Contains("snip.li") ||
+                    yadiskPublicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
+                    cloudFolderUrl = GetFinalRedirect(yadiskPublicFolderKey_textBox.Text).Result;
 
-                if (cloudFolderUrl.Contains("snip.li") || cloudFolderUrl.Contains("snipli.com"))
+                if (cloudFolderUrl.ToLower().Contains("snip.li") ||
+                    cloudFolderUrl.ToLower().Contains("snipli.com") ||
+                    cloudFolderUrl.ToLower().Contains("rebrand.ly"))
                 {
-                    MessageBox.Show("Timeout or snipli link is dead");
+                    MessageBox.Show("Timeout or short link is dead");
                     return;
                 }
 
