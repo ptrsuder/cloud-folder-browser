@@ -1,4 +1,4 @@
-# cloud-folder-browser
+# Cloud Folder Browser
 Desktop application that allows user to browse (filter, sort) shared folders from various cloud services and some web server index folders. 
 
 Cloud storages:
