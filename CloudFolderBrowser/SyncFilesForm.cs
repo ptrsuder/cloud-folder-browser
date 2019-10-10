@@ -208,7 +208,12 @@ namespace CloudFolderBrowser
 
             Random rnd = new Random();
             int number = rnd.Next(1, 9999);
-            string dirPath = @"linkcontainers\" + rootFolder.Name;
+
+            string rootFolderName = rootFolder.Name;
+            foreach (char c in Path.GetInvalidFileNameChars())
+                rootFolderName = rootFolderName.Replace(c.ToString(), "");
+
+            string dirPath = @"linkcontainers\" + rootFolderName;            
             Directory.CreateDirectory(dirPath);
             System.IO.Compression.ZipFile.CreateFromDirectory("Links", dirPath + @"\linkcollector" + number + ".zip");
 
