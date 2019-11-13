@@ -18,9 +18,9 @@ namespace Aga.Controls.Tree
 			public NodeCollection(Node owner)
 			{
 				_owner = owner;
-			}
+			}  
 
-			protected override void ClearItems()
+            protected override void ClearItems()
 			{
 				while (this.Count != 0)
 					this.RemoveAt(this.Count - 1);
@@ -69,7 +69,7 @@ namespace Aga.Controls.Tree
 				RemoveAt(index);
 				InsertItem(index, item);
 			}
-		}
+        }
 
 		#endregion
 
@@ -84,7 +84,7 @@ namespace Aga.Controls.Tree
 
 		private NodeCollection _nodes;
 		public Collection<Node> Nodes
-		{
+		{       
 			get { return _nodes; }
 		}
 

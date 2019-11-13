@@ -28,8 +28,7 @@ namespace CloudFolderBrowser
             NodeControl3 = node.NodeControl3;
             NodeControl4 = node.NodeControl4;
             Text = this.NodeControl1;
-            Tag = node.Tag;
-
+            Tag = node.Tag;            
         }
     }
 }

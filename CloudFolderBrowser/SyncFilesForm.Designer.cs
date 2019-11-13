@@ -59,6 +59,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.stopDownload_button = new System.Windows.Forms.Button();
+            this.filter_textBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -127,6 +128,7 @@
             this.nodeCheckBox2.EditEnabled = true;
             this.nodeCheckBox2.LeftMargin = 0;
             this.nodeCheckBox2.ParentColumn = this.name_newTreeColumn;
+            this.nodeCheckBox2.ThreeState = true;
             // 
             // nodeStateIcon2
             // 
@@ -179,7 +181,7 @@
             // 
             this.flatList2_checkBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flatList2_checkBox.AutoSize = true;
-            this.flatList2_checkBox.Location = new System.Drawing.Point(13, 527);
+            this.flatList2_checkBox.Location = new System.Drawing.Point(140, 526);
             this.flatList2_checkBox.Name = "flatList2_checkBox";
             this.flatList2_checkBox.Size = new System.Drawing.Size(58, 17);
             this.flatList2_checkBox.TabIndex = 2;
@@ -357,11 +359,21 @@
             this.stopDownload_button.Visible = false;
             this.stopDownload_button.Click += new System.EventHandler(this.button1_Click_1);
             // 
+            // filter_textBox
+            // 
+            this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.filter_textBox.Location = new System.Drawing.Point(13, 524);
+            this.filter_textBox.Name = "filter_textBox";
+            this.filter_textBox.Size = new System.Drawing.Size(121, 20);
+            this.filter_textBox.TabIndex = 19;
+            this.filter_textBox.TextChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
+            // 
             // SyncFilesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(707, 556);
+            this.Controls.Add(this.filter_textBox);
             this.Controls.Add(this.stopDownload_button);
             this.Controls.Add(this.addFilesToYadisk_button);
             this.Controls.Add(this.getJdLinks_button);
@@ -422,5 +434,6 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button stopDownload_button;
+        private System.Windows.Forms.TextBox filter_textBox;
     }
 }

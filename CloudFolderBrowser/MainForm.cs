@@ -382,9 +382,98 @@ namespace CloudFolderBrowser
                 }
             }
         }
-             
+
         #endregion
 
+        CloudServiceType GetCloudServiceType(string url)
+        {
+            if (url.Contains("yadi.sk"))
+                return CloudServiceType.Yadisk;
+            if (url.Contains(".allsync.com"))
+                return CloudServiceType.Allsync;
+            if (url.Contains("mega.nz"))
+                return CloudServiceType.Mega;
+            if (url.Contains("dl.lynxcore.org") || url.Contains("dnd.jambrose.info") || url.Contains("enthusiasticallyconfused.com"))
+                return CloudServiceType.h5ai;
+            if (url.Contains("thetrove.net"))
+                return CloudServiceType.TheTrove;
+
+            return CloudServiceType.Other;
+        }
+
+        public async Task<string> GetFinalRedirect(string url)
+        {
+            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
+            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            //ServicePointManager.Expect100Continue = true;
+            //ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
+            if (string.IsNullOrWhiteSpace(url))
+                return url;
+
+            int maxRedirCount = 5;  // prevent infinite loops
+            string newUrl = url;
+            do
+            {
+                HttpWebRequest req = null;
+                HttpWebResponse resp = null;
+                WebRequestHandler webRequestHandler = new WebRequestHandler();
+                webRequestHandler.AllowAutoRedirect = false;
+                HttpClient httpClient = new HttpClient(webRequestHandler);
+                try
+                {
+                    HttpResponseMessage responseMessage = httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result;
+
+                    //req.AllowAutoRedirect = false;
+                    //resp = (HttpWebResponse)req.GetResponse();
+                    switch (responseMessage.StatusCode)
+                    {
+                        case HttpStatusCode.OK:
+                            return newUrl;
+                        case HttpStatusCode.Redirect:
+                        case HttpStatusCode.MovedPermanently:
+                        case HttpStatusCode.RedirectKeepVerb:
+                        case HttpStatusCode.RedirectMethod:
+                            newUrl = responseMessage.Headers.Location.ToString();
+                            if (newUrl == null)
+                                return url;
+
+                            if (newUrl.IndexOf("://", StringComparison.Ordinal) == -1)
+                            {
+                                // Doesn't have a URL Schema, meaning it's a relative or absolute URL
+                                Uri u = new Uri(new Uri(url), newUrl);
+                                newUrl = u.ToString();
+                            }
+                            break;
+                        default:
+                            return newUrl;
+                    }
+                    url = newUrl;
+                }
+                catch (WebException ex)
+                {
+                    // Return the last known good URL
+                    return newUrl;
+                }
+                catch (System.Exception ex)
+                {
+                    return null;
+                }
+                finally
+                {
+                    if (resp != null)
+                        resp.Close();
+                }
+            }
+            while (
+            (newUrl.ToLower().Contains("snip") || newUrl.ToLower().Contains("rebrand.ly")) &&
+            maxRedirCount-- > 0);
+
+            return newUrl;
+        }
+        
         #region #LOAD WEB DATA
 
         #region Yadisk
@@ -622,81 +711,7 @@ namespace CloudFolderBrowser
                 }
             }
         }
-
-
-        public async Task<string> GetFinalRedirect(string url)
-        {
-            ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
-            //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            //ServicePointManager.Expect100Continue = true;
-            //ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
-
-            if (string.IsNullOrWhiteSpace(url))
-                return url;
-
-            int maxRedirCount = 5;  // prevent infinite loops
-            string newUrl = url;
-            do
-            {
-                HttpWebRequest req = null;
-                HttpWebResponse resp = null;
-                WebRequestHandler webRequestHandler = new WebRequestHandler();
-                webRequestHandler.AllowAutoRedirect = false;
-                HttpClient httpClient = new HttpClient(webRequestHandler);
-                try
-                {
-                    HttpResponseMessage responseMessage = httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result;
-
-                    //req.AllowAutoRedirect = false;
-                    //resp = (HttpWebResponse)req.GetResponse();
-                    switch (responseMessage.StatusCode)
-                    {
-                        case HttpStatusCode.OK:
-                            return newUrl;
-                        case HttpStatusCode.Redirect:
-                        case HttpStatusCode.MovedPermanently:
-                        case HttpStatusCode.RedirectKeepVerb:
-                        case HttpStatusCode.RedirectMethod:
-                            newUrl = responseMessage.Headers.Location.ToString();
-                            if (newUrl == null)
-                                return url;
-
-                            if (newUrl.IndexOf("://", StringComparison.Ordinal) == -1)
-                            {
-                                // Doesn't have a URL Schema, meaning it's a relative or absolute URL
-                                Uri u = new Uri(new Uri(url), newUrl);
-                                newUrl = u.ToString();
-                            }
-                            break;
-                        default:
-                            return newUrl;
-                    }
-                    url = newUrl;
-                }
-                catch (WebException ex)
-                {
-                    // Return the last known good URL
-                    return newUrl;
-                }
-                catch (System.Exception ex)
-                {
-                    return null;
-                }
-                finally
-                {
-                    if (resp != null)
-                        resp.Close();
-                }
-            }
-            while (
-            (newUrl.ToLower().Contains("snip") || newUrl.ToLower().Contains("rebrand.ly")) &&
-            maxRedirCount-- > 0);
-
-            return newUrl;
-        }
-
+          
         long ParseSizeToKb(string size)
         {
             size = size.Replace('.', ',');
@@ -830,7 +845,7 @@ namespace CloudFolderBrowser
             }
             catch(System.Exception ex2)
             {
-                MessageBox.Show("Bad url of no connection");
+                MessageBox.Show("Bad url or no connection");
                 return;
             }
             
@@ -991,9 +1006,9 @@ namespace CloudFolderBrowser
             //File.WriteAllText("jsons/" + folder.Name + ".json", JsonConvert.SerializeObject(folder));
             //UpdatePublicFoldersSetting();
         }
-
+        
         #endregion
-                
+
         #region #LOADING NODES
 
         void UpdateTreeModel()
@@ -1002,7 +1017,7 @@ namespace CloudFolderBrowser
             yadiskFlatFolder_model = new TreeModel();
             ColumnNode rootNode = new ColumnNode(HttpUtility.UrlDecode(cloudPublicFolder.Name), cloudPublicFolder.Created, cloudPublicFolder.Modified, cloudPublicFolder.Size);
             rootNode.Tag = cloudPublicFolder;
-            yadiskPublicFolder_treeViewAdv.BeginUpdate();
+            //yadiskPublicFolder_treeViewAdv.BeginUpdate();
             yadiskPublicFolder_model.Nodes.Add(rootNode);
             BuildSubfolderNodes(rootNode);
             BuildFullFolderStructure(rootNode);
@@ -1010,7 +1025,7 @@ namespace CloudFolderBrowser
             yadiskPublicFolder_treeViewAdv.Model = new SortedTreeModel(yadiskPublicFolder_model);
             yadiskPublicFolder_treeViewAdv.NodeFilter = filter;
 
-            yadiskPublicFolder_treeViewAdv.EndUpdate();
+            //yadiskPublicFolder_treeViewAdv.EndUpdate();
             yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
 
             if(syncFolderPath_textBox.Text !="")
@@ -1244,23 +1259,7 @@ namespace CloudFolderBrowser
                 yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
             }
         }
-
-        CloudServiceType GetCloudServiceType(string url)
-        {
-            if (url.Contains("yadi.sk"))
-                return CloudServiceType.Yadisk;
-            if (url.Contains(".allsync.com"))
-                return CloudServiceType.Allsync;
-            if (url.Contains("mega.nz"))
-                return CloudServiceType.Mega;
-            if (url.Contains("dl.lynxcore.org") || url.Contains("dnd.jambrose.info") || url.Contains("enthusiasticallyconfused.com"))
-                return CloudServiceType.h5ai;
-            if (url.Contains("thetrove.net"))
-                return CloudServiceType.TheTrove;
-
-            return CloudServiceType.Other;
-        }
-
+                
         #region #BUTTONS       
 
         private void LoadPublicFolderKey_button_Click(object sender, EventArgs e)
@@ -1281,11 +1280,12 @@ namespace CloudFolderBrowser
                     yadiskPublicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
                     cloudFolderUrl = GetFinalRedirect(yadiskPublicFolderKey_textBox.Text).Result;
 
-                if (cloudFolderUrl.ToLower().Contains("snip.li") ||
+                if (cloudFolderUrl == null ||
+                    cloudFolderUrl.ToLower().Contains("snip.li") ||
                     cloudFolderUrl.ToLower().Contains("snipli.com") ||
                     cloudFolderUrl.ToLower().Contains("rebrand.ly"))
                 {
-                    MessageBox.Show("Timeout or short link is dead");
+                    MessageBox.Show("Timeout or link is dead");
                     return;
                 }
 
