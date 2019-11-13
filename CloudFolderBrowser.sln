@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2024
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29430.225
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CloudFolderBrowser", "CloudFolderBrowser\CloudFolderBrowser.csproj", "{E0720F15-87F8-4E0B-BAF4-3355449EF5DE}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -20,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YandexDiskSharp", "YandexDiskSharp\YandexDiskSharp.csproj", "{FE0B453D-1E3B-4AB6-BBAD-F6F973356897}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MegaApiClient", "MegaApiClient\MegaApiClient.csproj", "{AB158913-2466-4D8F-942E-E88ED2515AFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDAVClient", "WebDAVClient\WebDAVClient.csproj", "{F21EB154-C84E-4390-87CF-271E3DF4F059}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,6 +189,42 @@ Global
 		{AB158913-2466-4D8F-942E-E88ED2515AFE}.Release|x64.Build.0 = Release|Any CPU
 		{AB158913-2466-4D8F-942E-E88ED2515AFE}.Release|x86.ActiveCfg = Release|Any CPU
 		{AB158913-2466-4D8F-942E-E88ED2515AFE}.Release|x86.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|Any CPU.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|x64.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|x64.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|x86.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_Linux|x86.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|Any CPU.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|x64.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|x64.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|x86.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug_NET2|x86.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|x64.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Debug|x86.Build.0 = Debug|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|Any CPU.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|Any CPU.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|x64.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|x64.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|x86.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_Linux|x86.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|Any CPU.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|Any CPU.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|x64.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|x64.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|x86.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release_NET2|x86.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|x64.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|x64.Build.0 = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|x86.ActiveCfg = Release|Any CPU
+		{F21EB154-C84E-4390-87CF-271E3DF4F059}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

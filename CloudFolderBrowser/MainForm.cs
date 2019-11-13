@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Net;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -19,8 +17,7 @@ using HtmlAgilityPack;
 using System.Web;
 using WebDAVClient;
 using CG.Web.MegaApiClient;
-using System.Diagnostics;
-using Bluegrams.Application;
+
 
 
 //https://github.com/kozakovi4/YandexDiskSharp
@@ -49,11 +46,12 @@ namespace CloudFolderBrowser
         string WebIndexFolderDomain = "";
         string TroveRootFolderAddress = "";
         string allsyncRootFolderAddress = "";
-        const string allsyncUrl = "https://cloud.allsync.com";
+        string allsyncUrl = "https://allsync.com";
         SyncFilesForm activeSyncForm;
         bool continueAfterCheck = true;
 
         IClient webdavClient;
+        
         List<CloudFolder> nextLevel;
 
         int checkedFilesNumber = 0;
@@ -146,7 +144,7 @@ namespace CloudFolderBrowser
 
         public void LoginYandex(string accessToken)
         {
-            rc = new RestClient(accessToken);
+            rc = new RestClient(accessToken);          
 
             Resource rl = rc.GetResource("disk:/");
             yadiskFolder = new CloudFolder(rl);
@@ -384,7 +382,7 @@ namespace CloudFolderBrowser
                 }
             }
         }
-
+             
         #endregion
 
         #region #LOAD WEB DATA
@@ -394,7 +392,7 @@ namespace CloudFolderBrowser
         void LoadYadisk(string publicKey)
         {          
             try
-            {
+            {                
                 rl_root = rc.GetPublicResource(publicKey, limit: 999);
                 cloudPublicFolder = new CloudFolder(rl_root);
                 GetFolders(new List<CloudFolder> { cloudPublicFolder });
@@ -718,7 +716,7 @@ namespace CloudFolderBrowser
         #region Allsync  
         
         async void LoadAllsync(string url, bool onlyCheck = false)
-        {            
+        {           
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             cloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
@@ -727,10 +725,10 @@ namespace CloudFolderBrowser
             // GroupCollection gc = Regex.Match(url, "(?:https?://)?(?:[^@\n]+@)?(?:www.)?([^:/\n?]+)").Groups;
 
             foreach (Match m in mc)            
-                uriStructure.Add(m.Value);            
-
+                uriStructure.Add(m.Value);
+            allsyncUrl = uriStructure[0];
             string path = "";
-            allsyncRootFolderAddress = @"https://cloud.allsync.com/s/" + uriStructure[2] + "?path=";
+            allsyncRootFolderAddress = allsyncUrl + @"/s/" + uriStructure[2] + "?path=";
 
             if (uriStructure.Count < 5)
             {
@@ -744,14 +742,17 @@ namespace CloudFolderBrowser
                 
                 cloudPublicFolder.Name = uriStructure[uriStructure.Count - 1];
             }
-            cloudPublicFolder.Path = path;
-            //RyadiskPublicFolderegex.Match(url, ".*/(.*)/").Groups[1].Value;   
+            cloudPublicFolder.Path = path;           
 
             webdavClient = new Client(new NetworkCredential { UserName = uriStructure[2], Password = "" });
             webdavClient.Server = allsyncUrl;
+            //webdavClient.Port = 443;
             webdavClient.BasePath = "/public.php/webdav/";
+            Dictionary<string, string> customHeaders = new Dictionary<string, string>();
+            customHeaders.Add("X-Requested-With", "XMLHttpRequest");
+            webdavClient.CustomHeaders = customHeaders;        
 
-            if(onlyCheck)
+            if (onlyCheck)
             {
                 CheckAllsyncFolder();
                 return;
@@ -763,7 +764,7 @@ namespace CloudFolderBrowser
             Task<string> ts = webpage.DownloadStringTaskAsync(new Uri(allsyncRootFolderAddress));
 
             await LoadAllsyncInOneGo(uriStructure[2]);
-            if (cloudPublicFolder.Subfolders.Count == 0)
+            if (cloudPublicFolder.Subfolders.Count == 0 && cloudPublicFolder.Files.Count == 0)
                 return;
 
             if (cloudPublicFolder.Name == "")
@@ -801,10 +802,10 @@ namespace CloudFolderBrowser
 
         async Task LoadAllsyncInOneGo(string folderKey = "")
         {
-            IEnumerable<WebDAVClient.Model.Item> items;
+            IEnumerable<WebDAVClient.Model.Item> items;           
             try
             {
-                items = await webdavClient.List(cloudPublicFolder.Path, 9999);
+                items = await webdavClient.List(cloudPublicFolder.Path, 9999);               
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
@@ -817,13 +818,17 @@ namespace CloudFolderBrowser
                     webdavClient = new Client(new NetworkCredential { UserName = folderKey, Password = passwordForm.Password });
                     webdavClient.Server = allsyncUrl;
                     webdavClient.BasePath = "/public.php/webdav/";
+                    Dictionary<string, string> customHeaders = new Dictionary<string, string>();
+                    customHeaders.Add("X-Requested-With", "XMLHttpRequest");
+                    webdavClient.CustomHeaders = customHeaders;
+
                     await LoadAllsyncInOneGo(folderKey);
                     return;
                 }
                 MessageBox.Show("Bad url of no connection \n" + ex.Message);
                 return;
             }
-            catch
+            catch(System.Exception ex2)
             {
                 MessageBox.Show("Bad url of no connection");
                 return;
@@ -896,7 +901,7 @@ namespace CloudFolderBrowser
 
         void LoadMega(string url)
         {            
-            MegaApiClient megaClient = new MegaApiClient();
+            MegaApiClient megaClient = new MegaApiClient();             
             megaClient.LoginAnonymous();
             try
             {
@@ -988,8 +993,7 @@ namespace CloudFolderBrowser
         }
 
         #endregion
-
-        
+                
         #region #LOADING NODES
 
         void UpdateTreeModel()
@@ -1063,7 +1067,6 @@ namespace CloudFolderBrowser
 
         #endregion
                
-
         #region #SYNC
 
         void SyncFiles()
@@ -1118,8 +1121,7 @@ namespace CloudFolderBrowser
                 newFilesFolder.Files.AddRange(missingFiles);
                 newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
                 SyncFilesForm syncFilesForm = new SyncFilesForm(newFilesFolder, cloudServiceType);
-                activeSyncForm = syncFilesForm;
-                syncFilesForm.Show();
+                activeSyncForm = syncFilesForm;              
             }
             else
                 MessageBox.Show("No new files!");
@@ -1247,7 +1249,7 @@ namespace CloudFolderBrowser
         {
             if (url.Contains("yadi.sk"))
                 return CloudServiceType.Yadisk;
-            if (url.Contains("cloud.allsync.com"))
+            if (url.Contains(".allsync.com"))
                 return CloudServiceType.Allsync;
             if (url.Contains("mega.nz"))
                 return CloudServiceType.Mega;
@@ -1331,7 +1333,6 @@ namespace CloudFolderBrowser
             //publicFolders_comboBox.SelectedItem = publicFolders_comboBox.Text;
             UpdatePublicFoldersSetting();
             savePublicFolderKey_button.Enabled = false;
-
         }
 
         private void AddNewPublicFolder_button_Click(object sender, EventArgs e)
@@ -1385,8 +1386,7 @@ namespace CloudFolderBrowser
             loadPublicFolderKey_button.Text = "Load";
             savePublicFolderKey_button.Enabled = true;
         }
-
-       
+               
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -1397,8 +1397,8 @@ namespace CloudFolderBrowser
         {
             activeSyncForm?.CloseForm();
             checkedFolders = new List<CloudFolder>();
-            mixedFolders = new List<CloudFolder>();
-            GetCheckedFolders((ColumnNode)yadiskPublicFolder_model.Nodes[0]);
+            mixedFolders = new List<CloudFolder>();               
+            GetCheckedFolders(yadiskPublicFolder_model.Nodes[0] as ColumnNode);
             SyncFiles();
             showSyncForm_button.Enabled = true;
         }
