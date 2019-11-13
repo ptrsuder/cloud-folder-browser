@@ -287,11 +287,7 @@ namespace WebDAVClient
 
                     return result;
                 }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
+            }           
             finally
             {
                 if (response != null)

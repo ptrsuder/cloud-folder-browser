@@ -72,7 +72,7 @@
             this.MinimumSize = new System.Drawing.Size(353, 142);
             this.Name = "PasswordForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Input password";
+            this.Text = "Link may be protected by password";
             this.ResumeLayout(false);
             this.PerformLayout();
 

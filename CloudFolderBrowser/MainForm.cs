@@ -824,7 +824,7 @@ namespace CloudFolderBrowser
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
-                if (ex.GetHttpCode() == 401)
+                if (ex.GetHttpCode() == 401 || ex.GetHttpCode() == 500)
                 {
                     PasswordForm passwordForm = new PasswordForm();
                     passwordForm.ShowDialog();
