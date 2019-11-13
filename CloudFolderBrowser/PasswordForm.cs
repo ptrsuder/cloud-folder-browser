@@ -24,5 +24,11 @@ namespace CloudFolderBrowser
             Password = password_textBox.Text;
             this.Close();
         }
+
+        private void cancelPassword_button_Click(object sender, EventArgs e)
+        {
+            Password = "null";
+            this.Close();
+        }
     }
 }

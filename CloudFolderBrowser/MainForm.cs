@@ -812,6 +812,8 @@ namespace CloudFolderBrowser
                 {
                     PasswordForm passwordForm = new PasswordForm();
                     passwordForm.ShowDialog();
+                    if (passwordForm.Password == "null")
+                        return;
                     webdavClient = new Client(new NetworkCredential { UserName = folderKey, Password = passwordForm.Password });
                     webdavClient.Server = allsyncUrl;
                     webdavClient.BasePath = "/public.php/webdav/";
