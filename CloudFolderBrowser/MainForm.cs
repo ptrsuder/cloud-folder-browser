@@ -753,8 +753,8 @@ namespace CloudFolderBrowser
             else
             {
                 for (int i = 4; i < uriStructure.Count; i++)                
-                    path += "/" + uriStructure[i] + "/";
-                
+                    path += "/" + uriStructure[i];
+                path += "/";
                 cloudPublicFolder.Name = uriStructure[uriStructure.Count - 1];
             }
             cloudPublicFolder.Path = path;           
