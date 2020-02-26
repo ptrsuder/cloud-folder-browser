@@ -72,10 +72,10 @@ namespace CloudFolderBrowser
             }
             finally
             {
-                Finished = true;
-                ProgressBar.Tag = null;
-                ProgressBar.Value = 0;
-                ProgressLabel.Visible = false;
+                //Finished = true;
+                //ProgressBar.Tag = null;
+                //ProgressBar.Value = 0;
+                //ProgressLabel.Visible = false;
             }
         }
     }

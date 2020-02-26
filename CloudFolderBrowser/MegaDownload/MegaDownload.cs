@@ -55,7 +55,7 @@ namespace CloudFolderBrowser
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;
             lock (downloadQueue)
-            {
+            {          
                 if (downloadQueue.Count > 0)
                     for(int i = 0; i < progressbars.Length; i++)
                     {
@@ -75,18 +75,22 @@ namespace CloudFolderBrowser
         {
             lock (downloadQueue)
             {
+                d.Finished = true;
+                d.ProgressBar.Tag = null;
+                d.ProgressBar.Value = 0;
+                d.ProgressLabel.Visible = false;
+
                 if (downloadQueue.Count > 0)
                 {
-                    if (d.ProgressBar.Tag == null)
-                    {
-                        MegaFileDownload newd = downloadQueue.Dequeue();
-                        newd.ProgressBar = d.ProgressBar;
-                        newd.ProgressLabel = d.ProgressLabel;
-                        newd.ProgressLabel.Visible = true;
-                        newd.StartDownload();
-                    }
+                    //if (d.ProgressBar.Tag == null)
+                    //{
+                    MegaFileDownload newd = downloadQueue.Dequeue();
+                    newd.ProgressBar = d.ProgressBar;
+                    newd.ProgressLabel = d.ProgressLabel;                   
+                    newd.StartDownload();
+                    //}
                 }
-                if(finishedDownloads == downloads.Count)
+                if (finishedDownloads == downloads.Count)
                 {                             
                     DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
                     downloadsFinishedForm.Show();

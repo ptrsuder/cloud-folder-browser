@@ -870,7 +870,6 @@ namespace CloudFolderBrowser
             {
                 foreach (var folder in allFolders)
                 {
-
                     if (folder.Path == cloudPublicFolder.Path || folder.Path == "")
                         continue;
                     string parentFolderPath = folder.Path.Remove(folder.Path.Length - 2 - folder.Name.Length, folder.Name.Length + 1);
@@ -881,7 +880,8 @@ namespace CloudFolderBrowser
             }
             catch (System.Exception ex)
             {
-
+                MessageBox.Show("Error during folder structure building.");
+                return;
             }
 
             foreach (var item in items)
