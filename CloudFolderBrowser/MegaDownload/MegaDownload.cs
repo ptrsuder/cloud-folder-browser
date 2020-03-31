@@ -22,13 +22,15 @@ namespace CloudFolderBrowser
         int finishedDownloads = 0;
         string downloadFolderPath;
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        public int OverwriteMode;
 
 
-        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels)
+        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, int overwriteMode = 3)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
             downloads = new List<MegaFileDownload>();
+            OverwriteMode = overwriteMode;
 
             MegaApiClient megaApiClient = new MegaApiClient();
             megaApiClient.LoginAnonymous();

@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using YandexDiskSharp.Models;
 using CG.Web.MegaApiClient;
 using System.Runtime.InteropServices;
+using System.Web.UI;
 
 namespace CloudFolderBrowser
 {
@@ -32,6 +33,13 @@ namespace CloudFolderBrowser
         bool HideForm = true;
         MegaApiClient megaApiClient;
         MegaDownload megaDownload;
+        Dictionary<int, string> overwriteModes = new Dictionary<int, string>()
+        {
+            {0, "None" },
+            {1, "Overwrite all" },
+            {2, "Overwrite older"},
+            {3, "Ask" }
+        };
 
         //Textbox filter
         [DllImport("user32.dll")]
@@ -40,8 +48,12 @@ namespace CloudFolderBrowser
         public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName)
         {
             InitializeComponent();
-
+            
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
+
+            overwriteMode_comboBox.DataSource = new BindingSource(overwriteModes, null);
+            overwriteMode_comboBox.DisplayMember = "Value";
+            overwriteMode_comboBox.ValueMember = "Key";
 
             nodeCheckBox2.IsVisibleValueNeeded += CheckIndex;
 
@@ -543,35 +555,22 @@ namespace CloudFolderBrowser
             checkedFilesSize = 0;
             GetCheckedFiles(newFiles_model.Nodes[0]);            
         }
-
-        #endregion
-
-        private void treeViewAdv_ColumnClicked(object sender, TreeColumnEventArgs e)
-        {
-            TreeColumn clicked = e.Column;
-            if (clicked.SortOrder == SortOrder.Ascending)
-                clicked.SortOrder = SortOrder.Descending;
-            else
-                clicked.SortOrder = SortOrder.Ascending;
-
-            (((TreeViewAdv)sender).Model as SortedTreeModel).Comparer = new FolderItemSorter(clicked.Header, clicked.SortOrder);
-        }
-         
+        
         private void downloadMega_button_Click(object sender, EventArgs e)
         {
-            maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
+            maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);            
+            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
 
-            DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize/1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
+            DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize / 1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
                 return;
 
-            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());            
+            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
 
             ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
-            Label[] usedLabels = new Label[maximumDownloads+1];
+            Label[] usedLabels = new Label[maximumDownloads + 1];
             for (int i = 0; i < maximumDownloads; i++)
             {
                 usedProgressBars[i] = progressBars[i];
@@ -585,14 +584,27 @@ namespace CloudFolderBrowser
                 megaApiClient.LoginAnonymous();
             }
 
-            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels);
+            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, overwriteMode_comboBox.SelectedIndex);
             megaDownload.Start();
 
             stopDownload_button.Enabled = true;
             stopDownload_button.Visible = true;
         }
+        
+        #endregion
 
-        private void SyncFilesForm2_FormClosing(object sender, FormClosingEventArgs e)
+        private void treeViewAdv_ColumnClicked(object sender, TreeColumnEventArgs e)
+        {
+            TreeColumn clicked = e.Column;
+            if (clicked.SortOrder == SortOrder.Ascending)
+                clicked.SortOrder = SortOrder.Descending;
+            else
+                clicked.SortOrder = SortOrder.Ascending;
+
+            (((TreeViewAdv)sender).Model as SortedTreeModel).Comparer = new FolderItemSorter(clicked.Header, clicked.SortOrder);
+        }
+         
+        private void syncFilesForm2_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (HideForm)
             {
@@ -611,9 +623,14 @@ namespace CloudFolderBrowser
             megaDownload.Stop();
         }
 
-        private void Filter_textBox_TextChanged(object sender, EventArgs e)
+        private void filter_textBox_TextChanged(object sender, EventArgs e)
         {
             newFilesTreeViewAdv.UpdateNodeFilter();
+        }
+
+        private void overwriteMode_comboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            
         }
 
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
@@ -681,8 +698,7 @@ namespace CloudFolderBrowser
     }
 
     public class JDPackage
-    {
-        
+    {        
         public JDPackage(string id, string name)
         {
             this.packageID = id;

@@ -53,7 +53,24 @@ namespace CloudFolderBrowser
                 DialogResult overwriteFile = DialogResult.Yes;
                 if (file.Exists)
                 {
-                    overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
+                    switch(MegaDownload.OverwriteMode)
+                    {
+                        case 0:
+                            overwriteFile = DialogResult.No;
+                            break;
+                        case 1:
+                            overwriteFile = DialogResult.Yes;
+                            break;
+                        case 2:
+                            if(Node.ModificationDate > file.CreationTime)
+                                overwriteFile = DialogResult.Yes;
+                            else
+                                overwriteFile = DialogResult.No;
+                            break;
+                        case 3:
+                            overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
+                            break;
+                    }                    
                     if (overwriteFile == DialogResult.Yes)
                         file.Delete();  
                 }

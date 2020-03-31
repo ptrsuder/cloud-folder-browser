@@ -100,7 +100,6 @@
             this.addNewPublicFolder_button = new System.Windows.Forms.Button();
             this.deletePublicFolder_button = new System.Windows.Forms.Button();
             this.loginYandex_button = new System.Windows.Forms.Button();
-            this.label4 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -678,22 +677,11 @@
             this.loginYandex_button.UseVisualStyleBackColor = true;
             this.loginYandex_button.Click += new System.EventHandler(this.loginYandex_button_Click);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.ForeColor = System.Drawing.SystemColors.ControlDark;
-            this.label4.Location = new System.Drawing.Point(936, 719);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(228, 13);
-            this.label4.TabIndex = 21;
-            this.label4.Text = "Bugs and suggestions - honheim@yandex.com";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1177, 741);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.loginYandex_button);
             this.Controls.Add(this.deletePublicFolder_button);
             this.Controls.Add(this.addNewPublicFolder_button);
@@ -769,7 +757,6 @@
         private System.Windows.Forms.DateTimePicker beforeDate_dateTimePicker;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label4;
     }
 }
 

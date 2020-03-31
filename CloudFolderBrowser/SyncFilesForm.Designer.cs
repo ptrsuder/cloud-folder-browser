@@ -60,6 +60,8 @@
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.stopDownload_button = new System.Windows.Forms.Button();
             this.filter_textBox = new System.Windows.Forms.TextBox();
+            this.overwriteMode_comboBox = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
@@ -169,9 +171,9 @@
             // 
             this.addFilesToYadisk_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.addFilesToYadisk_button.Enabled = false;
-            this.addFilesToYadisk_button.Location = new System.Drawing.Point(466, 121);
+            this.addFilesToYadisk_button.Location = new System.Drawing.Point(466, 103);
             this.addFilesToYadisk_button.Name = "addFilesToYadisk_button";
-            this.addFilesToYadisk_button.Size = new System.Drawing.Size(263, 73);
+            this.addFilesToYadisk_button.Size = new System.Drawing.Size(263, 53);
             this.addFilesToYadisk_button.TabIndex = 1;
             this.addFilesToYadisk_button.Text = "Add checked to YaDisk";
             this.addFilesToYadisk_button.UseVisualStyleBackColor = true;
@@ -194,7 +196,7 @@
             this.getJdLinks_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.getJdLinks_button.Location = new System.Drawing.Point(466, 30);
             this.getJdLinks_button.Name = "getJdLinks_button";
-            this.getJdLinks_button.Size = new System.Drawing.Size(263, 85);
+            this.getJdLinks_button.Size = new System.Drawing.Size(263, 67);
             this.getJdLinks_button.TabIndex = 3;
             this.getJdLinks_button.Text = "Get JDownloader links";
             this.getJdLinks_button.UseVisualStyleBackColor = true;
@@ -204,7 +206,7 @@
             // 
             this.downloadFiles_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.downloadFiles_button.Enabled = false;
-            this.downloadFiles_button.Location = new System.Drawing.Point(466, 247);
+            this.downloadFiles_button.Location = new System.Drawing.Point(466, 209);
             this.downloadFiles_button.Name = "downloadFiles_button";
             this.downloadFiles_button.Size = new System.Drawing.Size(260, 40);
             this.downloadFiles_button.TabIndex = 4;
@@ -293,7 +295,7 @@
             // 
             this.downloadMega_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.downloadMega_button.Enabled = false;
-            this.downloadMega_button.Location = new System.Drawing.Point(466, 200);
+            this.downloadMega_button.Location = new System.Drawing.Point(466, 162);
             this.downloadMega_button.Name = "downloadMega_button";
             this.downloadMega_button.Size = new System.Drawing.Size(260, 41);
             this.downloadMega_button.TabIndex = 13;
@@ -367,13 +369,35 @@
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(121, 20);
             this.filter_textBox.TabIndex = 19;
-            this.filter_textBox.TextChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
+            this.filter_textBox.TextChanged += new System.EventHandler(this.filter_textBox_TextChanged);
+            // 
+            // overwriteMode_comboBox
+            // 
+            this.overwriteMode_comboBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.overwriteMode_comboBox.FormattingEnabled = true;
+            this.overwriteMode_comboBox.Location = new System.Drawing.Point(555, 268);
+            this.overwriteMode_comboBox.Name = "overwriteMode_comboBox";
+            this.overwriteMode_comboBox.Size = new System.Drawing.Size(165, 21);
+            this.overwriteMode_comboBox.TabIndex = 20;
+            this.overwriteMode_comboBox.SelectedIndexChanged += new System.EventHandler(this.overwriteMode_comboBox_SelectedIndexChanged);
+            // 
+            // label6
+            // 
+            this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(468, 271);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(81, 13);
+            this.label6.TabIndex = 21;
+            this.label6.Text = "Overwrite mode";
             // 
             // SyncFilesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(732, 556);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.overwriteMode_comboBox);
             this.Controls.Add(this.filter_textBox);
             this.Controls.Add(this.stopDownload_button);
             this.Controls.Add(this.addFilesToYadisk_button);
@@ -396,7 +420,7 @@
             this.MinimumSize = new System.Drawing.Size(436, 590);
             this.Name = "SyncFilesForm";
             this.Text = "SyncFilesForm";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SyncFilesForm2_FormClosing);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.syncFilesForm2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -436,5 +460,7 @@
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button stopDownload_button;
         private System.Windows.Forms.TextBox filter_textBox;
+        private System.Windows.Forms.ComboBox overwriteMode_comboBox;
+        private System.Windows.Forms.Label label6;
     }
 }
