@@ -920,10 +920,11 @@ namespace CloudFolderBrowser
             megaClient.LoginAnonymous();
             try
             {
+                url = url.Replace("#F!", "folder/").Replace("!", "#");
                 var nodes = megaClient.GetNodesFromLink(new Uri(url));
                 cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
                 cloudPublicFolder.Path = "/";
-                cloudPublicFolder.PublicKey = Regex.Match(url, "(/#F!)(.*)").Groups[2].Value;
+                cloudPublicFolder.PublicKey = Regex.Match(url, "(/folder/)(.*)").Groups[2].Value;
                 Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
                 allfolders.Add(nodes.ElementAt(0).Id, cloudPublicFolder);
                 foreach (var node in nodes)

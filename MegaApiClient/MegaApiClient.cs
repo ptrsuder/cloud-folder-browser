@@ -1093,8 +1093,8 @@
 
     private void GetPartsFromUri(Uri uri, out string id, out byte[] iv, out byte[] metaMac, out byte[] key)
     {
-      Regex uriRegex = new Regex("#(?<type>F?)!(?<id>.+)!(?<key>.+)");
-      Match match = uriRegex.Match(uri.Fragment);
+      Regex uriRegex = new Regex("(?<type>folder?)/(?<id>.+)#(?<key>.+)");
+      Match match = uriRegex.Match(uri.ToString());
       if (match.Success == false)
       {
         throw new ArgumentException(string.Format("Invalid uri. Unable to extract Id and Key from the uri {0}", uri));
@@ -1102,7 +1102,7 @@
 
       id = match.Groups["id"].Value;
       byte[] decryptedKey = match.Groups["key"].Value.FromBase64();
-      var isFolder = match.Groups["type"].Value == "F";
+      var isFolder = match.Groups["type"].Value == "folder";
       
       if (isFolder)
       {
