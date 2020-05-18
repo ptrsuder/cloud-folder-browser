@@ -1,4 +1,7 @@
 # Cloud Folder Browser
+![downloads_latest](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/latest/total.svg?color=magenta)
+![downloads_total](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/total.svg?label=downloads%40total)
+
 Desktop application that allows user to browse (filter, sort) shared folders from various cloud services and some web server index folders. 
 
 Cloud storages:
