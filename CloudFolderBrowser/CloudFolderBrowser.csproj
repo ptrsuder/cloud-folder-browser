@@ -93,6 +93,8 @@
       <DependentUpon>DownloadsFinishedForm.cs</DependentUpon>
     </Compile>
     <Compile Include="FolderModels.cs" />
+    <Compile Include="CommonDownload\CommonDownload.cs" />
+    <Compile Include="CommonDownload\CommonDownloadItem.cs" />
     <Compile Include="MegaDownload\MegaDownloadItem.cs" />
     <Compile Include="MegaDownload\MegaDownload.cs" />
     <Compile Include="ModifyProgressBarColor.cs" />

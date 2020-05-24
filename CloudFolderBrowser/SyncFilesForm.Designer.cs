@@ -205,14 +205,13 @@
             // downloadFiles_button
             // 
             this.downloadFiles_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.downloadFiles_button.Enabled = false;
             this.downloadFiles_button.Location = new System.Drawing.Point(466, 209);
             this.downloadFiles_button.Name = "downloadFiles_button";
             this.downloadFiles_button.Size = new System.Drawing.Size(260, 40);
             this.downloadFiles_button.TabIndex = 4;
             this.downloadFiles_button.Text = "Download";
             this.downloadFiles_button.UseVisualStyleBackColor = true;
-            this.downloadFiles_button.Click += new System.EventHandler(this.button2_Click);
+            this.downloadFiles_button.Click += new System.EventHandler(this.downloadFiles_button_Click);
             // 
             // progressBar1
             // 
@@ -360,7 +359,7 @@
             this.stopDownload_button.Text = "Stop download";
             this.stopDownload_button.UseVisualStyleBackColor = true;
             this.stopDownload_button.Visible = false;
-            this.stopDownload_button.Click += new System.EventHandler(this.button1_Click_1);
+            this.stopDownload_button.Click += new System.EventHandler(this.stopDownloads_Click);
             // 
             // filter_textBox
             // 

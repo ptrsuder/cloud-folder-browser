@@ -17,6 +17,8 @@ using YandexDiskSharp.Models;
 using CG.Web.MegaApiClient;
 using System.Runtime.InteropServices;
 using System.Web.UI;
+using WebDAVClient;
+using System.Net;
 
 namespace CloudFolderBrowser
 {
@@ -32,7 +34,9 @@ namespace CloudFolderBrowser
         List<Label> progressLabels;
         bool HideForm = true;
         MegaApiClient megaApiClient;
+        NetworkCredential NetworkCredential;
         MegaDownload megaDownload;
+        CommonDownload commonDownload;
         Dictionary<int, string> overwriteModes = new Dictionary<int, string>()
         {
             {0, "None" },
@@ -45,10 +49,11 @@ namespace CloudFolderBrowser
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName)
+        public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName, NetworkCredential networkCredential = null)
         {
             InitializeComponent();
-            
+
+            NetworkCredential = networkCredential;
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
 
             overwriteMode_comboBox.DataSource = new BindingSource(overwriteModes, null);
@@ -68,10 +73,8 @@ namespace CloudFolderBrowser
             {
                 if (Properties.Settings.Default.loginedYandex)
                     addFilesToYadisk_button.Enabled = true;
-
-                getJdLinks_button.Enabled = true;
-                downloadFiles_button.Enabled = false;
-            }
+                getJdLinks_button.Enabled = true;                
+            }            
 
             progressBars = new List<ProgressBar> { progressBar1, progressBar2, progressBar3, progressBar4 };
             progressLabels = new List<Label> { label1, label2, label3, label4, DownloadProgress_label };
@@ -142,7 +145,7 @@ namespace CloudFolderBrowser
             newFilesTreeViewAdv.EndUpdate();
             newFilesTreeViewAdv.Root.Children[0].Expand();
             newFiles_model.Nodes[0].CheckState = CheckState.Checked;
-
+           
             this.Show();
             //CheckAllSubnodes(newFiles_model.Nodes[0], false);
         }
@@ -209,7 +212,16 @@ namespace CloudFolderBrowser
                 MessageBox.Show("No files checked!");
                 return;
             }
-            Directory.CreateDirectory("Links");
+            if(!di.Exists)
+                Directory.CreateDirectory("Links");
+            else
+            {
+                foreach (FileInfo file in di.EnumerateFiles())
+                    file.Delete();
+                foreach (DirectoryInfo dir in di.EnumerateDirectories())
+                    dir.Delete(true);
+            }
+
             List<JDPackage> packages = new List<JDPackage>();
 
             if (cloudServiceType == CloudServiceType.Mega && megaApiClient == null)
@@ -269,12 +281,6 @@ namespace CloudFolderBrowser
             string dirPath = @"linkcontainers\" + rootFolderName;            
             Directory.CreateDirectory(dirPath);
             System.IO.Compression.ZipFile.CreateFromDirectory("Links", dirPath + @"\linkcollector" + number + ".zip");
-
-            foreach (FileInfo file in di.EnumerateFiles())
-                file.Delete();
-            foreach (DirectoryInfo dir in di.EnumerateDirectories())
-                dir.Delete(true);
-            Directory.Delete("Links");
 
             DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(dirPath, @"linkcollector" + number + ".zip created!");
             downloadsFinishedForm.Show();
@@ -549,11 +555,33 @@ namespace CloudFolderBrowser
             CreateJdLinkcontainer();
         }
 
-        private void button2_Click(object sender, EventArgs e)
+        private void downloadFiles_button_Click(object sender, EventArgs e)
         {
+            maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles(newFiles_model.Nodes[0]);            
+            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
+
+            DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize / 1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
+            if (dialogResult == DialogResult.No)
+                return;
+
+            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
+
+            ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
+            Label[] usedLabels = new Label[maximumDownloads + 1];
+            for (int i = 0; i < maximumDownloads; i++)
+            {
+                usedProgressBars[i] = progressBars[i];
+                usedLabels[i] = progressLabels[i];
+            }
+            usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
+            
+            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential);
+            commonDownload.Start();
+
+            stopDownload_button.Enabled = true;
+            stopDownload_button.Visible = true;
         }
         
         private void downloadMega_button_Click(object sender, EventArgs e)
@@ -618,9 +646,10 @@ namespace CloudFolderBrowser
             maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
         }
 
-        private void button1_Click_1(object sender, EventArgs e)
+        private void stopDownloads_Click(object sender, EventArgs e)
         {
-            megaDownload.Stop();
+            megaDownload?.Stop();
+            commonDownload?.Stop();
         }
 
         private void filter_textBox_TextChanged(object sender, EventArgs e)

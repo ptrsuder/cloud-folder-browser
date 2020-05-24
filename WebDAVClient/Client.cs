@@ -7,8 +7,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using WebDAVClient.Helpers;
+using System.Net.Http;
 using WebDAVClient.HttpClient;
 using WebDAVClient.Model;
 
@@ -16,6 +18,8 @@ namespace WebDAVClient
 {
     public class Client : IClient
     {
+        public WebClient webClient = new WebClient();
+        
         private static readonly HttpMethod PropFind = new HttpMethod("PROPFIND");
         private static readonly HttpMethod MoveMethod = new HttpMethod("MOVE");
         private static readonly HttpMethod CopyMethod = new HttpMethod("COPY");
@@ -56,7 +60,7 @@ namespace WebDAVClient
         /// Specify the WebDAV hostname (required).
         /// </summary>
         public string Server
-        {
+        {            
             get { return _server; }
             set
             {
@@ -106,10 +110,13 @@ namespace WebDAVClient
         /// </summary>
         public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
         #endregion
+              
+        private NetworkCredential _credentials;
 
         public Client(NetworkCredential credential = null, TimeSpan? uploadTimeout = null, IWebProxy proxy = null)
         {
-            var handler = new HttpClientHandler();
+            _credentials = credential;
+            HttpClientHandler handler = new HttpClientHandler();
             if (proxy != null && handler.SupportsProxy)
                 handler.Proxy = proxy;
             if (handler.SupportsAutomaticDecompression)
@@ -124,7 +131,8 @@ namespace WebDAVClient
                 handler.UseDefaultCredentials = true;
             }
 
-            var client = new System.Net.Http.HttpClient(handler);
+            var client = new System.Net.Http.HttpClient(handler);           
+            
             client.DefaultRequestHeaders.ExpectContinue = false;
 
             System.Net.Http.HttpClient uploadClient = null; 
@@ -311,7 +319,7 @@ namespace WebDAVClient
             }
             return DownloadFile(remoteFilePath, headers);
         }
-
+        
 
         /// <summary>
         /// Download a part of file from the server
@@ -595,6 +603,41 @@ namespace WebDAVClient
             }
             throw new WebDAVException((int)response.StatusCode, "Failed retrieving file.");
         }
+             
+        public async Task DownloadFileAsync(String remoteFilePath, string outputFile, IProgress<double> progress, CancellationToken cancellationToken)
+        {
+            var headers = new Dictionary<string, string> { { "translate", "f" } };
+            if (CustomHeaders != null)
+            {
+                foreach (var keyValuePair in CustomHeaders)
+                {
+                    headers.Add(keyValuePair.Key, keyValuePair.Value);
+                }
+            }
+            var downloadUri = await GetServerUrl(remoteFilePath, false).ConfigureAwait(false);
+            try
+            {
+                using (var registration = cancellationToken.Register(() => webClient.CancelAsync()))
+                {
+                    webClient.Headers = new WebHeaderCollection();
+                    webClient.Credentials = _credentials;
+
+                    foreach (var keyValuePair in CustomHeaders)
+                        webClient.Headers.Add(keyValuePair.Key, keyValuePair.Value);
+
+                    webClient.DownloadProgressChanged += (s, e) =>
+                    {
+                        progress.Report(e.ProgressPercentage);
+                    };
+                    await webClient.DownloadFileTaskAsync(downloadUri.Uri, outputFile);
+                }
+            }
+            catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
+            {
+                if(File.Exists(outputFile))
+                    File.Delete(outputFile);
+            }           
+        }      
 
         #endregion
 
@@ -691,7 +734,7 @@ namespace WebDAVClient
             return Uri.TryCreate(uriString, UriKind.Absolute, out uriResult) && uriResult.Scheme != Uri.UriSchemeFile;
         }
 
-        private async Task<UriBuilder> GetServerUrl(string path, bool appendTrailingSlash)
+        public async Task<UriBuilder> GetServerUrl(string path, bool appendTrailingSlash)
         {
             // Resolve the base path on the server
             if (_encodedBasePath == null)
@@ -768,7 +811,7 @@ namespace WebDAVClient
                 return baseUri;
             }
         }
-
+        
         #endregion
 
         #region WebDAV Connection Helpers

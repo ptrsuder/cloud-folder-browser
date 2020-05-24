@@ -22,7 +22,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.ProgressBar yadiskSpace_progressBar;
         private System.Windows.Forms.Label yadiskSpace_label;
-        private System.Windows.Forms.TextBox yadiskPublicFolderKey_textBox;
+        private System.Windows.Forms.TextBox publicFolderKey_textBox;
         private System.Windows.Forms.Button browseSyncFolder_button;
         private System.Windows.Forms.TextBox syncFolderPath_textBox;
         private Aga.Controls.Tree.TreeViewAdv yadiskPublicFolder_treeViewAdv;
@@ -51,7 +51,7 @@
             this.components = new System.ComponentModel.Container();
             this.yadiskSpace_progressBar = new System.Windows.Forms.ProgressBar();
             this.yadiskSpace_label = new System.Windows.Forms.Label();
-            this.yadiskPublicFolderKey_textBox = new System.Windows.Forms.TextBox();
+            this.publicFolderKey_textBox = new System.Windows.Forms.TextBox();
             this.browseSyncFolder_button = new System.Windows.Forms.Button();
             this.syncFolderPath_textBox = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
@@ -100,6 +100,7 @@
             this.addNewPublicFolder_button = new System.Windows.Forms.Button();
             this.deletePublicFolder_button = new System.Windows.Forms.Button();
             this.loginYandex_button = new System.Windows.Forms.Button();
+            this.loadLink_progressBar = new System.Windows.Forms.ProgressBar();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -138,15 +139,15 @@
             this.yadiskSpace_label.UseCompatibleTextRendering = true;
             this.yadiskSpace_label.Visible = false;
             // 
-            // yadiskPublicFolderKey_textBox
+            // publicFolderKey_textBox
             // 
-            this.yadiskPublicFolderKey_textBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.yadiskPublicFolderKey_textBox.Location = new System.Drawing.Point(0, 0);
-            this.yadiskPublicFolderKey_textBox.Name = "yadiskPublicFolderKey_textBox";
-            this.yadiskPublicFolderKey_textBox.ReadOnly = true;
-            this.yadiskPublicFolderKey_textBox.Size = new System.Drawing.Size(419, 20);
-            this.yadiskPublicFolderKey_textBox.TabIndex = 3;
-            this.yadiskPublicFolderKey_textBox.Text = "https://yadi.sk/d/df_jk-ih3Z9TfM";
+            this.publicFolderKey_textBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.publicFolderKey_textBox.Location = new System.Drawing.Point(0, 0);
+            this.publicFolderKey_textBox.Name = "publicFolderKey_textBox";
+            this.publicFolderKey_textBox.ReadOnly = true;
+            this.publicFolderKey_textBox.Size = new System.Drawing.Size(419, 20);
+            this.publicFolderKey_textBox.TabIndex = 3;
+            this.publicFolderKey_textBox.Text = "https://yadi.sk/d/df_jk-ih3Z9TfM";
             // 
             // browseSyncFolder_button
             // 
@@ -421,7 +422,7 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.yadiskPublicFolderKey_textBox);
+            this.splitContainer1.Panel1.Controls.Add(this.publicFolderKey_textBox);
             this.splitContainer1.Panel1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             // 
             // splitContainer1.Panel2
@@ -677,11 +678,21 @@
             this.loginYandex_button.UseVisualStyleBackColor = true;
             this.loginYandex_button.Click += new System.EventHandler(this.loginYandex_button_Click);
             // 
+            // loadLink_progressBar
+            // 
+            this.loadLink_progressBar.Location = new System.Drawing.Point(15, 50);
+            this.loadLink_progressBar.MarqueeAnimationSpeed = 0;
+            this.loadLink_progressBar.Name = "loadLink_progressBar";
+            this.loadLink_progressBar.Size = new System.Drawing.Size(572, 29);
+            this.loadLink_progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.loadLink_progressBar.TabIndex = 21;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1177, 741);
+            this.Controls.Add(this.loadLink_progressBar);
             this.Controls.Add(this.loginYandex_button);
             this.Controls.Add(this.deletePublicFolder_button);
             this.Controls.Add(this.addNewPublicFolder_button);
@@ -757,6 +768,7 @@
         private System.Windows.Forms.DateTimePicker beforeDate_dateTimePicker;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.ProgressBar loadLink_progressBar;
     }
 }
 
