@@ -10,7 +10,7 @@ Cloud storages:
 * YandexDisk
 
 Web server indexes:
-* h5ai (https://dnd.jambrose.info, https://dl.lynxcore.org etc)
+* h5ai (anything that is "powered by h5ai")
 * godir (https://thetrove.net/)
 
 ## Requirements
@@ -21,9 +21,9 @@ Web server indexes:
 ## How to use
 ### Load and store folders:
 * Click [Add new] button
-* Select new item in dropdown list, edit its name and [Edit] link below, click [Save]
-* Click [Load], wait for contents to load
-* Now you can [Save to file] loaded content and later [Open from file] to save time
+* Select new item in dropdown list, edit its name, click [Edit], edit link below, click [Save]
+* Click [Load], wait for folder contents to load
+* Now you can save loaded content to .json file by clicking [Save to file] and later load it to save time
 ### Get links and sync files
 * On right side choose folder on your computer that you wish to use as save/sync folder
 * Check web folders that you wish to download/sync
@@ -32,6 +32,7 @@ Web server indexes:
 * New form will be displayed, check files that you wish to download
 * Click [Get JDownloader links]
 * JD link container with random name will be created in app folder
-* [Mega download] if web folder is mega folder (no spicy JD links for mega)
+* Use [Mega download] if web folder is mega folder (no spicy JD links for mega)
+* Use [Download] for Allsync files (even password protected) or files from web index folders
 ### Yandex disk support
 * If user is logined in yandex, they can add selected files directly to ya.disk. If there is enough free space, files will be created in folder named <yadisk_browser_folder>
