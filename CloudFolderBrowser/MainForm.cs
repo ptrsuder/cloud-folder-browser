@@ -1426,7 +1426,8 @@ namespace CloudFolderBrowser
 
         private void AddNewPublicFolder_button_Click(object sender, EventArgs e)
         {
-            publicFolders.Add("New item" + (publicFolders.Count - 4), publicFolderKey_textBox.Text);
+            var newkey = DateTime.Now.ToString("MM/dd/yyyy hh-mm-ss");           
+            publicFolders.Add(newkey, publicFolderKey_textBox.Text);
             publicFolders_comboBox.DataSource = new BindingSource(publicFolders, null);
             //publicFolders_comboBox.Update();
             UpdatePublicFoldersSetting();
