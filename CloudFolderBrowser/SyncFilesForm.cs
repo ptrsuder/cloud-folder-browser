@@ -97,7 +97,8 @@ namespace CloudFolderBrowser
             newFilesTreeViewAdv.Model = new SortedTreeModel(newFiles_model);
             newFilesTreeViewAdv.BeginUpdate();
             newFiles_model.Nodes.Add(rootNode);
-
+            List<ColumnNode> folderNodes = new List<ColumnNode>();
+            folderNodes.Add(rootNode);
             foreach (CloudFile file in newFilesFolder.Files)
             {
                 ColumnNode ffileNode = new ColumnNode(file.Name, file.Created, file.Modified, file.Size);
@@ -105,30 +106,32 @@ namespace CloudFolderBrowser
                 rootFlatNode.Nodes.Add(ffileNode);
 
                 string[] folders = ParsePath(file.Path);
-                if (folders == null)
+                if (folders == null) //file is in root folder
                 {
                     ColumnNode subNode = new ColumnNode(file.Name, file.Created, file.Modified, file.Size);
                     subNode.Tag = file;
-                    rootNode.Nodes.Add(subNode);
+                    rootNode.Nodes.Add(subNode);                   
                 }
                 else
                 {
                     ColumnNode currentNode = rootNode;
-                    //creating folders nodes and file node from file path
-                    string currentFolderPath = @"/"; //+ folders[0] + @"/";
+                    //creating folder nodes and file node from file path
+                    string currentFolderPath = @"/";
                     for (int i = 0; i < folders.Length; i++)
                     {
                         if (folders[i] == "")
                         {
-
                         }
                         currentFolderPath += folders[i] + @"/";
                         ColumnNode subNode = new ColumnNode(folders[i], file.Created, file.Modified, 0);
-                        if (currentNode.Nodes.ToList().ConvertAll(x => x.Text).Contains(folders[i]))
-                            currentNode = (ColumnNode)currentNode.Nodes.ToList().Find(x => x.Text == folders[i]);
+                        var folderNode = folderNodes.Find(x => (x as ColumnNode).Path == currentFolderPath);
+                        if (folderNode != null)                           
+                            currentNode = folderNode;
                         else
                         {
-                            currentNode.Nodes.Add(subNode);
+                            subNode.Path = currentFolderPath;
+                            currentNode.Nodes.Add(subNode);                            
+                            folderNodes.Add(subNode);
                             currentNode = subNode;
                         }
                         if (i == folders.Length - 1)
@@ -136,9 +139,15 @@ namespace CloudFolderBrowser
                             ColumnNode fileNode = new ColumnNode(file.Name, file.Created, file.Modified, file.Size);
                             fileNode.Tag = file;
                             currentNode.Nodes.Add(fileNode);
+                            currentNode.Size += fileNode.Size;
                         }
                     }
                 }
+            }
+            foreach(ColumnNode node in folderNodes)
+            {
+                if(node.Parent.Index != -1)
+                    (node.Parent as ColumnNode).Size += node.Size;
             }
             //Form1.BuildSubfolderNodes(rootNode);
             //BuildFullFolderStructure(rootNode);
