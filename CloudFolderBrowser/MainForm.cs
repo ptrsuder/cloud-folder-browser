@@ -1226,13 +1226,8 @@ namespace CloudFolderBrowser
                 CloudFolder newFilesFolder = new CloudFolder(cloudPublicFolder.Name, cloudPublicFolder.Created, cloudPublicFolder.Modified, cloudPublicFolder.Size);
                 newFilesFolder.PublicKey = cloudPublicFolder.PublicKey;
                 newFilesFolder.Files.AddRange(missingFiles);
-                newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
-                List<string> testUrls = new List<string>();
+                newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();           
                 
-                foreach(CloudFile file in newFilesFolder.Files)
-                {
-                    testUrls.Add((webdavClient as Client).GetServerUrl(file.Path, false).Result.Uri.AbsoluteUri);
-                }
                 SyncFilesForm syncFilesForm = new SyncFilesForm(newFilesFolder, cloudServiceType, WebdavCredential);
                 activeSyncForm = syncFilesForm;              
             }
