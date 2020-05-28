@@ -57,6 +57,11 @@ namespace CloudFolderBrowser
             ProgressLabel.Text = $"{(int)(e * FileInfo.Size / 100000000)}/{ (int)(FileInfo.Size / 1000000)} MB [{Math.Round(e,2)}%] {FileInfo.Name}";
         }
 
+        string EncodeAllsyncUrl(string url)
+        {
+            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F").Replace(" ", "%20");
+        }
+
         string EncodeWebUrl(string url)
         {
             return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F");
@@ -104,7 +109,7 @@ namespace CloudFolderBrowser
                     {
                         var encodedUrl = new Uri(downloadPath);     
                         var host = encodedUrl.Host;
-                        downloadPath = $"https://{host}/public.php/webdav{FileInfo.Path}";
+                        downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
                     }                        
                     DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.cancellationTokenSource.Token, _networkCredential);
                     //WebDacClient.webClient.DownloadProgressChanged += (s, e) =>
