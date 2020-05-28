@@ -576,7 +576,7 @@ namespace CloudFolderBrowser
                         }
                         else
                         {
-                            CloudFile r = new CloudFile(item);
+                            CloudFile r = new CloudFile(item);                         
                             subfolder.AddFile(r);
                             subfolder.SizeTopDirectoryOnly += r.Size;
                         }
@@ -1016,16 +1016,30 @@ namespace CloudFolderBrowser
             try
             {
                 url = url.Replace("#F!", "folder/").Replace("!", "#");
-                var nodes = megaClient.GetNodesFromLink(new Uri(url));
+                string lastId;
+                var nodes = megaClient.GetNodesFromLink(new Uri(url), out lastId);
                 cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
                 cloudPublicFolder.Path = "/";
-                cloudPublicFolder.PublicKey = Regex.Match(url, "(/folder/)(.*)").Groups[2].Value;
+                var match = Regex.Match(url, "(/folder/)([^/]+)");
+                cloudPublicFolder.PublicKey = Regex.Match(url, "(/folder/)(.*)#").Groups[2].Value;
                 Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
                 allfolders.Add(nodes.ElementAt(0).Id, cloudPublicFolder);
-                foreach (var node in nodes)
+                List<INode>  filteredNodes = nodes.ToList();
+                if (lastId != "")
+                {
+                    var subRootFolderNode = nodes.Where(x => x.Id == lastId).FirstOrDefault();                    
+                    CloudFolder subRootFolder = new CloudFolder(subRootFolderNode.Name, subRootFolderNode.CreationDate, DateTime.MinValue, subRootFolderNode.Size);
+                    cloudPublicFolder.AddSubfolder(subRootFolder);
+                    allfolders.Add(subRootFolderNode.Id, subRootFolder);
+                    filteredNodes = GetChildNodes(subRootFolderNode, nodes.ToArray());
+                    filteredNodes.Reverse();                    
+                }
+                foreach (var node in filteredNodes)
                 {
                     if (node.Type == NodeType.Directory)
                     {
+                        if (url.ToLower().Contains(node.Id.ToLower()))
+                            continue;
                         CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate, DateTime.MinValue, node.Size);
                         CloudFolder parentFolder = allfolders[node.ParentId];
                         subfolder.Path = parentFolder.Path + subfolder.Name + "/";
@@ -1052,6 +1066,17 @@ namespace CloudFolderBrowser
             {
                 MessageBox.Show("Cannot retrieve data from URL");
             }
+        }
+
+        List<INode> GetChildNodes(INode parent, INode[] nodes)
+        {
+            List<INode> allNewNodes = new List<INode>();
+            List<INode> newNodes = new List<INode>();
+            newNodes.AddRange(nodes.Where(x => x.ParentId == parent.Id));
+            foreach (var node in newNodes.Where(x => x.Type == NodeType.Directory))
+                allNewNodes.AddRange(GetChildNodes(node, nodes));
+            allNewNodes.AddRange(newNodes);
+            return allNewNodes;
         }
 
         async Task LoadFolderJson()
