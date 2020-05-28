@@ -688,7 +688,18 @@ namespace CloudFolderBrowser
         async Task Load_TheTrove(string url)
         {
             url = url.Replace("index.html", "");
-            
+            if (url == "https://thetrove.net" || url == "https://thetrove.net/")
+            {
+                MessageBox.Show("Use path to specific folder!");
+                return;
+            }
+            string[] bigFolders = new string[] { "Books", "Assets" };
+            foreach (var folder in bigFolders)
+                if (url == $@"https://thetrove.net/{folder}" || url == $@"https://thetrove.net/{folder}/")
+                {
+                    MessageBox.Show("Too much data to load. Use path for specific subfolder!");
+                    return;
+                }
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             cloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
