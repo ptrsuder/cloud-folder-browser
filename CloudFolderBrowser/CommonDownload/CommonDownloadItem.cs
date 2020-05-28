@@ -57,6 +57,11 @@ namespace CloudFolderBrowser
             ProgressLabel.Text = $"{(int)(e * FileInfo.Size / 100000000)}/{ (int)(FileInfo.Size / 1000000)} MB [{Math.Round(e,2)}%] {FileInfo.Name}";
         }
 
+        string EncodeWebUrl(string url)
+        {
+            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F");
+        }
+
         public async Task StartDownload()
         {
             try
@@ -94,7 +99,7 @@ namespace CloudFolderBrowser
                 if (overwriteFile == DialogResult.Yes)
                 {                                        
                     CustomHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                    string downloadPath = FileInfo.PublicUrl.OriginalString.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F");
+                    string downloadPath = EncodeWebUrl(FileInfo.PublicUrl.OriginalString);
                     if(ParentDownload.CloudService == CloudServiceType.Allsync)
                     {
                         var encodedUrl = new Uri(downloadPath);     

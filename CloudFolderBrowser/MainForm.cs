@@ -725,6 +725,16 @@ namespace CloudFolderBrowser
             UpdateTreeModel();           
         }
 
+        string EncodeTroveUrl(string url)
+        {
+            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F").Replace(" ", "%20"); 
+        }
+
+        string DecodeTroveUrl(string url)
+        {
+            return url.Replace("%23", "#").Replace("%2C", ",").Replace("%3F", "?").Replace("%20", " "); 
+        }
+
         async Task ParseTheTroveFolder(CloudFolder folder, string path)
         {
             if (folder.Name == "")
@@ -738,7 +748,8 @@ namespace CloudFolderBrowser
             using (var webpage = new System.Net.WebClient())
             {
                 webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
-                data = await webpage.DownloadStringTaskAsync(TroveRootFolderAddress + folder.Path);               
+                var url = EncodeTroveUrl(TroveRootFolderAddress + folder.Path);
+                data = await webpage.DownloadStringTaskAsync(url);           
             }
 
             HtmlWeb web = new HtmlWeb();
@@ -753,7 +764,7 @@ namespace CloudFolderBrowser
                 if(rows[i].Attributes["class"].Value == "litem dir")                
                 {                    
                     CloudFolder subfolder = new CloudFolder(cells[1].InnerText, DateTime.MinValue, DateTime.Parse(cells[2].InnerText), ParseSizeToKb(cells[3].InnerText));
-                    subfolder.Path = folder.Path + HttpUtility.UrlDecode(cells[1].FirstChild.Attributes["href"].Value) + "/";
+                    subfolder.Path = folder.Path + DecodeTroveUrl(cells[1].FirstChild.Attributes["href"].Value) + "/";
                     folder.Subfolders.Add(subfolder);
                     await ParseTheTroveFolder(subfolder, subfolder.Path);
                 }
@@ -761,14 +772,14 @@ namespace CloudFolderBrowser
                 {
                     CloudFile file = new CloudFile(cells[1].InnerText, DateTime.MinValue, DateTime.Parse(cells[2].InnerText), ParseSizeToKb(cells[3].InnerText))
                     {
-                        Path = folder.Path + HttpUtility.UrlDecode(cells[1].FirstChild.Attributes["href"].Value.Remove(0,1))                        
+                        Path = folder.Path + DecodeTroveUrl(cells[1].FirstChild.Attributes["href"].Value.Remove(0,1))                        
                     };
                     file.PublicUrl = new Uri(TroveRootFolderAddress + file.Path);
                     folder.AddFile(file);
                     folder.SizeTopDirectoryOnly += file.Size;
                 }
             }
-        }
+        }        
           
         long ParseSizeToKb(string size)
         {
