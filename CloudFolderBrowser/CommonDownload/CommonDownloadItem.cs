@@ -167,10 +167,7 @@ namespace CloudFolderBrowser
                     {
                         progress.Report(e.ProgressPercentage);
                     };
-                    //var encodedUrl = new Uri(downloadUri);
-                    //var url = downloadUri.Replace(encodedUrl.Scheme + @"://", "");
-                    //url = HttpUtility.UrlEncode(url);
-                    //var uri = $"{encodedUrl.Scheme}://{encodedUrl.Host}/{HttpUtility.UrlEncode(encodedUrl.AbsolutePath)}{HttpUtility.UrlEncode(encodedUrl.Fragment)}";
+                    
                     await webClient.DownloadFileTaskAsync(downloadUri, outputFile);
                 }
             }
@@ -178,11 +175,7 @@ namespace CloudFolderBrowser
             {
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
-            }
-            catch (WebException ex)
-            {
-               
-            }
+            }           
         }
     }
 }
