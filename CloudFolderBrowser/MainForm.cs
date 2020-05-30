@@ -1328,8 +1328,17 @@ namespace CloudFolderBrowser
                 return;
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[0]);
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[3]);
-            //e.Node.Tree.Columns[0].Width += 10;
+            e.Node.Tree.Columns[0].Width += (int) Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
             //e.Node.Tree.Columns[3].Width += 10;
+        }
+
+        private void treeViewAdv_Collapsed(object sender, TreeViewAdvEventArgs e)
+        {
+            if (!e.Node.CanExpand)
+                return;
+            e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[0], false);
+            e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[3], false);
+            e.Node.Tree.Columns[0].Width += (int)Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
         }
 
         private void treeViewAdv_ColumnClicked(object sender, TreeColumnEventArgs e)

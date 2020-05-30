@@ -9,7 +9,7 @@ namespace Aga.Controls.Tree
 {
 	public partial class TreeViewAdv
 	{
-		public void AutoSizeColumn(TreeColumn column)
+		public void AutoSizeColumn(TreeColumn column, bool expand = true)
 		{
 			if (!Columns.Contains(column))
 				throw new ArgumentException("column");
@@ -32,7 +32,10 @@ namespace Aga.Controls.Tree
 					res = Math.Max(res, w);
 				}
 			}
-
+			if (expand && res < column.Width) //width is smaller after expand, wtf?
+				return;
+			if (!expand && res > column.Width) //width is bigger after collapse, wtf?
+				return;
 			if (res > 0)
 				column.Width = res;
 		}
