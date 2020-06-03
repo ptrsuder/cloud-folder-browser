@@ -49,7 +49,7 @@ namespace CloudFolderBrowser
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName, NetworkCredential networkCredential = null)
+        public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName, NetworkCredential networkCredential)
         {
             InitializeComponent();
 
@@ -596,7 +596,7 @@ namespace CloudFolderBrowser
             }
             usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
             
-            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential);
+            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
             commonDownload.Start();
 
             stopDownload_button.Enabled = true;
@@ -675,12 +675,7 @@ namespace CloudFolderBrowser
         {
             newFilesTreeViewAdv.UpdateNodeFilter();
         }
-
-        private void overwriteMode_comboBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            
-        }
-
+                
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             if (flatList2_checkBox.Checked)
@@ -702,8 +697,7 @@ namespace CloudFolderBrowser
                 newFilesTreeViewAdv.Root.Children[0].Expand();              
             }            
         }
-    }
-    
+    }    
 
     public class DownloadLink
     {

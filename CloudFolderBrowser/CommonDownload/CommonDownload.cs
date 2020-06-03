@@ -25,18 +25,25 @@ namespace CloudFolderBrowser
         string downloadFolderPath;
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public int OverwriteMode;
-        public CloudServiceType CloudService;
+        public CloudServiceType CloudService;       
 
 
-        public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, CloudServiceType cloudServiceType, int overwriteMode = 3, NetworkCredential networkCredential = null)
+        public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, CloudServiceType cloudServiceType, int overwriteMode = 3, NetworkCredential networkCredential = null, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
             downloads = new List<CommonFileDownload>();
             OverwriteMode = overwriteMode;
-            CloudService = cloudServiceType;
+            CloudService = cloudServiceType;           
 
-            downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+            if (folderNewFiles)
+                downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+            else
+                downloadFolderPath = MainForm.syncFolderPath;
+
+            //var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+            //string log = $"{DateTime.Now}\ndownloadFolderPath:{downloadFolderPath}\nlogin: {networkCredential.UserName}\npassword: {networkCredential.Password}\n";
+            //File.AppendAllText(logFileName, log);
 
             try
             {
@@ -54,7 +61,7 @@ namespace CloudFolderBrowser
         }
 
         public void Start()
-        {
+        {            
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;
             lock (downloadQueue)
@@ -84,29 +91,27 @@ namespace CloudFolderBrowser
                 d.ProgressLabel.Visible = false;
 
                 if (downloadQueue.Count > 0)
-                {
-                    //if (d.ProgressBar.Tag == null)
-                    //{
+                {                   
                     CommonFileDownload newd = downloadQueue.Dequeue();
                     newd.ProgressBar = d.ProgressBar;
                     newd.ProgressLabel = d.ProgressLabel;                   
                     newd.StartDownload();
-                    //}
-                }
-                if (finishedDownloads == downloads.Count)
-                {                             
-                    DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
-                    downloadsFinishedForm.Show();
-                }
+                }                
             }
             finishedDownloads++;
             progresslabels[progresslabels.Length - 1].Text = $"{finishedDownloads}/{downloads.Count} files finished";
+
+            if (finishedDownloads == downloads.Count)
+            {
+                DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
+                downloadsFinishedForm.Show();
+            }
         }
 
         public void Stop()
         {
-            foreach (var fileDownload in this.downloads)
-                cancellationTokenSource.Cancel();   
+            //foreach (var fileDownload in this.downloads)
+            cancellationTokenSource.Cancel();
         }
 
     }

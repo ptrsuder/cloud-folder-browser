@@ -50,6 +50,8 @@ namespace CloudFolderBrowser
         bool continueAfterCheck = true;
 
         public IClient webdavClient;
+
+        bool debugMode = false;
         
         int checkedFilesNumber = 0;
         double checkedFilesSize = 0.0;
@@ -829,14 +831,20 @@ namespace CloudFolderBrowser
             cloudPublicFolder.Path = path;
             string password = "";
             string folderKey = uriStructure[2];
+            WriteToLog($"\n{DateTime.Now}\n Searching for password for {folderKey} \n\n");
             if (savedPasswords.ContainsKey(folderKey))
+            {
                 password = savedPasswords[folderKey];
-            UpdateWebdavClient(folderKey, password);          
+                WriteToLog($"\n{DateTime.Now}\n {folderKey} - password {password} \n\n");
+                
+            }
+            UpdateWebdavClient(folderKey, password);
 
             if (onlyCheck)
             {
                 await CheckAllsyncFolder();
-                WebdavCredential = new NetworkCredential { UserName = uriStructure[2], Password = password };
+                WriteToLog($"\n{DateTime.Now}\n Storing password {password} \n\n");
+                WebdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
                 return;
             }
 
@@ -879,10 +887,19 @@ namespace CloudFolderBrowser
             }
             catch (System.Exception ex)
             {
-                DialogResult continueDialogResult = MessageBox.Show("Cannot retrieve data from url. Maybe link is dead. Still continue?", "", MessageBoxButtons.YesNo);
+                DialogResult continueDialogResult = MessageBox.Show("Cannot retrieve data from url. Maybe link is dead.", "", MessageBoxButtons.OK);
                 continueAfterCheck = continueDialogResult == DialogResult.Yes;
                 return;
             }
+        }
+
+        void WriteToLog(string message)
+        {
+            if(debugMode)
+            {
+                var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                File.AppendAllText(logFileName, message);
+            }           
         }
 
         NetworkCredential WebdavCredential = null;
@@ -905,15 +922,14 @@ namespace CloudFolderBrowser
             {
                 if (password != "")
                     UpdateWebdavClient(folderKey, password);
-                items = await webdavClient.List(cloudPublicFolder.Path, 9999);
-
-                WebdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
+                items = await webdavClient.List(cloudPublicFolder.Path, 9999);                     
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
                 if (ex.GetHttpCode() == 401 || ex.GetHttpCode() == 500)
                 {
-                    if(password == "")
+                    WriteToLog($"\n{DateTime.Now}\n Password {password} wrong \n\n");
+                    if (password == "")
                     {
                         PasswordForm passwordForm = new PasswordForm();
                         passwordForm.ShowDialog();
@@ -922,17 +938,9 @@ namespace CloudFolderBrowser
                         password = passwordForm.Password;
                     }
 
-                    UpdateWebdavClient(folderKey, password);
-
-                    await LoadAllsyncInOneGo(folderKey);
+                    UpdateWebdavClient(folderKey, password);                    
+                    await LoadAllsyncInOneGo(folderKey);                 
                     
-                    if (savedPasswords.ContainsKey(folderKey))
-                        savedPasswords[folderKey] = password;
-                    else
-                        savedPasswords.Add(folderKey, password);
-                    Properties.Settings.Default.savedPasswordsJson = JsonConvert.SerializeObject(savedPasswords);
-                    Properties.Settings.Default.Save();
-
                     return;
                 }
                 MessageBox.Show("Bad url of no connection \n" + ex.Message);
@@ -943,7 +951,18 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Bad url or no connection");
                 return;
             }
-            
+
+            password = (webdavClient as Client).Credentials.Password;
+            if (savedPasswords.ContainsKey(folderKey))
+                savedPasswords[folderKey] = password;
+            else
+                savedPasswords.Add(folderKey, password);
+            Properties.Settings.Default.savedPasswordsJson = JsonConvert.SerializeObject(savedPasswords);
+            Properties.Settings.Default.Save();
+
+            WebdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
+            WriteToLog($"\n{DateTime.Now}\nStoring(2) password: {password} \n\n");
+
             List<CloudFolder> allFolders = new List<CloudFolder> { cloudPublicFolder };
 
             foreach (var item in items)
@@ -1253,7 +1272,7 @@ namespace CloudFolderBrowser
                 }
                 else
                 {
-                    Directory.CreateDirectory(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
+                    //Directory.CreateDirectory(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
                     missingFiles.AddRange(folder.GetFlatFilesList());
                 }
             }
@@ -1262,8 +1281,9 @@ namespace CloudFolderBrowser
                 CloudFolder newFilesFolder = new CloudFolder(cloudPublicFolder.Name, cloudPublicFolder.Created, cloudPublicFolder.Modified, cloudPublicFolder.Size);
                 newFilesFolder.PublicKey = cloudPublicFolder.PublicKey;
                 newFilesFolder.Files.AddRange(missingFiles);
-                newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();           
-                
+                newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
+
+                WriteToLog($"\n{DateTime.Now}\n  Create SyncFilesForm with {WebdavCredential?.UserName}-{WebdavCredential?.Password} \n\n");
                 SyncFilesForm syncFilesForm = new SyncFilesForm(newFilesFolder, cloudServiceType, WebdavCredential);
                 activeSyncForm = syncFilesForm;              
             }
@@ -1477,7 +1497,7 @@ namespace CloudFolderBrowser
 
         private void AddNewPublicFolder_button_Click(object sender, EventArgs e)
         {
-            var newkey = DateTime.Now.ToString("MM/dd/yyyy hh-mm-ss");           
+            var newkey = DateTime.Now.ToString("MM-dd-yyyy hh-mm-ss");           
             publicFolders.Add(newkey, publicFolderKey_textBox.Text);
             publicFolders_comboBox.DataSource = new BindingSource(publicFolders, null);
             //publicFolders_comboBox.Update();

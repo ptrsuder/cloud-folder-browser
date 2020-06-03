@@ -1,6 +1,7 @@
 ﻿using CG.Web.MegaApiClient;
 using System;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -80,20 +81,25 @@ namespace CloudFolderBrowser
                     await DownloadTask;
                 }              
                 MegaDownload.UpdateQueue(this);
-            }
-            catch(Exception ex)
+            }           
+            catch (Exception ex)
             {
                 if (DownloadTask.IsCanceled)
+                {
                     DownloadTask.Dispose();
-                //MessageBox.Show(ex.Message);
+                    if (File.Exists(SavePath))
+                        File.Delete(SavePath);
+                    ProgressBar.Value = 0;
+                    ProgressLabel.Text = "";
+                }
+                else
+                {
+                    var logFileName = $"00-DOWNLOAD-LOG-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                    string log = $"\n{DateTime.Now}\nNode id: {Node.Id}\nSavePath:{SavePath}\nexception: {ex.Message}\n";
+                    File.AppendAllText(logFileName, log);
+                }
             }
-            finally
-            {
-                //Finished = true;
-                //ProgressBar.Tag = null;
-                //ProgressBar.Value = 0;
-                //ProgressLabel.Visible = false;
-            }
+           
         }
     }
 

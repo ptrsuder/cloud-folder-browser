@@ -49,6 +49,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.yadiskSpace_progressBar = new System.Windows.Forms.ProgressBar();
             this.yadiskSpace_label = new System.Windows.Forms.Label();
             this.publicFolderKey_textBox = new System.Windows.Forms.TextBox();
@@ -141,6 +142,7 @@
             // 
             // publicFolderKey_textBox
             // 
+            this.publicFolderKey_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.publicFolderKey_textBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.publicFolderKey_textBox.Location = new System.Drawing.Point(0, 0);
             this.publicFolderKey_textBox.Name = "publicFolderKey_textBox";
@@ -152,6 +154,7 @@
             // browseSyncFolder_button
             // 
             this.browseSyncFolder_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.browseSyncFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.browseSyncFolder_button.Location = new System.Drawing.Point(1, 0);
             this.browseSyncFolder_button.Name = "browseSyncFolder_button";
             this.browseSyncFolder_button.Size = new System.Drawing.Size(47, 21);
@@ -162,6 +165,7 @@
             // 
             // syncFolderPath_textBox
             // 
+            this.syncFolderPath_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.syncFolderPath_textBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.syncFolderPath_textBox.Location = new System.Drawing.Point(0, 0);
             this.syncFolderPath_textBox.Name = "syncFolderPath_textBox";
@@ -255,7 +259,7 @@
             this.name_treeColumn.Sortable = true;
             this.name_treeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
             this.name_treeColumn.TooltipText = null;
-            this.name_treeColumn.Width = 20;
+            this.name_treeColumn.Width = 120;
             // 
             // created_treeColumn
             // 
@@ -441,9 +445,10 @@
             this.editPublicFolderKey_button.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.editPublicFolderKey_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.editPublicFolderKey_button.Location = new System.Drawing.Point(50, 0);
             this.editPublicFolderKey_button.Name = "editPublicFolderKey_button";
-            this.editPublicFolderKey_button.Size = new System.Drawing.Size(46, 20);
+            this.editPublicFolderKey_button.Size = new System.Drawing.Size(46, 21);
             this.editPublicFolderKey_button.TabIndex = 25;
             this.editPublicFolderKey_button.Text = "Edit";
             this.editPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -455,9 +460,10 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.savePublicFolderKey_button.Enabled = false;
+            this.savePublicFolderKey_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.savePublicFolderKey_button.Location = new System.Drawing.Point(97, 0);
             this.savePublicFolderKey_button.Name = "savePublicFolderKey_button";
-            this.savePublicFolderKey_button.Size = new System.Drawing.Size(50, 20);
+            this.savePublicFolderKey_button.Size = new System.Drawing.Size(50, 21);
             this.savePublicFolderKey_button.TabIndex = 17;
             this.savePublicFolderKey_button.Text = "Save";
             this.savePublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -468,9 +474,10 @@
             this.loadPublicFolderKey_button.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.loadPublicFolderKey_button.Location = new System.Drawing.Point(3, 0);
+            this.loadPublicFolderKey_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.loadPublicFolderKey_button.Location = new System.Drawing.Point(2, 0);
             this.loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(46, 20);
+            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(46, 21);
             this.loadPublicFolderKey_button.TabIndex = 9;
             this.loadPublicFolderKey_button.Text = "Load";
             this.loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -494,7 +501,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(199, 32);
+            this.label3.Location = new System.Drawing.Point(211, 32);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(58, 13);
             this.label3.TabIndex = 27;
@@ -511,12 +518,13 @@
             // 
             // beforeDate_dateTimePicker
             // 
-            this.beforeDate_dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.beforeDate_dateTimePicker.Location = new System.Drawing.Point(258, 30);
+            this.beforeDate_dateTimePicker.CustomFormat = "  dd.MM.yy";
+            this.beforeDate_dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.beforeDate_dateTimePicker.Location = new System.Drawing.Point(271, 30);
             this.beforeDate_dateTimePicker.MaxDate = new System.DateTime(2018, 11, 26, 0, 0, 0, 0);
             this.beforeDate_dateTimePicker.MinDate = new System.DateTime(2013, 11, 21, 0, 0, 0, 0);
             this.beforeDate_dateTimePicker.Name = "beforeDate_dateTimePicker";
-            this.beforeDate_dateTimePicker.Size = new System.Drawing.Size(81, 20);
+            this.beforeDate_dateTimePicker.Size = new System.Drawing.Size(85, 20);
             this.beforeDate_dateTimePicker.TabIndex = 26;
             this.beforeDate_dateTimePicker.Value = new System.DateTime(2018, 11, 26, 0, 0, 0, 0);
             this.beforeDate_dateTimePicker.ValueChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
@@ -533,12 +541,14 @@
             // 
             // afterDate_dateTimePicker
             // 
-            this.afterDate_dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.afterDate_dateTimePicker.CustomFormat = "  dd.MM.yy";
+            this.afterDate_dateTimePicker.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.afterDate_dateTimePicker.Location = new System.Drawing.Point(120, 29);
             this.afterDate_dateTimePicker.MaxDate = new System.DateTime(2018, 11, 26, 0, 0, 0, 0);
             this.afterDate_dateTimePicker.MinDate = new System.DateTime(2011, 9, 11, 0, 0, 0, 0);
             this.afterDate_dateTimePicker.Name = "afterDate_dateTimePicker";
-            this.afterDate_dateTimePicker.Size = new System.Drawing.Size(80, 20);
+            this.afterDate_dateTimePicker.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.afterDate_dateTimePicker.Size = new System.Drawing.Size(91, 20);
             this.afterDate_dateTimePicker.TabIndex = 25;
             this.afterDate_dateTimePicker.Value = new System.DateTime(2012, 1, 1, 0, 0, 0, 0);
             this.afterDate_dateTimePicker.ValueChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
@@ -546,6 +556,7 @@
             // filter_textBox
             // 
             this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.filter_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.filter_textBox.Location = new System.Drawing.Point(0, 4);
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(121, 20);
@@ -556,9 +567,10 @@
             // 
             this.flatList_checkBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flatList_checkBox.AutoSize = true;
+            this.flatList_checkBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.flatList_checkBox.Location = new System.Drawing.Point(130, 6);
             this.flatList_checkBox.Name = "flatList_checkBox";
-            this.flatList_checkBox.Size = new System.Drawing.Size(58, 17);
+            this.flatList_checkBox.Size = new System.Drawing.Size(55, 17);
             this.flatList_checkBox.TabIndex = 12;
             this.flatList_checkBox.Text = "Flat list";
             this.flatList_checkBox.UseVisualStyleBackColor = true;
@@ -578,6 +590,7 @@
             // 
             this.syncFolders_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.syncFolders_button.Enabled = false;
+            this.syncFolders_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.syncFolders_button.Location = new System.Drawing.Point(3, 2);
             this.syncFolders_button.Name = "syncFolders_button";
             this.syncFolders_button.Size = new System.Drawing.Size(141, 22);
@@ -590,6 +603,7 @@
             // 
             this.showSyncForm_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.showSyncForm_button.Enabled = false;
+            this.showSyncForm_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.showSyncForm_button.Location = new System.Drawing.Point(3, 27);
             this.showSyncForm_button.Name = "showSyncForm_button";
             this.showSyncForm_button.Size = new System.Drawing.Size(92, 22);
@@ -600,6 +614,7 @@
             // 
             // LoadFromFile_button
             // 
+            this.LoadFromFile_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.LoadFromFile_button.Location = new System.Drawing.Point(426, 86);
             this.LoadFromFile_button.Name = "LoadFromFile_button";
             this.LoadFromFile_button.Size = new System.Drawing.Size(82, 22);
@@ -610,6 +625,7 @@
             // 
             // SaveToFile_button
             // 
+            this.SaveToFile_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.SaveToFile_button.Location = new System.Drawing.Point(510, 86);
             this.SaveToFile_button.Name = "SaveToFile_button";
             this.SaveToFile_button.Size = new System.Drawing.Size(77, 22);
@@ -620,6 +636,7 @@
             // 
             // publicFolders_comboBox
             // 
+            this.publicFolders_comboBox.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.publicFolders_comboBox.FormattingEnabled = true;
             this.publicFolders_comboBox.Location = new System.Drawing.Point(135, 86);
             this.publicFolders_comboBox.Name = "publicFolders_comboBox";
@@ -649,6 +666,7 @@
             // 
             // addNewPublicFolder_button
             // 
+            this.addNewPublicFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.addNewPublicFolder_button.Location = new System.Drawing.Point(13, 85);
             this.addNewPublicFolder_button.Name = "addNewPublicFolder_button";
             this.addNewPublicFolder_button.Size = new System.Drawing.Size(60, 22);
@@ -659,6 +677,7 @@
             // 
             // deletePublicFolder_button
             // 
+            this.deletePublicFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.deletePublicFolder_button.Location = new System.Drawing.Point(76, 85);
             this.deletePublicFolder_button.Name = "deletePublicFolder_button";
             this.deletePublicFolder_button.Size = new System.Drawing.Size(54, 22);
@@ -670,6 +689,7 @@
             // loginYandex_button
             // 
             this.loginYandex_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.loginYandex_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.loginYandex_button.Location = new System.Drawing.Point(1197, 23);
             this.loginYandex_button.Name = "loginYandex_button";
             this.loginYandex_button.Size = new System.Drawing.Size(51, 36);
@@ -702,6 +722,7 @@
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.yadiskSpace_label);
             this.Controls.Add(this.yadiskSpace_progressBar);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(612, 500);
             this.Name = "MainForm";
             this.Text = "CloudFolderBrowser";

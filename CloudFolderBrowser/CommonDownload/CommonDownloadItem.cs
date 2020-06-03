@@ -110,15 +110,13 @@ namespace CloudFolderBrowser
                         var encodedUrl = new Uri(downloadPath);     
                         var host = encodedUrl.Host;
                         downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
-                    }                        
+                    }
+
+                    //var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                    //string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {SavePath}\n";
+                    //File.AppendAllText(logFileName, log);   
+
                     DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.cancellationTokenSource.Token, _networkCredential);
-                    //WebDacClient.webClient.DownloadProgressChanged += (s, e) =>
-                    //{
-                    //    var percent = e.ProgressPercentage;
-                    //    var received = e.BytesReceived;
-                    //    ProgressBar.Value = (int)percent;
-                    //    ProgressLabel.Text = $"{(int)(received / 100000000)}/{ (int)(FileInfo.Size / 1000000)} MB [{percent}%] {FileInfo.Name}";
-                    //};                    
                     await DownloadTask;                   
                 }               
                 ParentDownload.UpdateQueue(this);
@@ -128,14 +126,7 @@ namespace CloudFolderBrowser
                 if (DownloadTask.IsCanceled)
                     DownloadTask.Dispose();
                 //MessageBox.Show(ex.Message);
-            }
-            finally
-            {
-                //Finished = true;
-                //ProgressBar.Tag = null;
-                //ProgressBar.Value = 0;
-                //ProgressLabel.Visible = false;
-            }
+            }            
         }
 
         WebClient webClient = new WebClient();
@@ -175,7 +166,13 @@ namespace CloudFolderBrowser
             {
                 if (File.Exists(outputFile))
                     File.Delete(outputFile);
-            }           
+            }  
+            catch (Exception ex)
+            {
+                var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                string log = $"{DateTime.Now}\ndownloadPath: {downloadUri}\nSavePath: {outputFile}\nexception: {ex.Message}";
+                File.AppendAllText(logFileName, log);
+            }
         }
     }
 }

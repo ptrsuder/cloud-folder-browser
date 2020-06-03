@@ -111,11 +111,11 @@ namespace WebDAVClient
         public RemoteCertificateValidationCallback ServerCertificateValidationCallback { get; set; }
         #endregion
               
-        private NetworkCredential _credentials;
+        public NetworkCredential Credentials;
 
         public Client(NetworkCredential credential = null, TimeSpan? uploadTimeout = null, IWebProxy proxy = null)
         {
-            _credentials = credential;
+            Credentials = credential;
             HttpClientHandler handler = new HttpClientHandler();
             if (proxy != null && handler.SupportsProxy)
                 handler.Proxy = proxy;
@@ -620,7 +620,7 @@ namespace WebDAVClient
                 using (var registration = cancellationToken.Register(() => webClient.CancelAsync()))
                 {
                     webClient.Headers = new WebHeaderCollection();
-                    webClient.Credentials = _credentials;
+                    webClient.Credentials = Credentials;
 
                     foreach (var keyValuePair in CustomHeaders)
                         webClient.Headers.Add(keyValuePair.Key, keyValuePair.Value);

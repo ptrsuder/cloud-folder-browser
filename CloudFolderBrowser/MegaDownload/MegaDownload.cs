@@ -104,8 +104,8 @@ namespace CloudFolderBrowser
 
         public void Stop()
         {
-            foreach (var fileDownload in this.downloads)
-                cancellationTokenSource.Cancel();         
+            //foreach (var fileDownload in this.downloads)
+            cancellationTokenSource.Cancel();         
             //TODO: delete leftover files
         }
 
