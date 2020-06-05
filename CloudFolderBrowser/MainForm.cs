@@ -17,6 +17,7 @@ using HtmlAgilityPack;
 using System.Web;
 using WebDAVClient;
 using CG.Web.MegaApiClient;
+using Exception = System.Exception;
 
 
 
@@ -589,7 +590,7 @@ namespace CloudFolderBrowser
                 else
                     subfolder.Copy(rc.GetResource(subfolder.Path, limit: 999));
             }
-            catch (System.Exception e)
+            catch (Exception ex)
             { 
             }
             return subfolder;
@@ -891,9 +892,9 @@ namespace CloudFolderBrowser
             }
         }
 
-        void WriteToLog(string message)
+        void WriteToLog(string message, bool force = false)
         {
-            if(debugMode)
+            if(debugMode || force)
             {
                 var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
                 File.AppendAllText(logFileName, message);
@@ -944,7 +945,7 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Bad url of no connection \n" + ex.Message);
                 return;
             }
-            catch(System.Exception ex2)
+            catch(Exception ex2)
             {
                 MessageBox.Show("Bad url or no connection");
                 return;
@@ -1079,9 +1080,10 @@ namespace CloudFolderBrowser
                 cloudPublicFolder.CalculateFolderSize();
                 UpdateTreeModel();               
             }
-            catch
+            catch(Exception ex)
             {
                 MessageBox.Show("Cannot retrieve data from URL");
+                WriteToLog(ex.Message, true);
             }
         }
 
