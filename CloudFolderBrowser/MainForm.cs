@@ -523,13 +523,13 @@ namespace CloudFolderBrowser
 
         #region Yadisk
 
-        void LoadYadisk(string publicKey)
+        async Task LoadYadisk(string publicKey)
         {          
             try
             {                
                 rl_root = rc.GetPublicResource(publicKey, limit: 999);
-                cloudPublicFolder = new CloudFolder(rl_root);
-                GetFolders(new List<CloudFolder> { cloudPublicFolder });
+                cloudPublicFolder = new CloudFolder(rl_root);              
+                await GetFolders(new List<CloudFolder> { cloudPublicFolder });
                 cloudPublicFolder.CalculateFolderSize();
                 UpdateTreeModel();                
             }
@@ -539,19 +539,21 @@ namespace CloudFolderBrowser
             }
         }
 
-        void GetFolders(List<CloudFolder> folders)
-        {
-            tasks = new List<Task>();
+        async Task GetFolders(List<CloudFolder> folders)
+        {            
             List<CloudFolder> nextLevel = new List<CloudFolder>();
-            CloudFolder s;
+  
             string rootPublicKey = folders[0].PublicKey;
+            List<CloudFolder> list = new List<CloudFolder>();
+
             foreach (CloudFolder folder in folders)
             {
                 foreach (CloudFolder subfolder in folder.Subfolders)
-                    tasks.Add(Task.Factory.StartNew(function: () => s = GetSubfolders(subfolder, rootPublicKey)));
+                    list.Add(subfolder);
             }
-            Task.WaitAll(tasks.ToArray());
-            tasks.Clear();
+            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 5 };
+            Parallel.ForEach(list, options, (subfolder) =>{GetSubfolders(subfolder, rootPublicKey);});           
+           
             foreach (CloudFolder folder in folders)
             {
                 foreach (CloudFolder subfolder in folder.Subfolders)
@@ -559,7 +561,7 @@ namespace CloudFolderBrowser
                         nextLevel.Add(subfolder);
             }
             if (nextLevel.Count > 0)
-                GetFolders(nextLevel);
+                await GetFolders(nextLevel);
         }
 
         CloudFolder GetSubfolders(CloudFolder subfolder, string rootPublicKey = null)
@@ -582,8 +584,7 @@ namespace CloudFolderBrowser
                             subfolder.AddFile(r);
                             subfolder.SizeTopDirectoryOnly += r.Size;
                         }
-                    }
-                    //subfolder.Size = Math.Round(subfolder.Size / 1024000, 2);
+                    }                   
                 }
                 else
                     subfolder.Copy(rc.GetResource(subfolder.Path, limit: 999));
@@ -852,10 +853,7 @@ namespace CloudFolderBrowser
             var webpage = new System.Net.WebClient();
             webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";            
             Task<string> ts = webpage.DownloadStringTaskAsync(new Uri(allsyncRootFolderAddress));
-
-            //if (savedPasswords.ContainsKey(uriStructure[2]))
-            //    await LoadAllsyncInOneGo(uriStructure[2], savedPasswords[uriStructure[2]]);
-            //else
+                       
             await LoadAllsyncInOneGo(uriStructure[2]);
             if (cloudPublicFolder.Subfolders.Count == 0 && cloudPublicFolder.Files.Count == 0)
                 return;
@@ -1453,7 +1451,7 @@ namespace CloudFolderBrowser
                 switch (cloudServiceType)
                 {
                     case CloudServiceType.Yadisk:
-                        LoadYadisk(cloudFolderUrl);
+                        await LoadYadisk(cloudFolderUrl);
                         break;
                     case CloudServiceType.Allsync:
                         await LoadAllsync(cloudFolderUrl);
