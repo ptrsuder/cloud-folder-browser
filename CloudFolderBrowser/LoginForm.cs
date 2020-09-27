@@ -51,8 +51,9 @@ namespace CloudFolderBrowser
                 Properties.Settings.Default.accessTokenYandex = accessToken;
                 Properties.Settings.Default.Save();
                 parentForm.LoginYandex(accessToken);
+                this.Close();
             }
-            this.Close();
+            
         }
     }
 }
