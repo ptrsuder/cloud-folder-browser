@@ -61,7 +61,9 @@ namespace CloudFolderBrowser
         }
 
         public void Start()
-        {            
+        {
+            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;
             lock (downloadQueue)
@@ -74,7 +76,7 @@ namespace CloudFolderBrowser
                             CommonFileDownload dd = downloadQueue.Dequeue();
                             dd.ProgressBar = progressbars[i];
                             dd.ProgressLabel = progresslabels[i];                            
-                            dd.StartDownload();                       
+                            dd.StartDownload();                            
                             if (downloadQueue.Count == 0) break;
                         }
                     }
@@ -90,7 +92,7 @@ namespace CloudFolderBrowser
                 d.ProgressBar.Value = 0;
                 d.ProgressLabel.Visible = false;
 
-                if (downloadQueue.Count > 0)
+                if (downloadQueue.Count > 0 && !cancellationTokenSource.IsCancellationRequested)
                 {                   
                     CommonFileDownload newd = downloadQueue.Dequeue();
                     newd.ProgressBar = d.ProgressBar;
@@ -101,7 +103,7 @@ namespace CloudFolderBrowser
             finishedDownloads++;
             progresslabels[progresslabels.Length - 1].Text = $"{finishedDownloads}/{downloads.Count} files finished";
 
-            if (finishedDownloads == downloads.Count)
+            if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
             {
                 DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
                 downloadsFinishedForm.Show();
@@ -109,9 +111,8 @@ namespace CloudFolderBrowser
         }
 
         public void Stop()
-        {
-            //foreach (var fileDownload in this.downloads)
-            cancellationTokenSource.Cancel();
+        {            
+            cancellationTokenSource.Cancel();            
         }
 
     }

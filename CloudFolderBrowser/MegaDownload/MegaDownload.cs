@@ -82,7 +82,7 @@ namespace CloudFolderBrowser
                 d.ProgressBar.Value = 0;
                 d.ProgressLabel.Visible = false;
 
-                if (downloadQueue.Count > 0)
+                if (downloadQueue.Count > 0 && !cancellationTokenSource.IsCancellationRequested)
                 {
                     //if (d.ProgressBar.Tag == null)
                     //{
@@ -92,7 +92,7 @@ namespace CloudFolderBrowser
                     newd.StartDownload();
                     //}
                 }
-                if (finishedDownloads == downloads.Count)
+                if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
                 {                             
                     DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
                     downloadsFinishedForm.Show();
@@ -103,10 +103,8 @@ namespace CloudFolderBrowser
         }
 
         public void Stop()
-        {
-            //foreach (var fileDownload in this.downloads)
-            cancellationTokenSource.Cancel();         
-            //TODO: delete leftover files
+        {          
+            cancellationTokenSource.Cancel();   
         }
 
     }
