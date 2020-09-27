@@ -406,13 +406,15 @@ namespace CloudFolderBrowser
 
         CloudServiceType GetCloudServiceType(string url)
         {
+            if (url.Contains("thetrove.net"))
+                url = url.Replace("thetrove.net", "thetrove.is");
             if (url.Contains("yadi.sk"))
                 return CloudServiceType.Yadisk;
             if (url.Contains(".allsync.com"))
                 return CloudServiceType.Allsync;
             if (url.Contains("mega.nz"))
                 return CloudServiceType.Mega;
-            if (url.Contains("thetrove.net"))
+            if (url.Contains("thetrove.is"))
                 return CloudServiceType.TheTrove;
             if (url.Contains("dl.lynxcore.org") ||
                 url.Contains("dnd.jambrose.info") ||
@@ -692,14 +694,14 @@ namespace CloudFolderBrowser
         async Task Load_TheTrove(string url)
         {
             url = url.Replace("index.html", "");
-            if (url == "https://thetrove.net" || url == "https://thetrove.net/")
+            if (url == "https://thetrove.is" || url == "https://thetrove.is/")
             {
                 MessageBox.Show("Use path to specific folder!");
                 return;
             }
             string[] bigFolders = new string[] { "Books", "Assets" };
             foreach (var folder in bigFolders)
-                if (url == $@"https://thetrove.net/{folder}" || url == $@"https://thetrove.net/{folder}/")
+                if (url == $@"https://thetrove.is/{folder}" || url == $@"https://thetrove.is/{folder}/")
                 {
                     MessageBox.Show("Too much data to load. Use path for specific subfolder!");
                     return;
@@ -759,24 +761,36 @@ namespace CloudFolderBrowser
             HtmlWeb web = new HtmlWeb();
             HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.LoadHtml(data);
-            HtmlNode table = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='file-list']");
-            HtmlNodeCollection rows = htmlDoc.DocumentNode.SelectNodes("//*[@id='file-list']/tr");
+            HtmlNode table = htmlDoc.DocumentNode.SelectSingleNode("//*[@id='list']");
+            ///html/body/div[2]/div[2]/table/tbody/tr[1]
+            HtmlNodeCollection rows = htmlDoc.DocumentNode.SelectNodes("//*[@id='list']/tbody/tr");
+
+            if (rows == null)
+            {
+                MessageBox.Show("Failed to parse web page.");
+                return;
+            }
 
             for(int i = 1; i < rows.Count; i++)
             {
-                HtmlNodeCollection cells = htmlDoc.DocumentNode.SelectNodes($"//*[@id='file-list']/tr[{i+1}]/td");
-                if(rows[i].Attributes["class"].Value == "litem dir")                
+                HtmlNodeCollection cells = htmlDoc.DocumentNode.SelectNodes($"//*[@id='list']/tbody/tr[{i+1}]/td");
+                HtmlNode a = cells[0].SelectSingleNode("./a");
+                string href = a.Attributes["href"].Value;
+                string title = a.Attributes["title"].Value;
+                string date = cells[2].InnerText;
+                string size = cells[1].InnerText;
+                if (href.EndsWith("/"))                
                 {                    
-                    CloudFolder subfolder = new CloudFolder(cells[1].InnerText, DateTime.MinValue, DateTime.Parse(cells[2].InnerText), ParseSizeToKb(cells[3].InnerText));
-                    subfolder.Path = folder.Path + DecodeTroveUrl(cells[1].FirstChild.Attributes["href"].Value) + "/";
+                    CloudFolder subfolder = new CloudFolder(title, DateTime.MinValue, DateTime.Parse(date), ParseSizeToKb(size));
+                    subfolder.Path = folder.Path + DecodeTroveUrl(href);
                     folder.Subfolders.Add(subfolder);
                     await ParseTheTroveFolder(subfolder, subfolder.Path);
                 }
-                if (rows[i].Attributes["class"].Value == "litem file")
+                else
                 {
-                    CloudFile file = new CloudFile(cells[1].InnerText, DateTime.MinValue, DateTime.Parse(cells[2].InnerText), ParseSizeToKb(cells[3].InnerText))
+                    CloudFile file = new CloudFile(title, DateTime.MinValue, DateTime.Parse(date), ParseSizeToKb(size))
                     {
-                        Path = folder.Path + DecodeTroveUrl(cells[1].FirstChild.Attributes["href"].Value.Remove(0,1))                        
+                        Path = folder.Path + DecodeTroveUrl(href)                        
                     };
                     file.PublicUrl = new Uri(TroveRootFolderAddress + file.Path);
                     folder.AddFile(file);
