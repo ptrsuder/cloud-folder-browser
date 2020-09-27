@@ -1323,6 +1323,8 @@ namespace CloudFolderBrowser
         {
             if (syncFolderPath_textBox.Text != "")
             {
+                if (!Directory.Exists(syncFolderPath_textBox.Text))
+                    Directory.CreateDirectory(syncFolderPath_textBox.Text);
                 syncFolder = new Folder(new DirectoryInfo(syncFolderPath_textBox.Text));
                 syncFolder.CalculateFolderSize();
 
