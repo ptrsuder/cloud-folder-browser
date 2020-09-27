@@ -7,11 +7,11 @@ Desktop application that allows user to browse (filter, sort) shared folders fro
 Cloud storages:
 * MEGA
 * Allsync
-* YandexDisk
+* YandexDisk (bad support)
 
 Web server indexes:
 * h5ai (anything that is "powered by h5ai")
-* godir (https://thetrove.net/)
+* https://thetrove.is/Browse/
 
 ## Requirements
 * .Net Framework 4.5
