@@ -18,8 +18,7 @@ using System.Web;
 using WebDAVClient;
 using CG.Web.MegaApiClient;
 using Exception = System.Exception;
-
-
+using System.Text;
 
 //https://github.com/kozakovi4/YandexDiskSharp
 //https://github.com/AdamsLair/treeviewadv
@@ -166,9 +165,9 @@ namespace CloudFolderBrowser
         {
             rc = new RestClient(accessToken);          
 
-            Resource rl = rc.GetResource("disk:/");
-            yadiskFolder = new CloudFolder(rl);
-            GetFolders(new List<CloudFolder> { yadiskFolder });
+            //Resource rl = rc.GetResource("disk:/");
+            //yadiskFolder = new CloudFolder(rl);
+            //GetFolders(new List<CloudFolder> { yadiskFolder });
 
             #region DiskInfo
             Disk yd = rc.GetDisk();
@@ -522,6 +521,79 @@ namespace CloudFolderBrowser
             return newUrl;
         }
         
+        async Task LoadLinks(string[] links)
+        {
+            Fetch("https://yadi.sk/d/uXiHcdtMNc2zzA",
+                "TQHSi9N+M1+HtuG/Vhg4K39OVVGdgJtTrLshvX6fB9u5f4sscPj4Sn7t5rzTtcSIq/J6bpmRyOJonT3VoXnDag==:/Fragged Aeternum",
+                "y976d54f6f48c5c49dfc2793d6d32a351",
+                "");
+
+            SetProgress(true);
+            CloudFolder archiveFolder = new CloudFolder("Archive", DateTime.Now, DateTime.Now, 0);
+            archiveFolder.Name = "Archive";
+            foreach (var l in links)
+            {
+                try
+                {
+                    string cloudFolderUrl = null;
+
+                    syncFolders_button.Enabled = false;
+                    string link = l;
+                    if (!link.Contains("http"))
+                        link = "https://" + link;
+                    if (link.ToLower().Contains("rebrand.ly"))
+                        cloudFolderUrl = GetFinalRedirect(link).Result;
+                    else
+                        cloudFolderUrl = link;
+
+
+                    if (cloudFolderUrl == null ||
+                        cloudFolderUrl.ToLower().Contains("snip.li") ||
+                        cloudFolderUrl.ToLower().Contains("snipli.com") ||
+                        cloudFolderUrl.ToLower().Contains("rebrand.ly"))
+                    {
+                        MessageBox.Show("Timeout or link is dead");
+                        return;
+                    }
+
+                    cloudServiceType = GetCloudServiceType(cloudFolderUrl);
+
+                    switch (cloudServiceType)
+                    {
+                        case CloudServiceType.Yadisk:
+                            await LoadYadisk(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Allsync:
+                            await LoadAllsync(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Mega:
+                            LoadMega(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.h5ai:
+                            await Load_h5ai(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.TheTrove:
+                            await Load_TheTrove(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Other:
+                            MessageBox.Show("Unsupported link!");
+                            break;
+                    }
+                    string name = l.Replace("rebrand.ly/", "").Replace("mega.nz/#F!", "");
+                    archiveFolder.AddSubfolder(cloudPublicFolder);
+                    archiveFolder.Size += cloudPublicFolder.Size;
+                    SaveFolderJson(cloudPublicFolder, name);
+                    publicFolderKey_textBox.ReadOnly = true;
+                }
+                catch(Exception ex)
+                {
+                    continue;
+                }
+            }
+            SaveFolderJson(archiveFolder, archiveFolder.Name);    
+            SetProgress(false);
+        }
+
         #region #LOAD WEB DATA
 
         #region Yadisk
@@ -530,7 +602,7 @@ namespace CloudFolderBrowser
         {          
             try
             {                
-                rl_root = rc.GetPublicResource(publicKey, limit: 999);
+                rl_root = rc.GetPublicResource(publicKey, limit: 200);
                 cloudPublicFolder = new CloudFolder(rl_root);              
                 await GetFolders(new List<CloudFolder> { cloudPublicFolder });
                 cloudPublicFolder.CalculateFolderSize();
@@ -554,8 +626,8 @@ namespace CloudFolderBrowser
                 foreach (CloudFolder subfolder in folder.Subfolders)
                     list.Add(subfolder);
             }
-            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 5 };
-            Parallel.ForEach(list, options, (subfolder) =>{GetSubfolders(subfolder, rootPublicKey);});           
+            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 1 };            
+            Parallel.ForEach(list, options, (subfolder) =>{ GetSubfolders(subfolder, rootPublicKey);});           
            
             foreach (CloudFolder folder in folders)
             {
@@ -573,7 +645,7 @@ namespace CloudFolderBrowser
             {
                 if (rootPublicKey != null && !subfolder.Path.Contains(@"disk:/"))
                 {
-                    ResourceList rl = rc.GetPublicResource(rootPublicKey, path: subfolder.Path, limit: 999);
+                    ResourceList rl = rc.GetPublicResource(rootPublicKey, path: subfolder.Path, limit: 200);
                     foreach (Resource item in rl.Items)
                     {
                         if (item.Type == YandexDiskSharp.Type.dir)
@@ -590,12 +662,67 @@ namespace CloudFolderBrowser
                     }                   
                 }
                 else
-                    subfolder.Copy(rc.GetResource(subfolder.Path, limit: 999));
+                    subfolder.Copy(rc.GetResource(subfolder.Path, limit: 200));
             }
             catch (Exception ex)
             { 
             }
             return subfolder;
+        }
+
+        void Fetch(string url, string hash, string sk, string path)
+        {
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+            Dictionary<string, string> postParams = new Dictionary<string, string>();
+            postParams.Add("hash", hash);
+            postParams.Add("sk", sk);
+            postParams.Add("offset", "0");
+
+            using (var client = new HttpClient())
+            {
+                HttpRequestMessage requestMessage = new HttpRequestMessage(new HttpMethod("POST"), $"https://yadi.sk/public/api/get-dir-size");
+
+                if (postParams != null)
+                    requestMessage.Content = new FormUrlEncodedContent(postParams);   // This is where your content gets added to the request body
+
+                //client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "text/plain");
+
+                var st = HttpUtility.UrlEncode($"{{\"hash\":\"{hash}\",\"sk\":\"{sk}\"}}").Replace("+", "%20");
+
+                byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(st);
+                var content = new ByteArrayContent(messageBytes);
+
+                var body = new StringContent(st);
+                requestMessage.Content = content;               
+
+                requestMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0");
+                requestMessage.Headers.Add("Referer", @"https://yadi.sk/d/uXiHcdtMNc2zzA");
+                requestMessage.Headers.Add("Accept", "*/*");
+                requestMessage.Headers.Add("Accept-Encoding", "gzip, deflate, br");
+                requestMessage.Headers.Add("Accept-Language", "en-US,en;q=0.5");
+                requestMessage.Headers.Add("Origin", "https://yadi.sk");
+                requestMessage.Headers.Add("Host", "yadi.sk");
+
+                HttpResponseMessage response = client.SendAsync(requestMessage).Result;
+
+                var response2 = client.PostAsync($"https://yadi.sk/public/api/get-dir-size", new StringContent(st, Encoding.UTF8, "application/json"));
+                response2.Wait();
+
+                string apiResponse = response.Content.ReadAsStringAsync().Result;
+                try
+                {
+                    // Attempt to deserialise the reponse to the desired type, otherwise throw an expetion with the response from the api.
+                    //if (apiResponse != "")
+                    //    return JsonConvert.DeserializeObject<T>(apiResponse);
+                    //else
+                    //    throw new Exception();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"An error ocurred while calling the API. It responded with the following message: {response.StatusCode} {response.ReasonPhrase}");
+                }
+            }
         }
 
         #endregion
@@ -1112,16 +1239,12 @@ namespace CloudFolderBrowser
             return allNewNodes;
         }
 
-        async Task LoadFolderJson()
+        async Task LoadFolderJson(bool checkStatus = true)
         {
             var key = publicFolderKey_textBox.Text;
+            if (key == "")
+                checkStatus = false;
 
-            if (publicFolderKey_textBox.Text.ToLower().Contains("snipli.com") ||
-                publicFolderKey_textBox.Text.ToLower().Contains("snip.li") ||
-                publicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
-                key = await GetFinalRedirect(publicFolderKey_textBox.Text);
-
-            cloudServiceType = GetCloudServiceType(key);
             cloudPublicFolder = new CloudFolder();
             Directory.CreateDirectory("jsons");
             foreach (string fileName in Directory.GetFiles("jsons"))
@@ -1135,22 +1258,31 @@ namespace CloudFolderBrowser
                     });
                     UpdateTreeModel();
 
-                    if (cloudServiceType == CloudServiceType.Allsync)
-                    {                        
-                        LoadAllsync(key, true);
-                        if (continueAfterCheck)
-                            syncFolders_button.Enabled = true;
-                        continueAfterCheck = true;
-                    }
-                    else
+                    if (checkStatus)
                     {
-                        if (cloudServiceType == CloudServiceType.Mega)
+                        if (publicFolderKey_textBox.Text.ToLower().Contains("snipli.com") ||
+                            publicFolderKey_textBox.Text.ToLower().Contains("snip.li") ||
+                            publicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
+                            key = await GetFinalRedirect(publicFolderKey_textBox.Text);
+
+                        cloudServiceType = GetCloudServiceType(key);
+                        if (cloudServiceType == CloudServiceType.Allsync)
                         {
-                            syncFolders_button.Enabled = false;
+                            LoadAllsync(key, true);
+                            if (continueAfterCheck)
+                                syncFolders_button.Enabled = true;
+                            continueAfterCheck = true;
                         }
                         else
-                            syncFolders_button.Enabled = true;
-                    }            
+                        {
+                            if (cloudServiceType == CloudServiceType.Mega)
+                            {
+                                syncFolders_button.Enabled = false;
+                            }
+                            else
+                                syncFolders_button.Enabled = true;
+                        }
+                    }
                     return;
                 }
             }
@@ -1167,7 +1299,19 @@ namespace CloudFolderBrowser
             //File.WriteAllText("jsons/" + folder.Name + ".json", JsonConvert.SerializeObject(folder));
             //UpdatePublicFoldersSetting();
         }
-        
+
+        void SaveFolderJson(CloudFolder folder, string name)
+        {
+            Directory.CreateDirectory("jsons");
+            //File.WriteAllText("jsons/" + publicFolders_comboBox.Text + ".json", JsonConvert.SerializeObject(folder));
+            File.WriteAllText("archive/" + name + ".json", JsonConvert.SerializeObject(folder, new JsonSerializerSettings()
+            {
+                TypeNameHandling = TypeNameHandling.Auto
+            }));
+            //File.WriteAllText("jsons/" + folder.Name + ".json", JsonConvert.SerializeObject(folder));
+            //UpdatePublicFoldersSetting();
+        }
+
         #endregion
 
         #region #LOADING NODES
@@ -1563,7 +1707,17 @@ namespace CloudFolderBrowser
             loadPublicFolderKey_button.Text = "Load";
             savePublicFolderKey_button.Enabled = true;
         }
-               
+
+        private void createArchive_button_Click(object sender, EventArgs e)
+        {
+            string[] links = File.ReadAllLines("links.txt");
+            LoadLinks(links);
+        }
+
+        private void openSyncFolder_button_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start(syncFolderPath_textBox.Text);
+        }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {

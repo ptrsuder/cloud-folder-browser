@@ -90,6 +90,7 @@
             this.filter_textBox = new System.Windows.Forms.TextBox();
             this.flatList_checkBox = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.openSyncFolder_button = new System.Windows.Forms.Button();
             this.syncFolders_button = new System.Windows.Forms.Button();
             this.showSyncForm_button = new System.Windows.Forms.Button();
             this.LoadFromFile_button = new System.Windows.Forms.Button();
@@ -102,6 +103,7 @@
             this.deletePublicFolder_button = new System.Windows.Forms.Button();
             this.loginYandex_button = new System.Windows.Forms.Button();
             this.loadLink_progressBar = new System.Windows.Forms.ProgressBar();
+            this.createArchive_button = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -578,6 +580,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.openSyncFolder_button);
             this.panel2.Controls.Add(this.syncFolders_button);
             this.panel2.Controls.Add(this.showSyncForm_button);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -585,6 +588,17 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(612, 54);
             this.panel2.TabIndex = 11;
+            // 
+            // openSyncFolder_button
+            // 
+            this.openSyncFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.openSyncFolder_button.Location = new System.Drawing.Point(458, 3);
+            this.openSyncFolder_button.Name = "openSyncFolder_button";
+            this.openSyncFolder_button.Size = new System.Drawing.Size(151, 23);
+            this.openSyncFolder_button.TabIndex = 25;
+            this.openSyncFolder_button.Text = "Open Sync Folder";
+            this.openSyncFolder_button.UseVisualStyleBackColor = true;
+            this.openSyncFolder_button.Click += new System.EventHandler(this.openSyncFolder_button_Click);
             // 
             // syncFolders_button
             // 
@@ -696,7 +710,6 @@
             this.loginYandex_button.TabIndex = 20;
             this.loginYandex_button.Text = "Log in Yadisk";
             this.loginYandex_button.UseVisualStyleBackColor = true;
-            this.loginYandex_button.Visible = false;
             this.loginYandex_button.Click += new System.EventHandler(this.loginYandex_button_Click);
             // 
             // loadLink_progressBar
@@ -708,11 +721,23 @@
             this.loadLink_progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.loadLink_progressBar.TabIndex = 21;
             // 
+            // createArchive_button
+            // 
+            this.createArchive_button.Location = new System.Drawing.Point(593, 86);
+            this.createArchive_button.Name = "createArchive_button";
+            this.createArchive_button.Size = new System.Drawing.Size(204, 22);
+            this.createArchive_button.TabIndex = 22;
+            this.createArchive_button.Text = "Make Archive";
+            this.createArchive_button.UseVisualStyleBackColor = true;
+            this.createArchive_button.Visible = false;
+            this.createArchive_button.Click += new System.EventHandler(this.createArchive_button_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1260, 741);
+            this.Controls.Add(this.createArchive_button);
             this.Controls.Add(this.loadLink_progressBar);
             this.Controls.Add(this.loginYandex_button);
             this.Controls.Add(this.deletePublicFolder_button);
@@ -726,7 +751,7 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(612, 500);
             this.Name = "MainForm";
-            this.Text = "CloudFolderBrowser";
+            this.Text = "Cloud Folder Browser";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
@@ -791,6 +816,8 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ProgressBar loadLink_progressBar;
+        private System.Windows.Forms.Button createArchive_button;
+        private System.Windows.Forms.Button openSyncFolder_button;
     }
 }
 
