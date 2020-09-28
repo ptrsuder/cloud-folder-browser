@@ -576,16 +576,17 @@ namespace CloudFolderBrowser
 
         private void downloadFiles_button_Click(object sender, EventArgs e)
         {
-            maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
+            maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
+            GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);            
 
             DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize / 1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
                 return;
 
-            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
+            if(folderNewFiles_checkBox.Checked)
+                Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
 
             ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
             Label[] usedLabels = new Label[maximumDownloads + 1];
