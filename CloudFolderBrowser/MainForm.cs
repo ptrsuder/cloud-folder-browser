@@ -802,14 +802,14 @@ namespace CloudFolderBrowser
         long ParseSizeToKb(string size)
         {
             size = size.Replace('.', ',');
-            if (size.Contains(" KB"))
-                return (long)Double.Parse(size.Replace(" KB", "")) *1024;
+            if (size.Contains(" KiB"))
+                return (long)Double.Parse(size.Replace(" KiB", "")) *1024;
 
-            if (size.Contains(" MB"))
-                return (long)Double.Parse(size.Replace(" MB", ""))*1024000;
+            if (size.Contains(" MiB"))
+                return (long)Double.Parse(size.Replace(" MiB", ""))*1024000;
 
-            if (size.Contains(" GB"))
-                return (long)Double.Parse(size.Replace(" GB", "")) *1024000000;
+            if (size.Contains(" GiB"))
+                return (long)Double.Parse(size.Replace(" GiB", "")) *1024000000;
 
             return 0;
         }
