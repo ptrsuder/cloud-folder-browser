@@ -39,7 +39,7 @@ namespace CloudFolderBrowser
         public CommonFileDownload(CommonDownload commonDownload, CloudFile fileInfo, string savePath, NetworkCredential networkCredential)
         {
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
-            SavePath = savePath;           
+            SavePath = savePath.Replace("%27", "'");           
             FileInfo = fileInfo;
             var progressHandler = new Progress<double>(value =>
             {
