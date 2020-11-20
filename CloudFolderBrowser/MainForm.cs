@@ -826,11 +826,11 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Use path to specific folder!");
                 return;
             }
-            string[] bigFolders = new string[] { "Books", "Assets" };
+            string[] bigFolders = new string[] {"Browse", "Books", "Assets" };
             foreach (var folder in bigFolders)
                 if (url == $@"https://thetrove.is/{folder}" || url == $@"https://thetrove.is/{folder}/")
                 {
-                    MessageBox.Show("Too much data to load. Use path for specific subfolder!");
+                    MessageBox.Show("Too much data to load. Use path for more specific subfolder!");
                     return;
                 }
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -855,7 +855,7 @@ namespace CloudFolderBrowser
 
             await ParseTheTroveFolder(cloudPublicFolder, path);
             cloudPublicFolder.Size = cloudPublicFolder.SizeTopDirectoryOnly + cloudPublicFolder.Subfolders.Sum(x => x.Size);            
-            UpdateTreeModel();           
+            UpdateTreeModel();
         }
 
         string EncodeTroveUrl(string url)
@@ -867,6 +867,8 @@ namespace CloudFolderBrowser
         {
             return url.Replace("%23", "#").Replace("%2C", ",").Replace("%3F", "?").Replace("%20", " "); 
         }
+
+        ErrorLogForm logForm = new ErrorLogForm();
 
         async Task ParseTheTroveFolder(CloudFolder folder, string path)
         {
@@ -882,7 +884,17 @@ namespace CloudFolderBrowser
             {
                 webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
                 var url = EncodeTroveUrl(TroveRootFolderAddress + folder.Path);
-                data = await webpage.DownloadStringTaskAsync(url);           
+                try
+                {
+                    //throw new System.Web.HttpException();
+                    data = await webpage.DownloadStringTaskAsync(url);
+                }
+                catch(Exception ex)
+                {
+                    logForm.Show();
+                    logForm.AddErrorLine($"Failed to load <{url}>");                 
+                    return;
+                }                   
             }
 
             HtmlWeb web = new HtmlWeb();
