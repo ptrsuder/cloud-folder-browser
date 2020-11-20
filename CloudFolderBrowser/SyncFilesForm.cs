@@ -269,7 +269,7 @@ namespace CloudFolderBrowser
                         link = new JDLink(file.Name, downloadLink);
                         break;
                     default:
-                        link = new JDLink(file.Name, file.PublicUrl.OriginalString);
+                        link = new JDLink(file.Name, file.PublicUrl.AbsoluteUri.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F"));
                         break;
                 }
                 link.downloadLink.size = (int)file.Size;
