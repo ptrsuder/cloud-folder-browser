@@ -854,7 +854,8 @@ namespace CloudFolderBrowser
             cloudPublicFolder.Path = @"/";
 
             await ParseTheTroveFolder(cloudPublicFolder, path);
-            cloudPublicFolder.Size = cloudPublicFolder.SizeTopDirectoryOnly + cloudPublicFolder.Subfolders.Sum(x => x.Size);            
+            cloudPublicFolder.CalculateFolderSize();
+            //cloudPublicFolder.Size = cloudPublicFolder.SizeTopDirectoryOnly + cloudPublicFolder.Subfolders.Sum(x => x.Size);            
             UpdateTreeModel();
         }
 
