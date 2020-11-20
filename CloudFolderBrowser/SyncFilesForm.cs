@@ -241,7 +241,8 @@ namespace CloudFolderBrowser
 
             foreach (CloudFile file in checkedFiles)
             {                
-                string folderPath = file.Path.Replace(file.Name, "");
+                //string folderPath = file.Path.Replace(file.Name, "");
+                var folderPath = Path.GetDirectoryName(file.Path);
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
                 {                    
