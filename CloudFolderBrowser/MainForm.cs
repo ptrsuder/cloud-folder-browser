@@ -1185,6 +1185,7 @@ namespace CloudFolderBrowser
         {            
             MegaApiClient megaClient = new MegaApiClient();             
             megaClient.LoginAnonymous();
+            int filecount = 0;
             try
             {
                 url = url.Replace("#F!", "folder/").Replace("!", "#");
@@ -1222,12 +1223,13 @@ namespace CloudFolderBrowser
                     }
                     if (node.Type == NodeType.File)
                     {
-                        CloudFile file = new CloudFile(node.Name, node.CreationDate, (DateTime)node.ModificationDate, node.Size);
+                        CloudFile file = new CloudFile(node.Name, node.CreationDate, (DateTime)node.CreationDate, node.Size);
                         CloudFolder parentFolder = allfolders[node.ParentId];
                         file.Path = parentFolder.Path + file.Name;
                         file.MegaNode = node;
                         parentFolder.SizeTopDirectoryOnly += file.Size;
                         parentFolder.AddFile(file);
+                        filecount++;
                         //parentFolder.Files.Add(file);
                     }
                 }

@@ -36,7 +36,7 @@ namespace CloudFolderBrowser
             foreach (IFolder subfolder in this.Subfolders)
             {
                 subfolder.CalculateFolderSize();
-                this.Size += subfolder.SizeTopDirectoryOnly;
+                this.Size += subfolder.Size;
                 if (subfolder.Modified > this.Modified)
                     this.Modified = subfolder.Modified;
             }
