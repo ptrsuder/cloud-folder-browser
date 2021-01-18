@@ -48,7 +48,7 @@
             this.label5 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.stopDownload_button = new System.Windows.Forms.Button();
-            this.filter_textBox = new System.Windows.Forms.TextBox();
+            this.filter_textBox = new CloudFolderBrowser.TextBox();
             this.overwriteMode_comboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.newFilesTreeViewAdv = new Aga.Controls.Tree.TreeViewAdv();
@@ -274,8 +274,7 @@
             this.filter_textBox.Location = new System.Drawing.Point(13, 524);
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(143, 20);
-            this.filter_textBox.TabIndex = 19;
-            this.filter_textBox.TextChanged += new System.EventHandler(this.filter_textBox_TextChanged);
+            this.filter_textBox.TabIndex = 19;            
             // 
             // overwriteMode_comboBox
             // 
@@ -483,7 +482,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ToolTip toolTip1;
         private System.Windows.Forms.Button stopDownload_button;
-        private System.Windows.Forms.TextBox filter_textBox;
+        private CloudFolderBrowser.TextBox filter_textBox;
         private System.Windows.Forms.ComboBox overwriteMode_comboBox;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox folderNewFiles_checkBox;

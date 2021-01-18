@@ -70,6 +70,7 @@ namespace CloudFolderBrowser
             InitializeComponent();
 
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
+            filter_textBox.TextChangedComplete += filter_TextChangedComplete;
 
             beforeDate_dateTimePicker.MaxDate = DateTime.Today;
             afterDate_dateTimePicker.MaxDate = DateTime.Today;
@@ -133,7 +134,10 @@ namespace CloudFolderBrowser
             {
                 savedPasswords = JsonConvert.DeserializeObject<Dictionary<string, string>>(Properties.Settings.Default.savedPasswordsJson);
             }
+
+            
         }
+              
 
         void SetProgress(bool waiting = true)
         {
@@ -1565,6 +1569,12 @@ namespace CloudFolderBrowser
         {
             yadiskPublicFolder_treeViewAdv.UpdateNodeFilter();
         }
+
+        private void filter_TextChangedComplete(object sender, EventArgs e)
+        {
+            yadiskPublicFolder_treeViewAdv.UpdateNodeFilter();
+        }
+
 
         private void PublicFolders_comboBox_SelectedIndexChanged(object sender, EventArgs e)
         {

@@ -55,6 +55,7 @@ namespace CloudFolderBrowser
 
             NetworkCredential = networkCredential;
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
+            filter_textBox.TextChangedComplete += filter_TextChangedComplete;
 
             overwriteMode_comboBox.DataSource = new BindingSource(overwriteModes, null);
             overwriteMode_comboBox.DisplayMember = "Value";
@@ -157,7 +158,7 @@ namespace CloudFolderBrowser
            
             this.Show();
             //CheckAllSubnodes(newFiles_model.Nodes[0], false);
-        }
+        }       
 
         private bool filter(object obj)
         {
@@ -673,11 +674,11 @@ namespace CloudFolderBrowser
             commonDownload?.Stop();
         }
 
-        private void filter_textBox_TextChanged(object sender, EventArgs e)
+        private void filter_TextChangedComplete(object sender, EventArgs e)
         {
             newFilesTreeViewAdv.UpdateNodeFilter();
         }
-                
+
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
         {
             if (flatList2_checkBox.Checked)

@@ -113,6 +113,9 @@
     <Compile Include="PasswordForm.Designer.cs">
       <DependentUpon>PasswordForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="TextBoxExtend.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="TreeviewAdv\ColumnNode.cs" />
     <Compile Include="TreeviewAdv\FolderItemSorter.cs" />
     <Compile Include="FolderDialog\FolderSaveDialog.cs" />

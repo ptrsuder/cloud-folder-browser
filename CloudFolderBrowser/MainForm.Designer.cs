@@ -87,7 +87,7 @@
             this.beforeDate_dateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.label1 = new System.Windows.Forms.Label();
             this.afterDate_dateTimePicker = new System.Windows.Forms.DateTimePicker();
-            this.filter_textBox = new System.Windows.Forms.TextBox();
+            this.filter_textBox = new CloudFolderBrowser.TextBox();
             this.flatList_checkBox = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.openSyncFolder_button = new System.Windows.Forms.Button();
@@ -563,7 +563,7 @@
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(121, 20);
             this.filter_textBox.TabIndex = 13;
-            this.filter_textBox.TextChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
+            this.filter_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
             // 
             // flatList_checkBox
             // 
@@ -794,7 +794,7 @@
         private System.Windows.Forms.Button syncFolders_button;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.CheckBox flatList_checkBox;
-        private System.Windows.Forms.TextBox filter_textBox;
+        private CloudFolderBrowser.TextBox filter_textBox;
         private System.Windows.Forms.Button LoadFromFile_button;
         private System.Windows.Forms.Button SaveToFile_button;
         private System.Windows.Forms.ComboBox publicFolders_comboBox;
