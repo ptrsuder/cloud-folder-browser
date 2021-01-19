@@ -13,6 +13,8 @@ Web server indexes:
 * h5ai (anything that is "powered by h5ai")
 * https://thetrove.is/Browse/
 
+Download files as JDownloader2 packages or directly from app.
+
 ## Requirements
 * .Net Framework 4.5
 
@@ -34,5 +36,3 @@ Web server indexes:
 * JD link container with random name will be created in app folder
 * Use [Mega download] if web folder is mega folder (no spicy JD links for mega)
 * Use [Download] for Allsync files (even password protected) or files from web index folders
-### Yandex disk support
-* If user is logined in yandex, they can add selected files directly to ya.disk. If there is enough free space, files will be created in folder named <yadisk_browser_folder>
