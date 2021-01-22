@@ -19,6 +19,7 @@ using WebDAVClient;
 using CG.Web.MegaApiClient;
 using Exception = System.Exception;
 using System.Text;
+using System.Security.Cryptography;
 
 //https://github.com/kozakovi4/YandexDiskSharp
 //https://github.com/AdamsLair/treeviewadv
@@ -571,7 +572,7 @@ namespace CloudFolderBrowser
                             await LoadAllsync(cloudFolderUrl);
                             break;
                         case CloudServiceType.Mega:
-                            LoadMega(cloudFolderUrl);
+                            await LoadMega(cloudFolderUrl);
                             break;
                         case CloudServiceType.h5ai:
                             await Load_h5ai(cloudFolderUrl);
@@ -1185,7 +1186,7 @@ namespace CloudFolderBrowser
 
         #endregion
 
-        void LoadMega(string url)
+        async Task LoadMega(string url)
         {            
             MegaApiClient megaClient = new MegaApiClient();             
             megaClient.LoginAnonymous();
@@ -1194,49 +1195,53 @@ namespace CloudFolderBrowser
             {
                 url = url.Replace("#F!", "folder/").Replace("!", "#");
                 string lastId;
-                var nodes = megaClient.GetNodesFromLink(new Uri(url), out lastId);
-                cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
-                cloudPublicFolder.Path = "/";
-                var match = Regex.Match(url, "(/folder/)([^/]+)");
-                cloudPublicFolder.PublicKey = Regex.Match(url, "(/folder/)(.*)#").Groups[2].Value;
-                Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
-                allfolders.Add(nodes.ElementAt(0).Id, cloudPublicFolder);
-                List<INode>  filteredNodes = nodes.ToList();
-                if (lastId != "")
+                await Task.Run(() =>
                 {
-                    var subRootFolderNode = nodes.Where(x => x.Id == lastId).FirstOrDefault();                    
-                    CloudFolder subRootFolder = new CloudFolder(subRootFolderNode.Name, subRootFolderNode.CreationDate, DateTime.MinValue, subRootFolderNode.Size);
-                    cloudPublicFolder.AddSubfolder(subRootFolder);
-                    allfolders.Add(subRootFolderNode.Id, subRootFolder);
-                    filteredNodes = GetChildNodes(subRootFolderNode, nodes.ToArray());
-                    filteredNodes.Reverse();                    
-                }
-                foreach (var node in filteredNodes)
-                {
-                    if (node.Type == NodeType.Directory)
+                    var nodes = megaClient.GetNodesFromLink(new Uri(url), out lastId);
+                    cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
+                    cloudPublicFolder.Path = "/";
+                    var match = Regex.Match(url, "(/folder/)([^/]+)");
+                    cloudPublicFolder.PublicKey = Regex.Match(url, "(/folder/)(.*)#").Groups[2].Value;
+                    Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
+                    allfolders.Add(nodes.ElementAt(0).Id, cloudPublicFolder);
+                    List<INode> filteredNodes = nodes.ToList();
+                    if (lastId != "")
                     {
-                        if (url.ToLower().Contains(node.Id.ToLower()))
+                        var subRootFolderNode = nodes.Where(x => x.Id == lastId).FirstOrDefault();
+                        CloudFolder subRootFolder = new CloudFolder(subRootFolderNode.Name, subRootFolderNode.CreationDate, DateTime.MinValue, subRootFolderNode.Size);
+                        cloudPublicFolder.AddSubfolder(subRootFolder);
+                        allfolders.Add(subRootFolderNode.Id, subRootFolder);
+                        filteredNodes = GetChildNodes(subRootFolderNode, nodes.ToArray());
+                        filteredNodes.Reverse();
+                    }
+                    foreach (var node in filteredNodes)
+                    {
+                        if (node.Type == NodeType.Directory)
+                        {
+                            if (url.ToLower().Contains(node.Id.ToLower()))
+                                continue;
+                            CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate, DateTime.MinValue, node.Size);
+                            CloudFolder parentFolder = allfolders[node.ParentId];
+                            subfolder.Path = parentFolder.Path + subfolder.Name + "/";
+                            allfolders.Add(node.Id, subfolder);
+                            parentFolder.AddSubfolder(subfolder);
+                            //parentFolder.Subfolders.Add(subfolder);
                             continue;
-                        CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate, DateTime.MinValue, node.Size);
-                        CloudFolder parentFolder = allfolders[node.ParentId];
-                        subfolder.Path = parentFolder.Path + subfolder.Name + "/";
-                        allfolders.Add(node.Id, subfolder);
-                        parentFolder.AddSubfolder(subfolder);
-                        //parentFolder.Subfolders.Add(subfolder);
-                        continue;
+                        }
+                        if (node.Type == NodeType.File)
+                        {
+                            CloudFile file = new CloudFile(node.Name, node.CreationDate, (DateTime)node.CreationDate, node.Size);
+                            CloudFolder parentFolder = allfolders[node.ParentId];
+                            file.Path = parentFolder.Path + file.Name;
+                            file.MegaNode = node;
+                            parentFolder.SizeTopDirectoryOnly += file.Size;
+                            parentFolder.AddFile(file);
+                            filecount++;
+                            //parentFolder.Files.Add(file);
+                        }
                     }
-                    if (node.Type == NodeType.File)
-                    {
-                        CloudFile file = new CloudFile(node.Name, node.CreationDate, (DateTime)node.CreationDate, node.Size);
-                        CloudFolder parentFolder = allfolders[node.ParentId];
-                        file.Path = parentFolder.Path + file.Name;
-                        file.MegaNode = node;
-                        parentFolder.SizeTopDirectoryOnly += file.Size;
-                        parentFolder.AddFile(file);
-                        filecount++;
-                        //parentFolder.Files.Add(file);
-                    }
-                }
+
+                });
                 cloudPublicFolder.CalculateFolderSize();
                 UpdateTreeModel();               
             }
@@ -1258,6 +1263,22 @@ namespace CloudFolderBrowser
             return allNewNodes;
         }
 
+
+        public static byte[] GetHash(string inputString)
+        {
+            using (HashAlgorithm algorithm = SHA256.Create())
+                return algorithm.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+        }
+
+        public static string GetHashString(string inputString)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in GetHash(inputString))
+                sb.Append(b.ToString("X2"));
+
+            return sb.ToString();
+        }
+
         async Task LoadFolderJson(bool checkStatus = true)
         {
             var key = publicFolderKey_textBox.Text;
@@ -1266,9 +1287,11 @@ namespace CloudFolderBrowser
 
             cloudPublicFolder = new CloudFolder();
             Directory.CreateDirectory("jsons");
+            string hashString = GetHashString(publicFolders_comboBox.Text);
+
             foreach (string fileName in Directory.GetFiles("jsons"))
             {
-                if (fileName == @"jsons\" + publicFolders_comboBox.Text + ".json")
+                if (fileName == @"jsons\" + hashString + ".json")
                 {
                     string jsonString = File.ReadAllText(fileName);
                     cloudPublicFolder = JsonConvert.DeserializeObject<CloudFolder>(jsonString, new JsonSerializerSettings()
@@ -1310,8 +1333,9 @@ namespace CloudFolderBrowser
         void SaveFolderJson(CloudFolder folder)
         {
             Directory.CreateDirectory("jsons");
+            string hashString = GetHashString(publicFolders_comboBox.Text);
             //File.WriteAllText("jsons/" + publicFolders_comboBox.Text + ".json", JsonConvert.SerializeObject(folder));
-            File.WriteAllText("jsons/" + publicFolders_comboBox.Text + ".json", JsonConvert.SerializeObject(folder, new JsonSerializerSettings()
+            File.WriteAllText("jsons/" + hashString + ".json", JsonConvert.SerializeObject(folder, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.Auto
             }));
@@ -1613,10 +1637,7 @@ namespace CloudFolderBrowser
 
             if (publicFolderKey_textBox.Text != "")
             {
-                syncFolders_button.Enabled = false;
-
-                if (publicFolders_comboBox.Text == "secret_folder")                
-                    LoadMega(publicFolders["secret_folder"]);
+                syncFolders_button.Enabled = false;              
 
                 if (publicFolderKey_textBox.Text.ToLower().Contains("snipli.com") ||
                     publicFolderKey_textBox.Text.ToLower().Contains("snip.li") ||
@@ -1644,7 +1665,7 @@ namespace CloudFolderBrowser
                         await LoadAllsync(cloudFolderUrl);
                         break;
                     case CloudServiceType.Mega:
-                        LoadMega(cloudFolderUrl);
+                        await LoadMega(cloudFolderUrl);
                         break;                    
                     case CloudServiceType.h5ai:
                         await Load_h5ai(cloudFolderUrl);
