@@ -59,7 +59,7 @@ namespace CloudFolderBrowser
 
         string EncodeAllsyncUrl(string url)
         {
-            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F").Replace(" ", "%20");
+            return EncodeWebUrl(url).Replace(" ", "%20");
         }
 
         string EncodeWebUrl(string url)
