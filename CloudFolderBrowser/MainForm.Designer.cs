@@ -710,6 +710,7 @@
             this.loginYandex_button.TabIndex = 20;
             this.loginYandex_button.Text = "Log in Yadisk";
             this.loginYandex_button.UseVisualStyleBackColor = true;
+            this.loginYandex_button.Visible = false;
             this.loginYandex_button.Click += new System.EventHandler(this.loginYandex_button_Click);
             // 
             // loadLink_progressBar
