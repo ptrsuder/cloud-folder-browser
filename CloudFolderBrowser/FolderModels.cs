@@ -13,6 +13,8 @@ namespace CloudFolderBrowser
     {
         long Size { get; set; }
         long SizeTopDirectoryOnly { get; set; }
+        int FilesNumber { get; set; }
+        int FilesNumberTopDirectoryOnly { get; set; }
         string Name { get; set; }
         string Path { get; set; }
         DateTime Modified { get; set; }
@@ -24,6 +26,8 @@ namespace CloudFolderBrowser
     {
         public long Size { get; set; }
         public long SizeTopDirectoryOnly { get; set; }
+        public int FilesNumber { get; set; }
+        public virtual int FilesNumberTopDirectoryOnly { get; set; }
         public string Name { get; set; }
         public string Path { get; set; }
         public DateTime Modified { get; set; }
@@ -32,11 +36,14 @@ namespace CloudFolderBrowser
 
         public void CalculateFolderSize()
         {
-            this.Size += SizeTopDirectoryOnly;
+            Size += SizeTopDirectoryOnly;            
+            FilesNumber += FilesNumberTopDirectoryOnly;
+
             foreach (IFolder subfolder in this.Subfolders)
             {
                 subfolder.CalculateFolderSize();
-                this.Size += subfolder.Size;
+                Size += subfolder.Size;
+                FilesNumber += subfolder.FilesNumber;
                 if (subfolder.Modified > this.Modified)
                     this.Modified = subfolder.Modified;
             }
@@ -77,9 +84,9 @@ namespace CloudFolderBrowser
 
     public class CloudFolder : BaseFolder
     {
+        public override int FilesNumberTopDirectoryOnly { get => Files.Count; }
         public string PublicKey { get; set; }
-        public List<CloudFile> Files { get; set; }
-
+        public List<CloudFile> Files { get; set; }              
         public CloudFolder(ResourceList rl)
         {
             PublicKey = rl.PublicKey;
@@ -98,9 +105,9 @@ namespace CloudFolderBrowser
                 {
                     CloudFile r = new CloudFile(item);
                     Files.Add(r);
-                    Size += r.Size;
+                    Size += r.Size;                    
                 }
-            }
+            }            
             SizeTopDirectoryOnly = Size;
         }
 
@@ -124,7 +131,7 @@ namespace CloudFolderBrowser
                     {
                         CloudFile r = new CloudFile(item);
                         Files.Add(r);
-                        Size += r.Size;
+                        Size += r.Size;                       
                     }
                 }
                 SizeTopDirectoryOnly = Size;
@@ -172,7 +179,7 @@ namespace CloudFolderBrowser
                 {
                     CloudFile r = new CloudFile(item);
                     Files.Add(r);
-                    Size += r.Size;
+                    Size += r.Size;                    
                 }
             }
             SizeTopDirectoryOnly = Size;

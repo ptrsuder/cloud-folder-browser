@@ -85,7 +85,7 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.beforeDate_dateTimePicker = new System.Windows.Forms.DateTimePicker();
-            this.label1 = new System.Windows.Forms.Label();
+            this.checkedFiles_label = new System.Windows.Forms.Label();
             this.afterDate_dateTimePicker = new System.Windows.Forms.DateTimePicker();
             this.filter_textBox = new CloudFolderBrowser.TextBox();
             this.flatList_checkBox = new System.Windows.Forms.CheckBox();
@@ -490,7 +490,7 @@
             this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Controls.Add(this.beforeDate_dateTimePicker);
-            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.checkedFiles_label);
             this.panel1.Controls.Add(this.afterDate_dateTimePicker);
             this.panel1.Controls.Add(this.filter_textBox);
             this.panel1.Controls.Add(this.flatList_checkBox);
@@ -531,15 +531,15 @@
             this.beforeDate_dateTimePicker.Value = new System.DateTime(2018, 11, 26, 0, 0, 0, 0);
             this.beforeDate_dateTimePicker.ValueChanged += new System.EventHandler(this.Filter_textBox_TextChanged);
             // 
-            // label1
+            // checkedFiles_label
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(194, 7);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(80, 13);
-            this.label1.TabIndex = 11;
-            this.label1.Text = "Selected: 0 MB";
+            this.checkedFiles_label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.checkedFiles_label.AutoSize = true;
+            this.checkedFiles_label.Location = new System.Drawing.Point(194, 7);
+            this.checkedFiles_label.Name = "checkedFiles_label";
+            this.checkedFiles_label.Size = new System.Drawing.Size(115, 13);
+            this.checkedFiles_label.TabIndex = 11;
+            this.checkedFiles_label.Text = "Selected: 0 MB | 0 files";
             // 
             // afterDate_dateTimePicker
             // 
@@ -793,7 +793,7 @@
         
         private System.Windows.Forms.Button loadPublicFolderKey_button;
         private System.Windows.Forms.Button syncFolders_button;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label checkedFiles_label;
         private System.Windows.Forms.CheckBox flatList_checkBox;
         private CloudFolderBrowser.TextBox filter_textBox;
         private System.Windows.Forms.Button LoadFromFile_button;

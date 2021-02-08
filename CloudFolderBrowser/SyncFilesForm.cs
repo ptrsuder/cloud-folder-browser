@@ -49,7 +49,7 @@ namespace CloudFolderBrowser
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
-        public SyncFilesForm(CloudFolder newFilesFolder, CloudServiceType cloudServiceName, NetworkCredential networkCredential)
+        public SyncFilesForm(MainForm parentForm, CloudFolder newFilesFolder, CloudServiceType cloudServiceName, NetworkCredential networkCredential)
         {
             InitializeComponent();
 
@@ -61,14 +61,18 @@ namespace CloudFolderBrowser
             overwriteMode_comboBox.DisplayMember = "Value";
             overwriteMode_comboBox.ValueMember = "Key";
 
-            nodeCheckBox2.IsVisibleValueNeeded += CheckIndex;
+            //nodeCheckBox2.IsVisibleValueNeeded += CheckIndex;
 
             cloudServiceType = cloudServiceName;
             if (cloudServiceType == CloudServiceType.Mega)
             {
-                downloadMega_button.Enabled = true;
+                if (!parentForm.LoadedFromFile)
+                    downloadMega_button.Enabled = true;
+                else
+                    MessageBox.Show("Files were loaded from file and will not be available for download. Load from link instead.");
+                
                 getJdLinks_button.Enabled = false;
-                downloadFiles_button.Enabled = false;
+                downloadFiles_button.Enabled = false;       
             }
             if (cloudServiceType == CloudServiceType.Yadisk)
             {
@@ -81,7 +85,7 @@ namespace CloudFolderBrowser
             progressLabels = new List<Label> { label1, label2, label3, label4, DownloadProgress_label };
 
             rootFolder = newFilesFolder;
-            nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
+            //nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
             newFilesTreeViewAdv.ShowNodeToolTips = true;
             newFilesTreeViewAdv.NodeControls[2].ToolTipProvider = new ToolTipProvider();
             newFilesTreeViewAdv.NodeFilter = filter;

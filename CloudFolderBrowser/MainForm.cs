@@ -253,32 +253,25 @@ namespace CloudFolderBrowser
                 //    UpdateParentCheckState((ColumnNode)checkedNode.Parent);
                 //CheckAllSubnodes(checkedNode, false);
                 checkedFilesSize += ((CloudFolder)checkedNode.Tag).Size - ((CloudFolder)checkedNode.Tag).SizeTopDirectoryOnly;
-                label1.Text = $"{Math.Round(checkedFilesSize / 1024000.0, 2)} MB checked";
-                return;
+                checkedFilesNumber += ((CloudFolder)checkedNode.Tag).FilesNumber - ((CloudFolder)checkedNode.Tag).FilesNumberTopDirectoryOnly;
             }
             if (checkedNode.CheckState == CheckState.Unchecked)
             {
                 checkedFilesSize -= ((CloudFolder)checkedNode.Tag).Size;
+                checkedFilesNumber -= ((CloudFolder)checkedNode.Tag).FilesNumber;
                 if (checkedFilesSize < 0.0001)
-                    checkedFilesSize = 0;
-                label1.Text = $"{Math.Round(checkedFilesSize / 1024000.0, 2)} MB checked";
-
+                    checkedFilesSize = 0;               
                 //if (checkedNode.Parent.Index != -1)
                 //    UpdateParentCheckState((ColumnNode)checkedNode.Parent);                
-                //CheckAllSubnodes(checkedNode, true);                                
-                return;
+                //CheckAllSubnodes(checkedNode, true);                                               
             }
             if (checkedNode.CheckState == CheckState.Indeterminate)
             {
-                checkedFilesSize += ((CloudFolder)checkedNode.Tag).SizeTopDirectoryOnly;//((CloudFolder)parentNode.Tag).Files.Sum(x => x.Size) / 1024000.0;
-                //checkedFilesSize = Math.Round(checkedFilesSize, 2);
-                label1.Text = $"{Math.Round(checkedFilesSize / 1024000.0, 2)} MB checked";
-                //if(parentNode.Parent.Index != -1)
-                //UpdateParentCheckState((ColumnNode)parentNode.Parent);                
-                //CheckAllSubnodes(parentNode, true);    
-                return;
+                checkedFilesSize += ((CloudFolder)checkedNode.Tag).SizeTopDirectoryOnly;
+                checkedFilesNumber += ((CloudFolder)checkedNode.Tag).FilesNumberTopDirectoryOnly;
             }
-
+            checkedFiles_label.Text = $"{Math.Round(checkedFilesSize / 1024000.0, 2)} MB checked | {checkedFilesNumber} files";
+            return;
         }
 
         static void UpdateParentCheckState(ColumnNode parentNode)
@@ -858,9 +851,19 @@ namespace CloudFolderBrowser
             cloudPublicFolder.Name = uriStructure[uriStructure.Count - 1];
             cloudPublicFolder.Path = @"/";
 
+            failedToParsePages = new List<string>();
             await ParseTheTroveFolder(cloudPublicFolder, path);
-            cloudPublicFolder.CalculateFolderSize();
-            //cloudPublicFolder.Size = cloudPublicFolder.SizeTopDirectoryOnly + cloudPublicFolder.Subfolders.Sum(x => x.Size);            
+            string errorMessage = "Failed to parse some web pages ";
+            if (failedToParsePages.Count > 0)
+            {
+                foreach (var page in failedToParsePages)
+                {
+                    errorMessage += $"\n{page}";
+                }
+                var errorForm = new ErrorForm("Warning", $"{errorMessage}");
+                errorForm.Show();
+            }
+            cloudPublicFolder.CalculateFolderSize();                       
             UpdateTreeModel();
         }
 
@@ -876,6 +879,7 @@ namespace CloudFolderBrowser
 
         ErrorLogForm logForm = new ErrorLogForm();
 
+        List<string> failedToParsePages;
         async Task ParseTheTroveFolder(CloudFolder folder, string path)
         {
             if (folder.Name == "")
@@ -886,10 +890,11 @@ namespace CloudFolderBrowser
             }
             string data = "";
             //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            var url = EncodeTroveUrl(TroveRootFolderAddress + folder.Path);
             using (var webpage = new System.Net.WebClient())
             {
                 webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
-                var url = EncodeTroveUrl(TroveRootFolderAddress + folder.Path);
+                
                 try
                 {
                     //throw new System.Web.HttpException();
@@ -912,7 +917,7 @@ namespace CloudFolderBrowser
 
             if (rows == null)
             {
-                MessageBox.Show("Failed to parse web page.");
+                failedToParsePages.Add(url);               
                 return;
             }
 
@@ -1279,6 +1284,8 @@ namespace CloudFolderBrowser
             return sb.ToString();
         }
 
+        public bool LoadedFromFile = false;
+
         async Task LoadFolderJson(bool checkStatus = true)
         {
             var key = publicFolderKey_textBox.Text;
@@ -1287,7 +1294,7 @@ namespace CloudFolderBrowser
 
             cloudPublicFolder = new CloudFolder();
             Directory.CreateDirectory("jsons");
-            string hashString = GetHashString(publicFolders_comboBox.Text);
+            string hashString = GetHashString(publicFolderKey_textBox.Text);
 
             foreach (string fileName in Directory.GetFiles("jsons"))
             {
@@ -1299,7 +1306,7 @@ namespace CloudFolderBrowser
                         TypeNameHandling = TypeNameHandling.Auto
                     });
                     UpdateTreeModel();
-
+                    LoadedFromFile = true;
                     if (checkStatus)
                     {
                         if (publicFolderKey_textBox.Text.ToLower().Contains("snipli.com") ||
@@ -1485,7 +1492,7 @@ namespace CloudFolderBrowser
                 newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
 
                 WriteToLog($"\n{DateTime.Now}\n  Create SyncFilesForm with {WebdavCredential?.UserName}-{WebdavCredential?.Password} \n\n");
-                SyncFilesForm syncFilesForm = new SyncFilesForm(newFilesFolder, cloudServiceType, WebdavCredential);
+                SyncFilesForm syncFilesForm = new SyncFilesForm(this, newFilesFolder, cloudServiceType, WebdavCredential);
                 activeSyncForm = syncFilesForm;              
             }
             else
@@ -1679,6 +1686,7 @@ namespace CloudFolderBrowser
                 }   
                 publicFolderKey_textBox.ReadOnly = true;
                 SetProgress(false);
+                LoadedFromFile = false;
             }
         }
 

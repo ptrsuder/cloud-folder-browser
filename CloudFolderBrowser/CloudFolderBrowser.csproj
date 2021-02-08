@@ -95,6 +95,12 @@
     <Compile Include="DownloadsFinishedForm.Designer.cs">
       <DependentUpon>DownloadsFinishedForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ErrorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ErrorForm.Designer.cs">
+      <DependentUpon>ErrorForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ErrorLogForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -144,6 +150,9 @@
     <Compile Include="TreeviewAdv\ToolTipProvider.cs" />
     <EmbeddedResource Include="DownloadsFinishedForm.resx">
       <DependentUpon>DownloadsFinishedForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ErrorForm.resx">
+      <DependentUpon>ErrorForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ErrorLogForm.resx">
       <DependentUpon>ErrorLogForm.cs</DependentUpon>
