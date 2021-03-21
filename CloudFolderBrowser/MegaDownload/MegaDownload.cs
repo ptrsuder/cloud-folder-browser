@@ -25,7 +25,7 @@ namespace CloudFolderBrowser
         public int OverwriteMode;
 
 
-        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, int overwriteMode = 3)
+        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, int overwriteMode = 3, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
@@ -35,7 +35,10 @@ namespace CloudFolderBrowser
             MegaApiClient megaApiClient = new MegaApiClient();
             megaApiClient.LoginAnonymous();
 
-            downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+            if (folderNewFiles)
+                downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+            else
+                downloadFolderPath = MainForm.syncFolderPath;
 
             try
             {

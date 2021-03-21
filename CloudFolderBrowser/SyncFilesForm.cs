@@ -621,7 +621,8 @@ namespace CloudFolderBrowser
             if (dialogResult == DialogResult.No)
                 return;
 
-            Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
+            if (folderNewFiles_checkBox.Checked)
+                Directory.CreateDirectory(MainForm.syncFolderPath + @"\New Files " + DateTime.Now.ToShortDateString());
 
             ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
             Label[] usedLabels = new Label[maximumDownloads + 1];
@@ -638,7 +639,7 @@ namespace CloudFolderBrowser
                 megaApiClient.LoginAnonymous();
             }
 
-            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, overwriteMode_comboBox.SelectedIndex);
+            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked);
             megaDownload.Start();
 
             stopDownload_button.Enabled = true;
