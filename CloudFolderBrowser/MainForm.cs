@@ -1491,11 +1491,17 @@ namespace CloudFolderBrowser
                 newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
 
                 WriteToLog($"\n{DateTime.Now}\n  Create SyncFilesForm with {WebdavCredential?.UserName}-{WebdavCredential?.Password} \n\n");
-                SyncFilesForm syncFilesForm = new SyncFilesForm(this, newFilesFolder, cloudServiceType, WebdavCredential);
-                activeSyncForm = syncFilesForm;              
+                SyncFilesForm syncFilesForm = new SyncFilesForm(this, newFilesFolder, cloudServiceType, WebdavCredential);               
+                activeSyncForm = syncFilesForm;
+                activeSyncForm.DownloadCompleted += SyncForm_DownloadCompleted;
             }
             else
                 MessageBox.Show("No new files!");
+        }
+
+        private void SyncForm_DownloadCompleted(object sender, EventArgs e)
+        {
+            LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
         List<CloudFile> CompareFilesLists(List<CloudFile> yadiskFilesList, FileInfo[] syncFolderFilesList)
@@ -1530,7 +1536,12 @@ namespace CloudFolderBrowser
 
         private void syncFolderPath_textBox_TextChanged(object sender, EventArgs e)
         {
-            if (syncFolderPath_textBox.Text != "")
+            LoadSyncFolder(syncFolderPath_textBox.Text);
+        }
+
+        void LoadSyncFolder(string path)
+        {
+            if (path != "")
             {
                 if (!Directory.Exists(syncFolderPath_textBox.Text))
                     Directory.CreateDirectory(syncFolderPath_textBox.Text);
