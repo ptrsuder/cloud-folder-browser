@@ -45,6 +45,16 @@ namespace CloudFolderBrowser
             {3, "Ask" }
         };
 
+        public event EventHandler DownloadCompleted;
+        protected virtual void OnDownloadCompleted(EventArgs e)
+        {
+            EventHandler handler = DownloadCompleted;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
+
         //Textbox filter
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
@@ -593,12 +603,18 @@ namespace CloudFolderBrowser
             usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
             
             commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
+            commonDownload.DownloadCompleted += Download_DownloadCompleted;
             commonDownload.Start();
 
             stopDownload_button.Enabled = true;
             stopDownload_button.Visible = true;
         }
-        
+
+        private void Download_DownloadCompleted(object sender, EventArgs e)
+        {
+            OnDownloadCompleted(EventArgs.Empty);
+        }
+
         private void downloadMega_button_Click(object sender, EventArgs e)
         {
             maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
@@ -629,6 +645,7 @@ namespace CloudFolderBrowser
             }
 
             megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked);
+            megaDownload.DownloadCompleted += Download_DownloadCompleted;
             megaDownload.Start();
 
             stopDownload_button.Enabled = true;
@@ -666,6 +683,7 @@ namespace CloudFolderBrowser
         {
             megaDownload?.Stop();
             commonDownload?.Stop();
+            OnDownloadCompleted(EventArgs.Empty);
         }
 
         private void filter_TextChangedComplete(object sender, EventArgs e)

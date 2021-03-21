@@ -25,10 +25,21 @@ namespace CloudFolderBrowser
         string downloadFolderPath;
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public int OverwriteMode;
-        public CloudServiceType CloudService;       
+        public CloudServiceType CloudService;
 
+        public event EventHandler DownloadCompleted;
+        protected virtual void OnDownloadCompleted(EventArgs e)
+        {
+            EventHandler handler = DownloadCompleted;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
 
-        public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, CloudServiceType cloudServiceType, int overwriteMode = 3, NetworkCredential networkCredential = null, bool folderNewFiles = true)
+        public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars,
+            Label[] progressLabels, CloudServiceType cloudServiceType,
+            int overwriteMode = 3, NetworkCredential networkCredential = null, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
@@ -105,6 +116,7 @@ namespace CloudFolderBrowser
 
             if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
             {
+                OnDownloadCompleted(EventArgs.Empty);
                 DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
                 downloadsFinishedForm.Show();
             }
@@ -112,7 +124,8 @@ namespace CloudFolderBrowser
 
         public void Stop()
         {            
-            cancellationTokenSource.Cancel();            
+            cancellationTokenSource.Cancel();
+            OnDownloadCompleted(EventArgs.Empty);
         }
 
     }

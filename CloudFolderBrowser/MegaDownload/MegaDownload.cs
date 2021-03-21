@@ -24,6 +24,15 @@ namespace CloudFolderBrowser
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public int OverwriteMode;
 
+        public event EventHandler DownloadCompleted;
+        protected virtual void OnDownloadCompleted(EventArgs e)
+        {
+            EventHandler handler = DownloadCompleted;
+            if (handler != null)
+            {
+                handler(this, e);
+            }
+        }
 
         public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, int overwriteMode = 3, bool folderNewFiles = true)
         {
@@ -96,7 +105,8 @@ namespace CloudFolderBrowser
                     //}
                 }
                 if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
-                {                             
+                {
+                    OnDownloadCompleted(EventArgs.Empty);
                     DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
                     downloadsFinishedForm.Show();
                 }
@@ -106,7 +116,8 @@ namespace CloudFolderBrowser
         }
 
         public void Stop()
-        {          
+        {
+            OnDownloadCompleted(EventArgs.Empty);
             cancellationTokenSource.Cancel();   
         }
 
