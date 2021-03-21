@@ -62,7 +62,7 @@ namespace CloudFolderBrowser
 
         Dictionary<string, string> savedPasswords = new Dictionary<string, string>();
 
-        //Textbox filter
+        //filter textbox 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
@@ -1436,7 +1436,7 @@ namespace CloudFolderBrowser
         }
 
         #endregion
-               
+
         #region #SYNC
 
         void SyncFiles()
@@ -1446,43 +1446,42 @@ namespace CloudFolderBrowser
                 MessageBox.Show("No folders checked!");
                 return;
             }
-            //if (checkedFolders.Count == 1 && checkedFolders[0].Name == ((Folder)syncFolder_model.Nodes[0].Tag).Name)
-            //{
+            //if (checkedFolders.Count == 1 && checkedFolders[0].Name == ((Folder)syncFolder_model.Nodes[0].Tag).Name)         
             //    return;                
-            //}
+         
             List<CloudFile> missingFiles = new List<CloudFile>();
             DirectoryInfo syncFolderDirectory = new DirectoryInfo(syncFolder.Path);
 
             foreach (CloudFolder folder in mixedFolders)
             {
-                if (folder.Path == @"/" || syncFolder.Subfolders.ConvertAll(x => x.Path.Replace(syncFolder.Path, @"\")).Contains(folder.Path.Replace("/", @"\")))
+                DirectoryInfo di = new DirectoryInfo(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
+                if(!di.Exists)
                 {
-                    DirectoryInfo di = new DirectoryInfo(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
-                    FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.TopDirectoryOnly);
+                    missingFiles.AddRange(folder.Files);
+                    continue;
+                }                   
+                FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.TopDirectoryOnly);
+                if(!hideExistingFiles_checkBox.Checked)
+                    missingFiles.AddRange(folder.Files);
+                else
                     missingFiles.AddRange(CompareFilesLists(folder.Files, flatSyncFolderFilesList));
-                }
-                else                                    
-                    missingFiles.AddRange(folder.Files);                
+
             }
 
             foreach (CloudFolder folder in checkedFolders)
-            {
-                //string spath = syncFolder.Subfolders[0].Path.Replace(syncFolder.Path, @"\");
-                //string fpath = folder.Path.Replace("/", @"\");
-                //bool a = spath == fpath;
-                if (folder.Path == @"/" || folder.Path == null || syncFolder.Subfolders.ConvertAll(x => x.Path.Replace(syncFolder.Path, @"\")).Contains(folder.Path.Replace("/", @"\")))
-                //if (folder.Path == @"/" || (DirectoryInfo[] dis = syncFolderDirectory.GetDirectories("*", SearchOption.AllDirectories)).Count() > 0)
+            {        
+                DirectoryInfo di = new DirectoryInfo(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
+                List<CloudFile> flatCloudFolderFilesList = folder.GetFlatFilesList();
+                if (!di.Exists)
                 {
-                    DirectoryInfo di = new DirectoryInfo(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
-                    List<CloudFile> flatYadiskFilesList = folder.GetFlatFilesList();
-                    FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.AllDirectories);
-                    missingFiles.AddRange(CompareFilesLists(flatYadiskFilesList, flatSyncFolderFilesList));
-                }
-                else
-                {
-                    //Directory.CreateDirectory(syncFolder.Path + folder.Path.Replace(@"/", @"\"));
                     missingFiles.AddRange(folder.GetFlatFilesList());
+                    continue;
                 }
+                FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.AllDirectories);
+                if (!hideExistingFiles_checkBox.Checked)
+                    missingFiles.AddRange(folder.GetFlatFilesList());
+                else 
+                    missingFiles.AddRange(CompareFilesLists(flatCloudFolderFilesList, flatSyncFolderFilesList));
             }
             if (missingFiles.Count > 0)
             {
@@ -1509,7 +1508,9 @@ namespace CloudFolderBrowser
                 foreach (FileInfo sfile in syncFolderFilesList)
                 {
                     string path = sfile.FullName.Replace(syncFolder.Path, @"\");
-                    if (sfile.Name == file.Name && path.Replace(@"\", @"/") == file.Path)
+                    string v = path.Replace(@"\", @"/");
+                    string w = HttpUtility.UrlDecode(file.Path);
+                    if (sfile.Name == file.Name && v == w)
                     {
                         isMissing = false;
                         break;

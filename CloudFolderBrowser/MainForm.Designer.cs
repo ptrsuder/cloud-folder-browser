@@ -90,6 +90,7 @@
             this.filter_textBox = new CloudFolderBrowser.TextBox();
             this.flatList_checkBox = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.hideExistingFiles_checkBox = new System.Windows.Forms.CheckBox();
             this.openSyncFolder_button = new System.Windows.Forms.Button();
             this.syncFolders_button = new System.Windows.Forms.Button();
             this.showSyncForm_button = new System.Windows.Forms.Button();
@@ -503,7 +504,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(211, 32);
+            this.label3.Location = new System.Drawing.Point(213, 32);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(58, 13);
             this.label3.TabIndex = 27;
@@ -559,7 +560,7 @@
             // 
             this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.filter_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.filter_textBox.Location = new System.Drawing.Point(0, 4);
+            this.filter_textBox.Location = new System.Drawing.Point(1, 4);
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(121, 20);
             this.filter_textBox.TabIndex = 13;
@@ -580,6 +581,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.hideExistingFiles_checkBox);
             this.panel2.Controls.Add(this.openSyncFolder_button);
             this.panel2.Controls.Add(this.syncFolders_button);
             this.panel2.Controls.Add(this.showSyncForm_button);
@@ -588,6 +590,18 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(612, 54);
             this.panel2.TabIndex = 11;
+            // 
+            // hideExistingFiles_checkBox
+            // 
+            this.hideExistingFiles_checkBox.AutoSize = true;
+            this.hideExistingFiles_checkBox.Checked = true;
+            this.hideExistingFiles_checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.hideExistingFiles_checkBox.Location = new System.Drawing.Point(150, 5);
+            this.hideExistingFiles_checkBox.Name = "hideExistingFiles_checkBox";
+            this.hideExistingFiles_checkBox.Size = new System.Drawing.Size(107, 17);
+            this.hideExistingFiles_checkBox.TabIndex = 26;
+            this.hideExistingFiles_checkBox.Text = "Hide existing files";
+            this.hideExistingFiles_checkBox.UseVisualStyleBackColor = true;
             // 
             // openSyncFolder_button
             // 
@@ -768,6 +782,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.nodeItem_contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -819,6 +834,7 @@
         private System.Windows.Forms.ProgressBar loadLink_progressBar;
         private System.Windows.Forms.Button createArchive_button;
         private System.Windows.Forms.Button openSyncFolder_button;
+        private System.Windows.Forms.CheckBox hideExistingFiles_checkBox;
     }
 }
 
