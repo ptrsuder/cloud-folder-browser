@@ -97,14 +97,13 @@
             this.LoadFromFile_button = new System.Windows.Forms.Button();
             this.SaveToFile_button = new System.Windows.Forms.Button();
             this.publicFolders_comboBox = new System.Windows.Forms.ComboBox();
-            this.nodeItem_contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.checkAllSubfoldersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.checkFolderOnlyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addNewPublicFolder_button = new System.Windows.Forms.Button();
             this.deletePublicFolder_button = new System.Windows.Forms.Button();
             this.loginYandex_button = new System.Windows.Forms.Button();
             this.loadLink_progressBar = new System.Windows.Forms.ProgressBar();
             this.createArchive_button = new System.Windows.Forms.Button();
+            this.syncFolderTree_contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.refreshFolder_menuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -116,7 +115,7 @@
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.nodeItem_contextMenuStrip.SuspendLayout();
+            this.syncFolderTree_contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // yadiskSpace_progressBar
@@ -342,6 +341,7 @@
             this.syncFolder_treeViewAdv.Columns.Add(this.created_syncTreeColumn);
             this.syncFolder_treeViewAdv.Columns.Add(this.modified_syncTreeColumn);
             this.syncFolder_treeViewAdv.Columns.Add(this.size_syncTreeColumn);
+            this.syncFolder_treeViewAdv.ContextMenuStrip = this.syncFolderTree_contextMenuStrip;
             this.syncFolder_treeViewAdv.DefaultToolTipProvider = null;
             this.syncFolder_treeViewAdv.DragDropMarkColor = System.Drawing.Color.Black;
             this.syncFolder_treeViewAdv.FullRowSelectActiveColor = System.Drawing.Color.Empty;
@@ -672,26 +672,6 @@
             this.publicFolders_comboBox.TabIndex = 16;
             this.publicFolders_comboBox.SelectedValueChanged += new System.EventHandler(this.PublicFolders_comboBox_SelectedIndexChanged);
             // 
-            // nodeItem_contextMenuStrip
-            // 
-            this.nodeItem_contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.checkAllSubfoldersToolStripMenuItem,
-            this.checkFolderOnlyToolStripMenuItem});
-            this.nodeItem_contextMenuStrip.Name = "nodeItem_contextMenuStrip";
-            this.nodeItem_contextMenuStrip.Size = new System.Drawing.Size(181, 48);
-            // 
-            // checkAllSubfoldersToolStripMenuItem
-            // 
-            this.checkAllSubfoldersToolStripMenuItem.Name = "checkAllSubfoldersToolStripMenuItem";
-            this.checkAllSubfoldersToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.checkAllSubfoldersToolStripMenuItem.Text = "Check all subfolders";
-            // 
-            // checkFolderOnlyToolStripMenuItem
-            // 
-            this.checkFolderOnlyToolStripMenuItem.Name = "checkFolderOnlyToolStripMenuItem";
-            this.checkFolderOnlyToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.checkFolderOnlyToolStripMenuItem.Text = "Check folder only";
-            // 
             // addNewPublicFolder_button
             // 
             this.addNewPublicFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
@@ -747,6 +727,19 @@
             this.createArchive_button.Visible = false;
             this.createArchive_button.Click += new System.EventHandler(this.createArchive_button_Click);
             // 
+            // syncFolderTree_contextMenuStrip
+            // 
+            this.syncFolderTree_contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshFolder_menuItem});
+            this.syncFolderTree_contextMenuStrip.Name = "syncFolderTree_contextMenuStrip";
+            this.syncFolderTree_contextMenuStrip.Size = new System.Drawing.Size(148, 26);
+            // 
+            // refreshFolder_menuItem
+            // 
+            this.refreshFolder_menuItem.Name = "refreshFolder_menuItem";
+            this.refreshFolder_menuItem.Size = new System.Drawing.Size(147, 22);
+            this.refreshFolder_menuItem.Text = "Refresh folder";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -783,7 +776,7 @@
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            this.nodeItem_contextMenuStrip.ResumeLayout(false);
+            this.syncFolderTree_contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -814,9 +807,6 @@
         private System.Windows.Forms.Button LoadFromFile_button;
         private System.Windows.Forms.Button SaveToFile_button;
         private System.Windows.Forms.ComboBox publicFolders_comboBox;
-        private System.Windows.Forms.ContextMenuStrip nodeItem_contextMenuStrip;
-        private System.Windows.Forms.ToolStripMenuItem checkAllSubfoldersToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem checkFolderOnlyToolStripMenuItem;
         private System.Windows.Forms.Button savePublicFolderKey_button;
         private System.Windows.Forms.Button addNewPublicFolder_button;
         private System.Windows.Forms.SplitContainer splitContainer1;
@@ -835,6 +825,8 @@
         private System.Windows.Forms.Button createArchive_button;
         private System.Windows.Forms.Button openSyncFolder_button;
         private System.Windows.Forms.CheckBox hideExistingFiles_checkBox;
+        private System.Windows.Forms.ContextMenuStrip syncFolderTree_contextMenuStrip;
+        private System.Windows.Forms.ToolStripMenuItem refreshFolder_menuItem;
     }
 }
 

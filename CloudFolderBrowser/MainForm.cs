@@ -103,7 +103,7 @@ namespace CloudFolderBrowser
             nodeCheckBox1.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
             yadiskPublicFolder_treeViewAdv.NodeControls[2].ToolTipProvider = new ToolTipProvider();
 
-            yadiskPublicFolder_treeViewAdv.ContextMenuStrip = nodeItem_contextMenuStrip;
+            refreshFolder_menuItem.Click += RefreshFolder_menuItem_Click;
 
             if (Properties.Settings.Default.lastSyncFolderPath != "")
             {
@@ -138,7 +138,6 @@ namespace CloudFolderBrowser
 
             
         }
-              
 
         void SetProgress(bool waiting = true)
         {
@@ -1533,6 +1532,11 @@ namespace CloudFolderBrowser
         #region #EVENT HANDLERS
 
         #region #TREEVIEW
+
+        private void RefreshFolder_menuItem_Click(object sender, EventArgs e)
+        {
+            LoadSyncFolder(syncFolderPath_textBox.Text);
+        }
 
         private void syncFolderPath_textBox_TextChanged(object sender, EventArgs e)
         {
