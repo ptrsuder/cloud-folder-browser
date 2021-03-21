@@ -274,7 +274,8 @@
             this.filter_textBox.Location = new System.Drawing.Point(13, 524);
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(143, 20);
-            this.filter_textBox.TabIndex = 19;            
+            this.filter_textBox.TabIndex = 19;
+            this.filter_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
             // 
             // overwriteMode_comboBox
             // 

@@ -506,32 +506,21 @@ namespace CloudFolderBrowser
                 if (flatList2_checkBox.Checked) //hierarchy -> flat
                 {
                     if (subnode.Tag == null || subnode.Tag.GetType().ToString() == "CloudFolderBrowser.CloudFolder")
-                    {
-                        //if (subnode.CheckState != CheckState.Unchecked)
-                            TransferNodeCheckState(subnode);
+                    {                        
+                        TransferNodeCheckState(subnode);
                         continue;
                     }
                     else
                     {
                         Node n = newFilesFlat_model.Nodes[0].Nodes.First(x => x.Tag == subnode.Tag);
                         n.CheckState = subnode.CheckState;
-                    }
-                    //if (subnode.CheckState == CheckState.Checked)
-                    //{
-                    //    Node n = newFilesFlat_model.Nodes[0].Nodes.First(x => x.Tag == subnode.Tag);
-                    //    n.CheckState = CheckState.Checked;
-                    //}
+                    }                   
                 }
                 else //flat -> hierarchy
                 {
 
                     Node n = FindNodeByPath(newFiles_model.Nodes[0], ((CloudFile)subnode.Tag).Path);
-                    n.CheckState = subnode.CheckState;
-                    //if (subnode.CheckState == CheckState.Checked)
-                    //{
-                    //    Node n = FindNodeByPath(newFiles_model.Nodes[0], ((CloudFile)subnode.Tag).Path);
-                    //    n.CheckState = CheckState.Checked;
-                    //}
+                    n.CheckState = subnode.CheckState;                    
                 }
             }
         }
