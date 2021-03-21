@@ -85,7 +85,7 @@ namespace CloudFolderBrowser
             progressLabels = new List<Label> { label1, label2, label3, label4, DownloadProgress_label };
 
             rootFolder = newFilesFolder;
-            //nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
+            nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
             newFilesTreeViewAdv.ShowNodeToolTips = true;
             newFilesTreeViewAdv.NodeControls[2].ToolTipProvider = new ToolTipProvider();
             newFilesTreeViewAdv.NodeFilter = filter;
