@@ -1339,7 +1339,7 @@ namespace CloudFolderBrowser
         void SaveFolderJson(CloudFolder folder)
         {
             Directory.CreateDirectory("jsons");
-            string hashString = GetHashString(publicFolders_comboBox.Text);
+            string hashString = GetHashString(publicFolderKey_textBox.Text);
             //File.WriteAllText("jsons/" + publicFolders_comboBox.Text + ".json", JsonConvert.SerializeObject(folder));
             File.WriteAllText("jsons/" + hashString + ".json", JsonConvert.SerializeObject(folder, new JsonSerializerSettings()
             {
