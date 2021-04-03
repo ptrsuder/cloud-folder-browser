@@ -662,6 +662,7 @@
             // openSyncFolder_button
             // 
             this.openSyncFolder_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.openSyncFolder_button.Enabled = false;
             this.openSyncFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.openSyncFolder_button.Location = new System.Drawing.Point(376, 4);
             this.openSyncFolder_button.Name = "openSyncFolder_button";

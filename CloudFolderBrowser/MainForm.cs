@@ -1390,8 +1390,11 @@ namespace CloudFolderBrowser
             //yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
             yadiskPublicFolder_treeViewAdv.Columns[0].MinColumnWidth = 100;
 
-            if (syncFolderPath_textBox.Text !="")
+            if (syncFolderPath_textBox.Text != "")
+            {
                 syncFolders_button.Enabled = true;
+                openSyncFolder_button.Enabled = true;
+            }
         }
 
         public static void BuildSubfolderNodes(ColumnNode node)
@@ -1573,6 +1576,8 @@ namespace CloudFolderBrowser
 
                 if (cloudPublicFolder != null)
                     syncFolders_button.Enabled = true;
+
+                openSyncFolder_button.Enabled = true;
             }
         }
 
@@ -1666,7 +1671,7 @@ namespace CloudFolderBrowser
             else
                 publicFolderKey_textBox.Text = "this url is too mysterious for you";
 
-            hotDictKey = publicFolders_comboBox.Text;
+            hotDictKey = ((KeyValuePair<string, string>)publicFolders_comboBox.SelectedItem).Key;
         }
 
         private void FlatList_checkBox_CheckedChanged(object sender, EventArgs e)
@@ -1759,6 +1764,7 @@ namespace CloudFolderBrowser
             //publicFolders_comboBox.SelectedItem = publicFolders_comboBox.Text;
             UpdatePublicFoldersSetting();
             savePublicFolderKey_button.Enabled = false;
+            publicFolderKey_textBox.ReadOnly = true;
         }
 
         private void AddNewPublicFolder_button_Click(object sender, EventArgs e)
@@ -1822,7 +1828,7 @@ namespace CloudFolderBrowser
 
         private void openSyncFolder_button_Click(object sender, EventArgs e)
         {
-            System.Diagnostics.Process.Start(syncFolderPath_textBox.Text);
+            Process.Start(syncFolderPath_textBox.Text);
         }
 
         private void appVersion_linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
