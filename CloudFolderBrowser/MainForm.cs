@@ -20,6 +20,7 @@ using CG.Web.MegaApiClient;
 using Exception = System.Exception;
 using System.Text;
 using System.Security.Cryptography;
+using System.Diagnostics;
 
 //https://github.com/kozakovi4/YandexDiskSharp
 //https://github.com/AdamsLair/treeviewadv
@@ -32,6 +33,8 @@ namespace CloudFolderBrowser
           
     public partial class MainForm : Form
     {
+        string AppVersion = "0.9.14";
+
         public static RestClient rc;
         public ResourceList rl_root;
         public List<Task> tasks;
@@ -140,6 +143,8 @@ namespace CloudFolderBrowser
             checkNoneToolStripMenuItem.Click += CheckNoneToolStripMenuItem_Click;
             expandAllToolStripMenuItem.Click += ExpandAllToolStripMenuItem_Click;
             collapseAllToolStripMenuItem.Click += CollapseAllToolStripMenuItem_Click;
+
+            appVersion_linkLabel.Text = "v " + AppVersion;
         }
 
         void SetProgress(bool waiting = true)
@@ -1818,6 +1823,11 @@ namespace CloudFolderBrowser
         private void openSyncFolder_button_Click(object sender, EventArgs e)
         {
             System.Diagnostics.Process.Start(syncFolderPath_textBox.Text);
+        }
+
+        private void appVersion_linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(@"https://github.com/ptrsuder/cloud-folder-browser/releases/latest");
         }
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)

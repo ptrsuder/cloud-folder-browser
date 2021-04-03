@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SyncFilesForm));
             this.addFilesToYadisk_button = new System.Windows.Forms.Button();
             this.flatList2_checkBox = new System.Windows.Forms.CheckBox();
             this.getJdLinks_button = new System.Windows.Forms.Button();
@@ -90,7 +91,7 @@
             this.flatList2_checkBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.flatList2_checkBox.AutoSize = true;
             this.flatList2_checkBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.flatList2_checkBox.Location = new System.Drawing.Point(162, 526);
+            this.flatList2_checkBox.Location = new System.Drawing.Point(162, 532);
             this.flatList2_checkBox.Name = "flatList2_checkBox";
             this.flatList2_checkBox.Size = new System.Drawing.Size(55, 17);
             this.flatList2_checkBox.TabIndex = 2;
@@ -274,9 +275,9 @@
             this.stopDownload_button.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.stopDownload_button.Location = new System.Drawing.Point(756, 526);
             this.stopDownload_button.Name = "stopDownload_button";
-            this.stopDownload_button.Size = new System.Drawing.Size(260, 23);
+            this.stopDownload_button.Size = new System.Drawing.Size(260, 26);
             this.stopDownload_button.TabIndex = 18;
-            this.stopDownload_button.Text = "Stop downloads";
+            this.stopDownload_button.Text = "Cancel downloads";
             this.stopDownload_button.UseVisualStyleBackColor = true;
             this.stopDownload_button.Visible = false;
             this.stopDownload_button.Click += new System.EventHandler(this.stopDownloads_Click);
@@ -457,7 +458,7 @@
             // 
             this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.filter_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.filter_textBox.Location = new System.Drawing.Point(13, 524);
+            this.filter_textBox.Location = new System.Drawing.Point(13, 529);
             this.filter_textBox.Name = "filter_textBox";
             this.filter_textBox.Size = new System.Drawing.Size(143, 20);
             this.filter_textBox.TabIndex = 19;
@@ -490,9 +491,10 @@
             this.Controls.Add(this.downloadFiles_button);
             this.Controls.Add(this.flatList2_checkBox);
             this.Controls.Add(this.newFilesTreeViewAdv);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MinimumSize = new System.Drawing.Size(436, 590);
             this.Name = "SyncFilesForm";
-            this.Text = "SyncFilesForm";
+            this.Text = "Download files";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.syncFilesForm2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);

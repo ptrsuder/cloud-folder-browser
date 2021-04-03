@@ -23,7 +23,7 @@ using System.Net;
 namespace CloudFolderBrowser
 {
     public partial class SyncFilesForm : Form
-    {
+    {        
         List<CloudFile> checkedFiles;
         TreeModel newFiles_model, newFilesFlat_model;
         long checkedFilesSize = 0;        
@@ -601,8 +601,8 @@ namespace CloudFolderBrowser
                 else
                 {//flat -> hierarchy                
                     subnode.LinkedNode.IsChecked = subnode.IsChecked;
-                    if (subnode.Parent.Index != -1)
-                        UpdateParentCheckState((ColumnNode)subnode.Parent);
+                    if (subnode.LinkedNode.Parent.Index != -1)
+                        UpdateParentCheckState((ColumnNode)subnode.LinkedNode.Parent);
                 }
 
             }
