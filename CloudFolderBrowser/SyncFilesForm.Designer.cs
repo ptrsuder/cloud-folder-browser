@@ -48,7 +48,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.stopDownload_button = new System.Windows.Forms.Button();
-            this.filter_textBox = new CloudFolderBrowser.TextBox();
             this.overwriteMode_comboBox = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.newFilesTreeViewAdv = new Aga.Controls.Tree.TreeViewAdv();
@@ -56,6 +55,11 @@
             this.created_newTreeColumn = new Aga.Controls.Tree.TreeColumn();
             this.modified_newTreeColumn = new Aga.Controls.Tree.TreeColumn();
             this.size_newTreeColumn = new Aga.Controls.Tree.TreeColumn();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.checkAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkNoneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nodeCheckBox2 = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
             this.nodeStateIcon2 = new Aga.Controls.Tree.NodeControls.NodeStateIcon();
             this.nodeTextBox9 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
@@ -63,7 +67,9 @@
             this.nodeTextBox11 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.nodeTextBox12 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.folderNewFiles_checkBox = new System.Windows.Forms.CheckBox();
+            this.filter_textBox = new CloudFolderBrowser.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // addFilesToYadisk_button
@@ -253,6 +259,14 @@
             this.label5.TabIndex = 16;
             this.label5.Text = "Maximum downloads";
             // 
+            // toolTip1
+            // 
+            this.toolTip1.AutomaticDelay = 200;
+            this.toolTip1.AutoPopDelay = 500;
+            this.toolTip1.InitialDelay = 200;
+            this.toolTip1.IsBalloon = true;
+            this.toolTip1.ReshowDelay = 40;
+            // 
             // stopDownload_button
             // 
             this.stopDownload_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -266,16 +280,6 @@
             this.stopDownload_button.UseVisualStyleBackColor = true;
             this.stopDownload_button.Visible = false;
             this.stopDownload_button.Click += new System.EventHandler(this.stopDownloads_Click);
-            // 
-            // filter_textBox
-            // 
-            this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.filter_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.filter_textBox.Location = new System.Drawing.Point(13, 524);
-            this.filter_textBox.Name = "filter_textBox";
-            this.filter_textBox.Size = new System.Drawing.Size(143, 20);
-            this.filter_textBox.TabIndex = 19;
-            this.filter_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
             // 
             // overwriteMode_comboBox
             // 
@@ -309,6 +313,7 @@
             this.newFilesTreeViewAdv.Columns.Add(this.created_newTreeColumn);
             this.newFilesTreeViewAdv.Columns.Add(this.modified_newTreeColumn);
             this.newFilesTreeViewAdv.Columns.Add(this.size_newTreeColumn);
+            this.newFilesTreeViewAdv.ContextMenuStrip = this.contextMenuStrip1;
             this.newFilesTreeViewAdv.DefaultToolTipProvider = null;
             this.newFilesTreeViewAdv.DragDropMarkColor = System.Drawing.Color.Black;
             this.newFilesTreeViewAdv.FullRowSelectActiveColor = System.Drawing.Color.Empty;
@@ -358,6 +363,40 @@
             this.size_newTreeColumn.Header = "Size";
             this.size_newTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
             this.size_newTreeColumn.TooltipText = null;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.checkAllToolStripMenuItem,
+            this.checkNoneToolStripMenuItem,
+            this.expandAllToolStripMenuItem,
+            this.collapseAllToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(138, 92);
+            // 
+            // checkAllToolStripMenuItem
+            // 
+            this.checkAllToolStripMenuItem.Name = "checkAllToolStripMenuItem";
+            this.checkAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.checkAllToolStripMenuItem.Text = "Check all";
+            // 
+            // checkNoneToolStripMenuItem
+            // 
+            this.checkNoneToolStripMenuItem.Name = "checkNoneToolStripMenuItem";
+            this.checkNoneToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.checkNoneToolStripMenuItem.Text = "Check none";
+            // 
+            // expandAllToolStripMenuItem
+            // 
+            this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.expandAllToolStripMenuItem.Text = "Expand all";
+            // 
+            // collapseAllToolStripMenuItem
+            // 
+            this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.collapseAllToolStripMenuItem.Text = "Collapse all";
             // 
             // nodeCheckBox2
             // 
@@ -414,6 +453,16 @@
             this.folderNewFiles_checkBox.Text = "Download into \"New Files\" folder";
             this.folderNewFiles_checkBox.UseVisualStyleBackColor = true;
             // 
+            // filter_textBox
+            // 
+            this.filter_textBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.filter_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.filter_textBox.Location = new System.Drawing.Point(13, 524);
+            this.filter_textBox.Name = "filter_textBox";
+            this.filter_textBox.Size = new System.Drawing.Size(143, 20);
+            this.filter_textBox.TabIndex = 19;
+            this.filter_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
+            // 
             // SyncFilesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -446,6 +495,7 @@
             this.Text = "SyncFilesForm";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.syncFilesForm2_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.maximumDownloads_numericUpDown)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -487,5 +537,10 @@
         private System.Windows.Forms.ComboBox overwriteMode_comboBox;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.CheckBox folderNewFiles_checkBox;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem checkAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem checkNoneToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem collapseAllToolStripMenuItem;
     }
 }

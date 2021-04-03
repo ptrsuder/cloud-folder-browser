@@ -27,7 +27,7 @@ namespace Aga.Controls.Tree
 					foreach (NodeControl nc in NodeControls)
 					{
 						if (nc.ParentColumn == column)
-							w += nc.GetActualSize(node, _measureContext).Width;
+							w += nc.GetActualSize(node, _measureContext).Width + (int)Math.Round(nc.GetActualSize(node, _measureContext).Width * 0.45);
 					}
 					res = Math.Max(res, w);
 				}

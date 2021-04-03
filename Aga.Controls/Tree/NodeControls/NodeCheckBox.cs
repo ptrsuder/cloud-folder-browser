@@ -197,6 +197,8 @@ namespace Aga.Controls.Tree.NodeControls
 
 		protected void OnCheckStateChanged(TreeNodeAdv node)
 		{
+			if (node.IsHidden)
+				return;
 			TreePath path = this.Parent.GetPath(node);
 			OnCheckStateChanged(new TreePathEventArgs(path));
 		}

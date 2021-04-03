@@ -175,7 +175,7 @@ namespace Aga.Controls.Tree
 				if (_checkState != value)
 				{
 					_checkState = value;
-					NotifyModel();
+					//NotifyModel();
 				}
 			}
 		}

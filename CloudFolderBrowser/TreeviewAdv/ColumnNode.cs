@@ -12,6 +12,7 @@ namespace CloudFolderBrowser
         public string NodeControl3 = "";
         public string NodeControl4 = "";
         long _size;
+        public ColumnNode LinkedNode;
         public long Size
         {
             get => _size;

@@ -48,7 +48,7 @@ namespace CloudFolderBrowser
             CloudService = cloudServiceType;           
 
             if (folderNewFiles)
-                downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+                downloadFolderPath = MainForm.syncFolderPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
             else
                 downloadFolderPath = MainForm.syncFolderPath;
 
@@ -60,6 +60,11 @@ namespace CloudFolderBrowser
             {
                 foreach (CloudFile file in files)
                 {
+                    var newFolderDir = new DirectoryInfo(MainForm.syncFolderPath + "/0_New Files/");
+                    var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
+                    var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
+                    if (matchedFiles.Length > 0)
+                        continue;
                     CommonFileDownload fileDownload = new CommonFileDownload(this, file, downloadFolderPath + file.Path, networkCredential);
                     downloadQueue.Enqueue(fileDownload);
                     downloads.Add(fileDownload);
@@ -73,7 +78,7 @@ namespace CloudFolderBrowser
 
         public void Start()
         {
-            System.Net.ServicePointManager.DefaultConnectionLimit = 4;
+            ServicePointManager.DefaultConnectionLimit = 4;
 
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;

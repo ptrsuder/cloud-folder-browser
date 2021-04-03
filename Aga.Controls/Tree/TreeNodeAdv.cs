@@ -397,6 +397,11 @@ namespace Aga.Controls.Tree
 			Collapse(false);
 		}
 
+		public void CollapseAll(bool ignoreChildren)
+		{
+			Collapse(ignoreChildren);
+		}
+
 		public void Collapse(bool ignoreChildren)
 		{
 			SetIsExpanded(false, ignoreChildren);

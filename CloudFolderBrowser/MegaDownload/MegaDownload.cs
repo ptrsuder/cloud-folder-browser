@@ -45,7 +45,7 @@ namespace CloudFolderBrowser
             megaApiClient.LoginAnonymous();
 
             if (folderNewFiles)
-                downloadFolderPath = MainForm.syncFolderPath + "/New Files " + DateTime.Now.Date.ToShortDateString();
+                downloadFolderPath = MainForm.syncFolderPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
             else
                 downloadFolderPath = MainForm.syncFolderPath;
 
@@ -53,6 +53,11 @@ namespace CloudFolderBrowser
             {
                 foreach (CloudFile file in files)
                 {
+                    var newFolderDir = new DirectoryInfo(MainForm.syncFolderPath + "/0_New Files/");
+                    var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
+                    var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
+                    if (matchedFiles.Length > 0)
+                        continue;
                     MegaFileDownload megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, downloadFolderPath + file.Path);
                     downloadQueue.Enqueue(megaFileDownload);
                     downloads.Add(megaFileDownload);

@@ -62,6 +62,11 @@
             this.created_treeColumn = new Aga.Controls.Tree.TreeColumn();
             this.modified_treeColumn = new Aga.Controls.Tree.TreeColumn();
             this.size_treeColumn = new Aga.Controls.Tree.TreeColumn();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.checkAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkNoneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.expandAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.collapseAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nodeCheckBox1 = new Aga.Controls.Tree.NodeControls.NodeCheckBox();
             this.nodeStateIcon1 = new Aga.Controls.Tree.NodeControls.NodeStateIcon();
             this.nodeTextBox1 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
@@ -73,6 +78,8 @@
             this.created_syncTreeColumn = new Aga.Controls.Tree.TreeColumn();
             this.modified_syncTreeColumn = new Aga.Controls.Tree.TreeColumn();
             this.size_syncTreeColumn = new Aga.Controls.Tree.TreeColumn();
+            this.syncFolderTree_contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.refreshFolder_menuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.nodeTextBox5 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.nodeTextBox6 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
             this.nodeTextBox7 = new Aga.Controls.Tree.NodeControls.NodeTextBox();
@@ -102,20 +109,19 @@
             this.loginYandex_button = new System.Windows.Forms.Button();
             this.loadLink_progressBar = new System.Windows.Forms.ProgressBar();
             this.createArchive_button = new System.Windows.Forms.Button();
-            this.syncFolderTree_contextMenuStrip = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.refreshFolder_menuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
+            this.syncFolderTree_contextMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
-            this.syncFolderTree_contextMenuStrip.SuspendLayout();
             this.SuspendLayout();
             // 
             // yadiskSpace_progressBar
@@ -232,11 +238,13 @@
             this.yadiskPublicFolder_treeViewAdv.Columns.Add(this.created_treeColumn);
             this.yadiskPublicFolder_treeViewAdv.Columns.Add(this.modified_treeColumn);
             this.yadiskPublicFolder_treeViewAdv.Columns.Add(this.size_treeColumn);
+            this.yadiskPublicFolder_treeViewAdv.ContextMenuStrip = this.contextMenuStrip1;
             this.yadiskPublicFolder_treeViewAdv.DefaultToolTipProvider = null;
             this.yadiskPublicFolder_treeViewAdv.DragDropMarkColor = System.Drawing.Color.Black;
             this.yadiskPublicFolder_treeViewAdv.FullRowSelectActiveColor = System.Drawing.Color.Empty;
             this.yadiskPublicFolder_treeViewAdv.FullRowSelectInactiveColor = System.Drawing.Color.Empty;
             this.yadiskPublicFolder_treeViewAdv.LineColor = System.Drawing.SystemColors.ControlDark;
+            this.yadiskPublicFolder_treeViewAdv.LoadOnDemand = true;
             this.yadiskPublicFolder_treeViewAdv.Location = new System.Drawing.Point(3, 30);
             this.yadiskPublicFolder_treeViewAdv.Model = null;
             this.yadiskPublicFolder_treeViewAdv.Name = "yadiskPublicFolder_treeViewAdv";
@@ -285,6 +293,40 @@
             this.size_treeColumn.Sortable = true;
             this.size_treeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
             this.size_treeColumn.TooltipText = null;
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.checkAllToolStripMenuItem,
+            this.checkNoneToolStripMenuItem,
+            this.expandAllToolStripMenuItem,
+            this.collapseAllToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(138, 92);
+            // 
+            // checkAllToolStripMenuItem
+            // 
+            this.checkAllToolStripMenuItem.Name = "checkAllToolStripMenuItem";
+            this.checkAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.checkAllToolStripMenuItem.Text = "Check all";
+            // 
+            // checkNoneToolStripMenuItem
+            // 
+            this.checkNoneToolStripMenuItem.Name = "checkNoneToolStripMenuItem";
+            this.checkNoneToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.checkNoneToolStripMenuItem.Text = "Check none";
+            // 
+            // expandAllToolStripMenuItem
+            // 
+            this.expandAllToolStripMenuItem.Name = "expandAllToolStripMenuItem";
+            this.expandAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.expandAllToolStripMenuItem.Text = "Expand all";
+            // 
+            // collapseAllToolStripMenuItem
+            // 
+            this.collapseAllToolStripMenuItem.Name = "collapseAllToolStripMenuItem";
+            this.collapseAllToolStripMenuItem.Size = new System.Drawing.Size(137, 22);
+            this.collapseAllToolStripMenuItem.Text = "Collapse all";
             // 
             // nodeCheckBox1
             // 
@@ -391,6 +433,19 @@
             this.size_syncTreeColumn.Sortable = true;
             this.size_syncTreeColumn.SortOrder = System.Windows.Forms.SortOrder.None;
             this.size_syncTreeColumn.TooltipText = null;
+            // 
+            // syncFolderTree_contextMenuStrip
+            // 
+            this.syncFolderTree_contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.refreshFolder_menuItem});
+            this.syncFolderTree_contextMenuStrip.Name = "syncFolderTree_contextMenuStrip";
+            this.syncFolderTree_contextMenuStrip.Size = new System.Drawing.Size(148, 26);
+            // 
+            // refreshFolder_menuItem
+            // 
+            this.refreshFolder_menuItem.Name = "refreshFolder_menuItem";
+            this.refreshFolder_menuItem.Size = new System.Drawing.Size(147, 22);
+            this.refreshFolder_menuItem.Text = "Refresh folder";
             // 
             // nodeTextBox5
             // 
@@ -605,6 +660,7 @@
             // 
             // openSyncFolder_button
             // 
+            this.openSyncFolder_button.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.openSyncFolder_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.openSyncFolder_button.Location = new System.Drawing.Point(458, 3);
             this.openSyncFolder_button.Name = "openSyncFolder_button";
@@ -727,19 +783,6 @@
             this.createArchive_button.Visible = false;
             this.createArchive_button.Click += new System.EventHandler(this.createArchive_button_Click);
             // 
-            // syncFolderTree_contextMenuStrip
-            // 
-            this.syncFolderTree_contextMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.refreshFolder_menuItem});
-            this.syncFolderTree_contextMenuStrip.Name = "syncFolderTree_contextMenuStrip";
-            this.syncFolderTree_contextMenuStrip.Size = new System.Drawing.Size(148, 26);
-            // 
-            // refreshFolder_menuItem
-            // 
-            this.refreshFolder_menuItem.Name = "refreshFolder_menuItem";
-            this.refreshFolder_menuItem.Size = new System.Drawing.Size(147, 22);
-            this.refreshFolder_menuItem.Text = "Refresh folder";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -767,6 +810,8 @@
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
+            this.contextMenuStrip1.ResumeLayout(false);
+            this.syncFolderTree_contextMenuStrip.ResumeLayout(false);
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -776,7 +821,6 @@
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
-            this.syncFolderTree_contextMenuStrip.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -827,6 +871,11 @@
         private System.Windows.Forms.CheckBox hideExistingFiles_checkBox;
         private System.Windows.Forms.ContextMenuStrip syncFolderTree_contextMenuStrip;
         private System.Windows.Forms.ToolStripMenuItem refreshFolder_menuItem;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem checkAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem checkNoneToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem expandAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem collapseAllToolStripMenuItem;
     }
 }
 

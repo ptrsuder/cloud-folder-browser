@@ -136,7 +136,10 @@ namespace CloudFolderBrowser
                 savedPasswords = JsonConvert.DeserializeObject<Dictionary<string, string>>(Properties.Settings.Default.savedPasswordsJson);
             }
 
-            
+            checkAllToolStripMenuItem.Click += CheckAllToolStripMenuItem_Click;
+            checkNoneToolStripMenuItem.Click += CheckNoneToolStripMenuItem_Click;
+            expandAllToolStripMenuItem.Click += ExpandAllToolStripMenuItem_Click;
+            collapseAllToolStripMenuItem.Click += CollapseAllToolStripMenuItem_Click;
         }
 
         void SetProgress(bool waiting = true)
@@ -245,7 +248,7 @@ namespace CloudFolderBrowser
 
         void NodeCheckStateChanged(object sender, TreePathEventArgs e)
         {
-            ColumnNode checkedNode = (ColumnNode)e.Path.FirstNode;
+            ColumnNode checkedNode = (ColumnNode)e.Path.LastNode;
             if (checkedNode.CheckState == CheckState.Checked)
             {
                 //if (checkedNode.Parent.CheckState != CheckState.Checked && checkedNode.Parent.Index !=-1)
@@ -1371,18 +1374,18 @@ namespace CloudFolderBrowser
             yadiskFlatFolder_model = new TreeModel();
             ColumnNode rootNode = new ColumnNode(HttpUtility.UrlDecode(cloudPublicFolder.Name), cloudPublicFolder.Created, cloudPublicFolder.Modified, cloudPublicFolder.Size);
             rootNode.Tag = cloudPublicFolder;
-            //yadiskPublicFolder_treeViewAdv.BeginUpdate();
+           
             yadiskPublicFolder_model.Nodes.Add(rootNode);
             BuildSubfolderNodes(rootNode);
             BuildFullFolderStructure(rootNode);
 
             yadiskPublicFolder_treeViewAdv.Model = new SortedTreeModel(yadiskPublicFolder_model);
             yadiskPublicFolder_treeViewAdv.NodeFilter = filter;
+           
+            //yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
+            yadiskPublicFolder_treeViewAdv.Columns[0].MinColumnWidth = 100;
 
-            //yadiskPublicFolder_treeViewAdv.EndUpdate();
-            yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
-
-            if(syncFolderPath_textBox.Text !="")
+            if (syncFolderPath_textBox.Text !="")
                 syncFolders_button.Enabled = true;
         }
 
@@ -1514,8 +1517,8 @@ namespace CloudFolderBrowser
                 {
                     string path = sfile.FullName.Replace(syncFolder.Path, @"\");
                     string v = path.Replace(@"\", @"/");
-                    string w = HttpUtility.UrlDecode(file.Path);
-                    if (sfile.Name == file.Name && v == w)
+                    string w = WebUtility.UrlDecode(file.Path);
+                    if (sfile.Name == WebUtility.UrlDecode(file.Name) && v == w)
                     {
                         isMissing = false;
                         break;
@@ -1568,13 +1571,41 @@ namespace CloudFolderBrowser
             }
         }
 
+        private void CollapseAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            yadiskPublicFolder_treeViewAdv.Model = new SortedTreeModel(yadiskPublicFolder_model);
+            yadiskPublicFolder_treeViewAdv.Root.Children[0].Expand();
+            yadiskPublicFolder_treeViewAdv.AutoSizeColumn(yadiskPublicFolder_treeViewAdv.Columns[0]);
+        }
+
+        private void ExpandAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            yadiskPublicFolder_treeViewAdv.ExpandAll();
+            yadiskPublicFolder_treeViewAdv.AutoSizeColumn(yadiskPublicFolder_treeViewAdv.Columns[0]);
+        }
+
+        private void CheckNoneToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            yadiskPublicFolder_model.Nodes[0].IsChecked = false;
+            CheckAllSubnodes(yadiskPublicFolder_model.Nodes[0] as ColumnNode, true);
+            yadiskPublicFolder_treeViewAdv.Refresh();
+        }
+
+        private void CheckAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            yadiskPublicFolder_model.Nodes[0].IsChecked = true;
+            CheckAllSubnodes(yadiskPublicFolder_model.Nodes[0] as ColumnNode, false);
+            yadiskPublicFolder_treeViewAdv.Refresh();
+        }
+
+
         private void treeViewAdv_Expanded(object sender, TreeViewAdvEventArgs e)
         {
             if (!e.Node.CanExpand)
                 return;
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[0]);
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[3]);
-            e.Node.Tree.Columns[0].Width += (int) Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
+            //e.Node.Tree.Columns[0].Width += (int) Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
             //e.Node.Tree.Columns[3].Width += 10;
         }
 
@@ -1584,7 +1615,7 @@ namespace CloudFolderBrowser
                 return;
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[0], false);
             e.Node.Tree.AutoSizeColumn(e.Node.Tree.Columns[3], false);
-            e.Node.Tree.Columns[0].Width += (int)Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
+            //e.Node.Tree.Columns[0].Width += (int)Math.Round(e.Node.Tree.Columns[0].Width * 0.3, 0);
         }
 
         private void treeViewAdv_ColumnClicked(object sender, TreeColumnEventArgs e)
