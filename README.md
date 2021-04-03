@@ -1,4 +1,7 @@
 # Cloud Folder Browser
+
+![icon](https://i.imgur.com/jy2KCG1.png) 
+
 ![downloads_latest](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/latest/total.svg?color=magenta)
 ![downloads_total](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/total.svg?label=downloads%40total)
 
