@@ -21,8 +21,6 @@ Download files as JDownloader2 packages or directly from app.
 ## Requirements
 * .Net Framework 4.5
 
-![screen](https://i.imgur.com/PkEbP9I.png)
-
 ## How to use
 ### Load and store folders:
 * Click [Add new] button
