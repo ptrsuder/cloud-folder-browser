@@ -60,7 +60,7 @@ namespace CloudFolderBrowser
             {
                 foreach (CloudFile file in files)
                 {
-                    var newFolderDir = new DirectoryInfo(MainForm.syncFolderPath + "/0_New Files/");
+                    var newFolderDir = new DirectoryInfo(downloadFolderPath);
                     var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
                     var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
                     if (matchedFiles.Length > 0)
