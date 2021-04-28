@@ -33,7 +33,7 @@ namespace CloudFolderBrowser
           
     public partial class MainForm : Form
     {
-        string AppVersion = "0.9.14";
+        string AppVersion = "0.9.15";
 
         public static RestClient rc;
         public ResourceList rl_root;
