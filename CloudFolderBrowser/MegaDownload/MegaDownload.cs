@@ -23,6 +23,7 @@ namespace CloudFolderBrowser
         string downloadFolderPath;
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public int OverwriteMode;
+        ToolTip toolTip1;
 
         public event EventHandler DownloadCompleted;
         protected virtual void OnDownloadCompleted(EventArgs e)
@@ -34,10 +35,11 @@ namespace CloudFolderBrowser
             }
         }
 
-        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, int overwriteMode = 3, bool folderNewFiles = true)
+        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, ToolTip toolTip, int overwriteMode = 3, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
+            toolTip1 = toolTip;
             downloads = new List<MegaFileDownload>();
             OverwriteMode = overwriteMode;
 
@@ -82,7 +84,8 @@ namespace CloudFolderBrowser
                         {
                             MegaFileDownload dd = downloadQueue.Dequeue();
                             dd.ProgressBar = progressbars[i];
-                            dd.ProgressLabel = progresslabels[i];                            
+                            dd.ProgressLabel = progresslabels[i];
+                            toolTip1.SetToolTip(dd.ProgressLabel, Path.GetFileName(dd.SavePath));
                             dd.StartDownload();                       
                             if (downloadQueue.Count == 0) break;
                         }
@@ -105,7 +108,8 @@ namespace CloudFolderBrowser
                     //{
                     MegaFileDownload newd = downloadQueue.Dequeue();
                     newd.ProgressBar = d.ProgressBar;
-                    newd.ProgressLabel = d.ProgressLabel;                   
+                    newd.ProgressLabel = d.ProgressLabel;
+                    toolTip1.SetToolTip(newd.ProgressLabel, Path.GetFileName(newd.SavePath));
                     newd.StartDownload();
                     //}
                 }

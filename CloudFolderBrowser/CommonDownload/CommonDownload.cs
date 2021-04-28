@@ -26,6 +26,7 @@ namespace CloudFolderBrowser
         public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public int OverwriteMode;
         public CloudServiceType CloudService;
+        ToolTip toolTip1;
 
         public event EventHandler DownloadCompleted;
         protected virtual void OnDownloadCompleted(EventArgs e)
@@ -38,14 +39,15 @@ namespace CloudFolderBrowser
         }
 
         public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars,
-            Label[] progressLabels, CloudServiceType cloudServiceType,
+            Label[] progressLabels, ToolTip toolTip, CloudServiceType cloudServiceType,
             int overwriteMode = 3, NetworkCredential networkCredential = null, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
             downloads = new List<CommonFileDownload>();
             OverwriteMode = overwriteMode;
-            CloudService = cloudServiceType;           
+            CloudService = cloudServiceType;
+            toolTip1 = toolTip;
 
             if (folderNewFiles)
                 downloadFolderPath = MainForm.syncFolderPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
@@ -91,7 +93,8 @@ namespace CloudFolderBrowser
                         {
                             CommonFileDownload dd = downloadQueue.Dequeue();
                             dd.ProgressBar = progressbars[i];
-                            dd.ProgressLabel = progresslabels[i];                            
+                            dd.ProgressLabel = progresslabels[i];
+                            toolTip1.SetToolTip(dd.ProgressLabel, dd.FileInfo.Name);
                             dd.StartDownload();                            
                             if (downloadQueue.Count == 0) break;
                         }
@@ -112,7 +115,8 @@ namespace CloudFolderBrowser
                 {                   
                     CommonFileDownload newd = downloadQueue.Dequeue();
                     newd.ProgressBar = d.ProgressBar;
-                    newd.ProgressLabel = d.ProgressLabel;                   
+                    newd.ProgressLabel = d.ProgressLabel;
+                    toolTip1.SetToolTip(newd.ProgressLabel, newd.FileInfo.Name);
                     newd.StartDownload();
                 }                
             }

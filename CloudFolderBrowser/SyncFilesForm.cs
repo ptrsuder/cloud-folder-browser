@@ -675,7 +675,7 @@ namespace CloudFolderBrowser
             }
             usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
             
-            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
+            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, toolTip1, cloudServiceType, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
             commonDownload.DownloadCompleted += Download_DownloadCompleted;
             commonDownload.Start();
 
@@ -717,7 +717,7 @@ namespace CloudFolderBrowser
                 megaApiClient.LoginAnonymous();
             }
 
-            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked);
+            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, toolTip1, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked);
             megaDownload.DownloadCompleted += Download_DownloadCompleted;
             megaDownload.Start();
 
