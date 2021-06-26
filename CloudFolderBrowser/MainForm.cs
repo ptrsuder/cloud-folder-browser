@@ -1206,10 +1206,10 @@ namespace CloudFolderBrowser
             try
             {
                 url = url.Replace("#F!", "folder/").Replace("!", "#");
-                string lastId;
+                string lastId = GetLastId(url);
                 await Task.Run(() =>
                 {
-                    var nodes = megaClient.GetNodesFromLink(new Uri(url), out lastId);
+                    var nodes = megaClient.GetNodesFromLink(new Uri(url));                    
                     cloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
                     cloudPublicFolder.Path = "/";
                     var match = Regex.Match(url, "(/folder/)([^/]+)");
@@ -1262,6 +1262,20 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Cannot retrieve data from URL");
                 WriteToLog(ex.Message, true);
             }
+        }
+
+        private string GetLastId(string url)
+        {
+            //Regex uriRegex = new Regex("/(?<type>(file|folder))/(?<id>[^#]+)#(?<key>[^$/]+)(/folder/)?(?<lastid>[^/]+)");
+            Regex uriRegex = new Regex(@"/(?<type>(file|folder))/(?<id>[^#]+)#(?<key>[^$/]+)(/folder/)?(?<lastid>[^/]+)?");           
+            Match match = uriRegex.Match(url);
+            if (match.Success == false)
+            {
+                throw new ArgumentException(string.Format("Invalid uri. Unable to extract Id and Key from the uri {0}", url));
+            }            
+            string lastId = match.Groups["lastid"].Value;
+            return lastId;
+           
         }
 
         List<INode> GetChildNodes(INode parent, INode[] nodes)
