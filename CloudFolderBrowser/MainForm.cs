@@ -129,10 +129,9 @@ namespace CloudFolderBrowser
                     MessageBox.Show("Cannot log in Yadisk. No internet connection?");
                 }
             }
-            else
-            {
+            else            
                 rc = new RestClient();
-            }
+           
 
             if (Properties.Settings.Default.savedPasswordsJson != "")
             {
@@ -1487,9 +1486,7 @@ namespace CloudFolderBrowser
             {
                 MessageBox.Show("No folders checked!");
                 return;
-            }
-            //if (checkedFolders.Count == 1 && checkedFolders[0].Name == ((Folder)syncFolder_model.Nodes[0].Tag).Name)         
-            //    return;                
+            }          
          
             List<CloudFile> missingFiles = new List<CloudFile>();
             DirectoryInfo syncFolderDirectory = new DirectoryInfo(syncFolder.Path);
@@ -1540,8 +1537,9 @@ namespace CloudFolderBrowser
                 MessageBox.Show("No new files!");
         }
 
-        private void SyncForm_DownloadCompleted(object sender, EventArgs e)
+        private async void SyncForm_DownloadCompleted(object sender, EventArgs e)
         {
+            CreateSyncFolder(syncFolderPath_textBox.Text);
             LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
@@ -1581,17 +1579,19 @@ namespace CloudFolderBrowser
 
         #region #TREEVIEW
 
-        private void RefreshFolder_menuItem_Click(object sender, EventArgs e)
+        private async void RefreshFolder_menuItem_Click(object sender, EventArgs e)
         {
+            CreateSyncFolder(syncFolderPath_textBox.Text);
             LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
-        private void syncFolderPath_textBox_TextChanged(object sender, EventArgs e)
+        private async void syncFolderPath_textBox_TextChanged(object sender, EventArgs e)
         {
+            CreateSyncFolder(syncFolderPath_textBox.Text);
             LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
-        void LoadSyncFolder(string path)
+        void CreateSyncFolder(string path)
         {
             if (path != "")
             {
@@ -1599,7 +1599,13 @@ namespace CloudFolderBrowser
                     Directory.CreateDirectory(syncFolderPath_textBox.Text);
                 syncFolder = new Folder(new DirectoryInfo(syncFolderPath_textBox.Text));
                 syncFolder.CalculateFolderSize();
+            }
+        }
 
+        async Task LoadSyncFolder(string path)
+        {
+            if (path != "")
+            {              
                 syncFolder_model = new TreeModel();
                 ColumnNode rootNode2 = new ColumnNode(syncFolder.Name, syncFolder.Created, syncFolder.Modified, syncFolder.Size);
                 rootNode2.Tag = syncFolder;
@@ -1607,7 +1613,7 @@ namespace CloudFolderBrowser
                 syncFolder_treeViewAdv.BeginUpdate();
                 syncFolder_model.Nodes.Add(rootNode2);
                 BuildSubfolderNodes(rootNode2);
-                BuildFullFolderStructure(rootNode2);
+                await Task.Run(()=> { BuildFullFolderStructure(rootNode2); });
                 syncFolder_treeViewAdv.EndUpdate();
                 syncFolder_treeViewAdv.Root.Children[0].Expand();
 
@@ -1778,7 +1784,7 @@ namespace CloudFolderBrowser
                         MessageBox.Show("Unsupported link!");
                         break;                   
                 }
-                await CreateDummyFolderStructure();
+                //await CreateDummyFolderStructure();
                 publicFolderKey_textBox.ReadOnly = true;
                 SetProgress(false);
                 LoadedFromFile = false;
@@ -1884,13 +1890,13 @@ namespace CloudFolderBrowser
 
         }
 
-        private void syncFolders_button_Click(object sender, EventArgs e)
+        private async void syncFolders_button_Click(object sender, EventArgs e)
         {
             activeSyncForm?.CloseForm();
             checkedFolders = new List<CloudFolder>();
             mixedFolders = new List<CloudFolder>();               
             GetCheckedFolders(yadiskPublicFolder_model.Nodes[0] as ColumnNode);
-            SyncFiles();
+            await SyncFiles();
             showSyncForm_button.Enabled = true;
         }
 
