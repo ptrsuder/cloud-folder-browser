@@ -47,14 +47,15 @@ namespace CloudFolderBrowser
             megaApiClient.LoginAnonymous();
 
             if (folderNewFiles)
-                downloadFolderPath = MainForm.syncFolderPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
+                downloadFolderPath = MainForm.syncFolderPath + @"\0_New Files\" + DateTime.Now.Date.ToShortDateString();
             else
-                downloadFolderPath = MainForm.syncFolderPath;
+                downloadFolderPath = MainForm.syncFolderPath + "\\";
 
             try
             {
                 foreach (CloudFile file in files)
                 {
+                    //TODO: IMPROVE MATCHING METHOD
                     var newFolderDir = new DirectoryInfo(downloadFolderPath);
                     var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
                     var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();

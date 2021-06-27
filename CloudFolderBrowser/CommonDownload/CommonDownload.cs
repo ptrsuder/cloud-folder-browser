@@ -52,7 +52,7 @@ namespace CloudFolderBrowser
             if (folderNewFiles)
                 downloadFolderPath = MainForm.syncFolderPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
             else
-                downloadFolderPath = MainForm.syncFolderPath;
+                downloadFolderPath = MainForm.syncFolderPath + "\\";
 
             //var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
             //string log = $"{DateTime.Now}\ndownloadFolderPath:{downloadFolderPath}\nlogin: {networkCredential.UserName}\npassword: {networkCredential.Password}\n";

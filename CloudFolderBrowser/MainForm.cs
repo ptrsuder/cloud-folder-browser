@@ -1489,7 +1489,6 @@ namespace CloudFolderBrowser
                     missingFiles.AddRange(folder.Files);
                 else
                     missingFiles.AddRange(CompareFilesLists(folder.Files, flatSyncFolderFilesList));
-
             }
 
             foreach (CloudFolder folder in checkedFolders)
