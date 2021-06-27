@@ -599,6 +599,23 @@ namespace CloudFolderBrowser
             SetProgress(false);
         }
 
+        async Task CreateDummyFolderStructure()
+        {
+            await CreateDummyFolder(cloudPublicFolder);            
+        }
+
+        async Task CreateDummyFolder(CloudFolder folder)
+        {
+            foreach (var file in folder.Files)
+                File.Create(syncFolderPath + file.Path);
+
+            foreach (var subfolder in folder.Subfolders)
+            {
+                Directory.CreateDirectory(syncFolderPath + "\\" + subfolder.Path);
+                await Task.Run(() => CreateDummyFolder(subfolder as CloudFolder));
+            }
+        }
+
         #region #LOAD WEB DATA
 
         #region Yadisk
@@ -1221,6 +1238,7 @@ namespace CloudFolderBrowser
                     {
                         var subRootFolderNode = nodes.Where(x => x.Id == lastId).FirstOrDefault();
                         CloudFolder subRootFolder = new CloudFolder(subRootFolderNode.Name, subRootFolderNode.CreationDate, DateTime.MinValue, subRootFolderNode.Size);
+                        subRootFolder.Path = cloudPublicFolder.Path + subRootFolder.Name + "/";
                         cloudPublicFolder.AddSubfolder(subRootFolder);
                         allfolders.Add(subRootFolderNode.Id, subRootFolder);
                         filteredNodes = GetChildNodes(subRootFolderNode, nodes.ToArray());
@@ -1463,7 +1481,7 @@ namespace CloudFolderBrowser
 
         #region #SYNC
 
-        void SyncFiles()
+        async Task SyncFiles()
         {
             if (checkedFolders.Count == 0 && mixedFolders.Count == 0)
             {
@@ -1488,7 +1506,7 @@ namespace CloudFolderBrowser
                 if(!hideExistingFiles_checkBox.Checked)
                     missingFiles.AddRange(folder.Files);
                 else
-                    missingFiles.AddRange(CompareFilesLists(folder.Files, flatSyncFolderFilesList));
+                    missingFiles.AddRange(await CompareFilesLists(folder.Files, flatSyncFolderFilesList));
             }
 
             foreach (CloudFolder folder in checkedFolders)
@@ -1504,7 +1522,7 @@ namespace CloudFolderBrowser
                 if (!hideExistingFiles_checkBox.Checked)
                     missingFiles.AddRange(folder.GetFlatFilesList());
                 else 
-                    missingFiles.AddRange(CompareFilesLists(flatCloudFolderFilesList, flatSyncFolderFilesList));
+                    missingFiles.AddRange(await CompareFilesLists(flatCloudFolderFilesList, flatSyncFolderFilesList));
             }
             if (missingFiles.Count > 0)
             {
@@ -1527,28 +1545,34 @@ namespace CloudFolderBrowser
             LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
-        List<CloudFile> CompareFilesLists(List<CloudFile> yadiskFilesList, FileInfo[] syncFolderFilesList)
-        {
-            bool isMissing;
+        async Task<List<CloudFile>> CompareFilesLists(List<CloudFile> cloudFolderFileList, FileInfo[] syncFolderFileList)
+        {          
             List<CloudFile> missingFiles = new List<CloudFile>();
-            foreach (CloudFile file in yadiskFilesList)
+
+            await Task.Run(() =>
             {
-                isMissing = true;
-                foreach (FileInfo sfile in syncFolderFilesList)
-                {
-                    string path = sfile.FullName.Replace(syncFolder.Path, @"\");
-                    string v = path.Replace(@"\", @"/");
-                    string w = WebUtility.UrlDecode(file.Path);
-                    if (sfile.Name == WebUtility.UrlDecode(file.Name) && v == w)
-                    {
-                        isMissing = false;
-                        break;
-                    }
-                }
-                if (isMissing)
-                    missingFiles.Add(file);
-            }
+                List<CloudFile> localFiles = syncFolderFileList.ToList().ConvertAll(
+                    x => new CloudFile(x.Name, DateTime.Now, DateTime.Now, x.Length) { Path = x.FullName.Replace(syncFolder.Path, @"\").Replace(@"\", @"/") });
+
+                missingFiles = localFiles.Except(cloudFolderFileList, new FileComparer()).ToList();
+            });
+            
             return missingFiles;
+        }
+
+        class FileComparer : IEqualityComparer<CloudFile>
+        {
+            public bool Equals(CloudFile x, CloudFile y)
+            {
+                var a = WebUtility.UrlDecode(x.Path);
+                var b = WebUtility.UrlDecode(y.Path);
+                return (a == b);
+            }
+
+            public int GetHashCode(CloudFile x)
+            {
+                return x.Path.GetHashCode();
+            }
         }
 
         #endregion
@@ -1753,7 +1777,8 @@ namespace CloudFolderBrowser
                     case CloudServiceType.Other:
                         MessageBox.Show("Unsupported link!");
                         break;                   
-                }   
+                }
+                await CreateDummyFolderStructure();
                 publicFolderKey_textBox.ReadOnly = true;
                 SetProgress(false);
                 LoadedFromFile = false;
@@ -1768,6 +1793,11 @@ namespace CloudFolderBrowser
             string hotDictValue = selectedItem.Value;
             //publicFolders_comboBox.BeginUpdate();
             publicFolders.Remove(hotDictKey);
+            if (publicFolders.ContainsKey(publicFolders_comboBox.Text))
+            {
+                MessageBox.Show("Folder name should be unique!");
+                return;
+            }
             publicFolders.Add(publicFolders_comboBox.Text, publicFolderKey_textBox.Text);
             //publicFolders_comboBox.EndUpdate();            
             publicFolders_comboBox.DataSource = new BindingSource(publicFolders, null);
