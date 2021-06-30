@@ -1552,7 +1552,7 @@ namespace CloudFolderBrowser
                 List<CloudFile> localFiles = syncFolderFileList.ToList().ConvertAll(
                     x => new CloudFile(x.Name, DateTime.Now, DateTime.Now, x.Length) { Path = x.FullName.Replace(syncFolder.Path, @"\").Replace(@"\", @"/") });
 
-                missingFiles = localFiles.Except(cloudFolderFileList, new FileComparer()).ToList();
+                missingFiles = cloudFolderFileList.Except(localFiles, new FileComparer()).ToList();
             });
             
             return missingFiles;
