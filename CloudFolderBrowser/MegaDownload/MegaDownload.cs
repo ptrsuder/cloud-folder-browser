@@ -56,11 +56,12 @@ namespace CloudFolderBrowser
                 foreach (CloudFile file in files)
                 {
                     //TODO: IMPROVE MATCHING METHOD
-                    var newFolderDir = new DirectoryInfo(downloadFolderPath);
-                    var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
-                    var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
-                    if (matchedFiles.Length > 0)
-                        continue;
+                    //var newFolderDir = new DirectoryInfo(downloadFolderPath);
+                    //var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
+                    //var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
+                    //if (matchedFiles.Length > 0)
+                    //    continue;                    
+
                     MegaFileDownload megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, downloadFolderPath + file.Path);
                     downloadQueue.Enqueue(megaFileDownload);
                     downloads.Add(megaFileDownload);
