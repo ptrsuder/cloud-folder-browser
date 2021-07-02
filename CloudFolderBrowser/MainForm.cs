@@ -1281,6 +1281,19 @@ namespace CloudFolderBrowser
             }
         }
 
+        private void AddParentNode(ref Dictionary<string, CloudFolder> allfolders, IEnumerable<INode> nodes, List<INode> filteredNodes, INode node, CloudFolder folder)
+        {
+            var parentNode = nodes.Where(x => x.Id == node.ParentId).FirstOrDefault();
+            if (parentNode == null || allfolders.ContainsKey(parentNode.Id))
+                return;
+            CloudFolder parentFolder = new CloudFolder(parentNode.Name, parentNode.CreationDate, DateTime.MinValue, parentNode.Size);
+            parentFolder.Path = cloudPublicFolder.Path + parentFolder.Name + "/";           
+            parentFolder.AddSubfolder(folder);
+            //allfolders.Add(parentNode.Id, parentFolder);
+            filteredNodes.Add(parentNode);
+            AddParentNode(ref allfolders, nodes, filteredNodes, parentNode, parentFolder);
+        }
+
         private string GetLastId(string url)
         {
             //Regex uriRegex = new Regex("/(?<type>(file|folder))/(?<id>[^#]+)#(?<key>[^$/]+)(/folder/)?(?<lastid>[^/]+)");
