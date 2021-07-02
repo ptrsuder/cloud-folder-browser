@@ -22,18 +22,26 @@ Download files as JDownloader2 packages or directly from app.
 * .Net Framework 4.5
 
 ## How to use
-### Load and store folders:
+
+### Load and save folders:
 * Click [Add new] button
 * Select new item in dropdown list, edit its name, click [Edit], edit link below, click [Save]
 * Click [Load], wait for folder contents to load
-* Now you can save loaded content to .json file by clicking [Save to file] and later load it to save time
-### Get links and sync files
-* On right side choose folder on your computer that you wish to use as save/sync folder
-* Check web folders that you wish to download/sync
+* Now you can save loaded content to .json file by clicking [Save to file] and later load it to save time (not supported for mega folders)
+* 
+### Find missing files
+* Right treeview:
+  * Choose folder on your PC that you wish to use as save/sync folder
+  * You can refresh folder contents using RMB
+* Left treeview:
+  * You should check web folders that you wish to download/sync
+  * Check mark means all files within all subfolders will be selected 
+  * Square means only files in top folder will be selected
+  * You can use RMB context menu to quiclky check/uncheck all folders
 * Click [Compare folders content]
 * New window will display all files that are missing in your sync folder (so if you want just to download checked folders, select any empty folder as your sync folder)
-* New form will be displayed, check files that you wish to download
-* Click [Get JDownloader links]
-* JD link container with random name will be created in app folder
-* Use [Mega download] if web folder is mega folder (no spicy JD links for mega)
-* Use [Download] for Allsync files (even password protected) or files from web index folders
+### Get links or download files
+* Check files that you wish to download
+  * To generate links for JDownloader click [Get JDownloader links] - with random name will be created in app folder. Drag-n-drop it into JDownloader.  
+  * Use [Mega download] if using mega cloud link
+  * Use [Download] for Allsync files (even password protected) or files from web index folders
