@@ -33,7 +33,7 @@ namespace CloudFolderBrowser
           
     public partial class MainForm : Form
     {
-        string AppVersion = "0.9.15";
+        string AppVersion = "0.9.16";
 
         public static RestClient rc;
         public ResourceList rl_root;
@@ -1215,7 +1215,9 @@ namespace CloudFolderBrowser
         #endregion
 
         async Task LoadMega(string url)
-        {            
+        {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
             MegaApiClient megaClient = new MegaApiClient();             
             megaClient.LoginAnonymous();
             int filecount = 0;
