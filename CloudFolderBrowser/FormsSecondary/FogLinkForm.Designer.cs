@@ -72,7 +72,7 @@
             this.serverAddress_textBox.Name = "serverAddress_textBox";
             this.serverAddress_textBox.Size = new System.Drawing.Size(414, 23);
             this.serverAddress_textBox.TabIndex = 0;
-            this.serverAddress_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");            
+            this.serverAddress_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
             // 
             // saveServerAddress_button
             // 
@@ -114,8 +114,10 @@
             this.Controls.Add(this.encrypt_button);
             this.Controls.Add(this.in_textBox);
             this.Controls.Add(this.serverAddress_textBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "FogLinkForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "FogLink";
             this.ResumeLayout(false);
             this.PerformLayout();
