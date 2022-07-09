@@ -147,7 +147,7 @@
             this.publicFolderKey_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.publicFolderKey_textBox.Name = "publicFolderKey_textBox";
             this.publicFolderKey_textBox.ReadOnly = true;
-            this.publicFolderKey_textBox.Size = new System.Drawing.Size(316, 23);
+            this.publicFolderKey_textBox.Size = new System.Drawing.Size(314, 23);
             this.publicFolderKey_textBox.TabIndex = 3;
             this.publicFolderKey_textBox.Text = "https://yadi.sk/d/df_jk-ih3Z9TfM";
             // 
@@ -158,7 +158,7 @@
             this.browseSyncFolder_button.Location = new System.Drawing.Point(0, 0);
             this.browseSyncFolder_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.browseSyncFolder_button.Name = "browseSyncFolder_button";
-            this.browseSyncFolder_button.Size = new System.Drawing.Size(130, 23);
+            this.browseSyncFolder_button.Size = new System.Drawing.Size(132, 23);
             this.browseSyncFolder_button.TabIndex = 4;
             this.browseSyncFolder_button.Text = "...";
             this.browseSyncFolder_button.UseVisualStyleBackColor = true;
@@ -172,7 +172,7 @@
             this.syncFolderPath_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.syncFolderPath_textBox.Name = "syncFolderPath_textBox";
             this.syncFolderPath_textBox.ReadOnly = true;
-            this.syncFolderPath_textBox.Size = new System.Drawing.Size(312, 23);
+            this.syncFolderPath_textBox.Size = new System.Drawing.Size(310, 23);
             this.syncFolderPath_textBox.TabIndex = 5;
             this.syncFolderPath_textBox.TextChanged += new System.EventHandler(this.syncFolderPath_textBox_TextChanged);
             // 
@@ -220,7 +220,7 @@
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer2.Size = new System.Drawing.Size(447, 23);
-            this.splitContainer2.SplitterDistance = 312;
+            this.splitContainer2.SplitterDistance = 310;
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 9;
             // 
@@ -505,7 +505,7 @@
             this.splitContainer1.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer1.Size = new System.Drawing.Size(447, 23);
-            this.splitContainer1.SplitterDistance = 316;
+            this.splitContainer1.SplitterDistance = 314;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 8;
             // 
@@ -516,7 +516,7 @@
             this.loadPublicFolderKey_button.Location = new System.Drawing.Point(0, 0);
             this.loadPublicFolderKey_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(126, 23);
+            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(128, 23);
             this.loadPublicFolderKey_button.TabIndex = 9;
             this.loadPublicFolderKey_button.Text = "Load";
             this.loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -536,7 +536,7 @@
             this.panel1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(447, 54);
-            this.panel1.TabIndex = 10;            
+            this.panel1.TabIndex = 10;
             // 
             // label3
             // 
