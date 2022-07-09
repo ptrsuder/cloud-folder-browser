@@ -97,7 +97,8 @@ namespace Aga.Controls.Tree
                 throw new ArgumentException("treePath");
             if (node.Tag == null)
                 return false;
-            if (node.Tag.GetType().ToString() != "CloudFolderBrowser.CloudFolder" && node.Tag.GetType().ToString() != "CloudFolderBrowser.Folder")
+            if (node.Tag.GetType().ToString() != "CloudFolderBrowser.CloudFolder"
+				&& node.Tag.GetType().ToString() != "CloudFolderBrowser.LocalFolder")
                 return true;
             else
                 return false;

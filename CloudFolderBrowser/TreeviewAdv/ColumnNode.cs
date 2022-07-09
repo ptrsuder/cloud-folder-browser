@@ -12,6 +12,7 @@ namespace CloudFolderBrowser
         public string NodeControl3 = "";
         public string NodeControl4 = "";
         long _size;
+        const double b2Mb = 1.0 / (1024 * 1024 );
         public ColumnNode LinkedNode;
         public long Size
         {
@@ -19,7 +20,7 @@ namespace CloudFolderBrowser
             set
             {
                 _size = value;
-                NodeControl4 = Math.Round(_size / 1024000.0, 2) + " MB";
+                NodeControl4 = Math.Round(_size * b2Mb, 2) + " MB";
             }
         }
         public string Path = "";
@@ -29,14 +30,14 @@ namespace CloudFolderBrowser
             NodeControl1 = name;
             NodeControl2 = created.ToShortDateString();
             NodeControl3 = modified.ToShortDateString();
-            //NodeControl4 = Math.Round(size / 1024000.0, 2) + " MB";
+            //NodeControl4 = Math.Round(size * b2Mb, 2) + " MB";
             Size = size;
             this.Text = name;
         }
 
         void SetSize(long size)
         {
-            //NodeControl4 = Math.Round(size / 1024000.0, 2) + " MB";
+            //NodeControl4 = Math.Round(size * b2Mb, 2) + " MB";
             Size = size;
         }
 

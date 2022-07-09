@@ -10,4 +10,42 @@
     <FallbackCulture>ru-RU</FallbackCulture>
     <VerifyUploadedFiles>false</VerifyUploadedFiles>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Update="FormsSecondary\EditLinkForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\FogLinkForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsMain\SyncFilesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\DownloadsFinishedForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\ErrorForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\ErrorLogForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\LoginMegaForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FormsSecondary\PasswordForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="TextBoxExtend.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="TextProgressBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
 </Project>
