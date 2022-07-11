@@ -20,8 +20,6 @@
             base.Dispose(disposing);
         }
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
-        private System.Windows.Forms.Label yadiskSpace_label;
-        private TextProgressBar yadiskSpace_progressBar;
         private System.Windows.Forms.TextBox publicFolderKey_textBox;
         private System.Windows.Forms.Button browseSyncFolder_button;
         private System.Windows.Forms.TextBox syncFolderPath_textBox;
@@ -50,7 +48,6 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.yadiskSpace_label = new System.Windows.Forms.Label();
             this.publicFolderKey_textBox = new System.Windows.Forms.TextBox();
             this.browseSyncFolder_button = new System.Windows.Forms.Button();
             this.syncFolderPath_textBox = new System.Windows.Forms.TextBox();
@@ -110,6 +107,7 @@
             this.createArchive_button = new System.Windows.Forms.Button();
             this.appVersion_linkLabel = new System.Windows.Forms.LinkLabel();
             this.fogLink_button = new System.Windows.Forms.Button();
+            this.yadiskSpace_progressBar = new CloudFolderBrowser.TextProgressBar();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -125,20 +123,6 @@
             this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
-            // yadiskSpace_label
-            // 
-            this.yadiskSpace_label.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.yadiskSpace_label.AutoSize = true;
-            this.yadiskSpace_label.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.yadiskSpace_label.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.yadiskSpace_label.Location = new System.Drawing.Point(593, 15);
-            this.yadiskSpace_label.Name = "yadiskSpace_label";
-            this.yadiskSpace_label.Size = new System.Drawing.Size(49, 22);
-            this.yadiskSpace_label.TabIndex = 1;
-            this.yadiskSpace_label.Text = "Used: ";
-            this.yadiskSpace_label.UseCompatibleTextRendering = true;
-            this.yadiskSpace_label.Visible = false;
-            // 
             // publicFolderKey_textBox
             // 
             this.publicFolderKey_textBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -147,7 +131,7 @@
             this.publicFolderKey_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.publicFolderKey_textBox.Name = "publicFolderKey_textBox";
             this.publicFolderKey_textBox.ReadOnly = true;
-            this.publicFolderKey_textBox.Size = new System.Drawing.Size(314, 23);
+            this.publicFolderKey_textBox.Size = new System.Drawing.Size(369, 23);
             this.publicFolderKey_textBox.TabIndex = 3;
             this.publicFolderKey_textBox.Text = "https://yadi.sk/d/df_jk-ih3Z9TfM";
             // 
@@ -158,7 +142,7 @@
             this.browseSyncFolder_button.Location = new System.Drawing.Point(0, 0);
             this.browseSyncFolder_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.browseSyncFolder_button.Name = "browseSyncFolder_button";
-            this.browseSyncFolder_button.Size = new System.Drawing.Size(132, 23);
+            this.browseSyncFolder_button.Size = new System.Drawing.Size(140, 23);
             this.browseSyncFolder_button.TabIndex = 4;
             this.browseSyncFolder_button.Text = "...";
             this.browseSyncFolder_button.UseVisualStyleBackColor = true;
@@ -172,7 +156,7 @@
             this.syncFolderPath_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.syncFolderPath_textBox.Name = "syncFolderPath_textBox";
             this.syncFolderPath_textBox.ReadOnly = true;
-            this.syncFolderPath_textBox.Size = new System.Drawing.Size(310, 23);
+            this.syncFolderPath_textBox.Size = new System.Drawing.Size(302, 23);
             this.syncFolderPath_textBox.TabIndex = 5;
             this.syncFolderPath_textBox.TextChanged += new System.EventHandler(this.syncFolderPath_textBox_TextChanged);
             // 
@@ -220,7 +204,7 @@
             this.splitContainer2.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer2.Size = new System.Drawing.Size(447, 23);
-            this.splitContainer2.SplitterDistance = 310;
+            this.splitContainer2.SplitterDistance = 302;
             this.splitContainer2.SplitterWidth = 5;
             this.splitContainer2.TabIndex = 9;
             // 
@@ -505,7 +489,7 @@
             this.splitContainer1.Panel2.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer1.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.splitContainer1.Size = new System.Drawing.Size(447, 23);
-            this.splitContainer1.SplitterDistance = 314;
+            this.splitContainer1.SplitterDistance = 369;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 8;
             // 
@@ -516,7 +500,7 @@
             this.loadPublicFolderKey_button.Location = new System.Drawing.Point(0, 0);
             this.loadPublicFolderKey_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(128, 23);
+            this.loadPublicFolderKey_button.Size = new System.Drawing.Size(73, 23);
             this.loadPublicFolderKey_button.TabIndex = 9;
             this.loadPublicFolderKey_button.Text = "Load";
             this.loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -679,9 +663,6 @@
             // 
             // editPublicFolderKey_button
             // 
-            this.editPublicFolderKey_button.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
             this.editPublicFolderKey_button.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.editPublicFolderKey_button.Location = new System.Drawing.Point(72, 99);
             this.editPublicFolderKey_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
@@ -826,11 +807,25 @@
             this.fogLink_button.UseVisualStyleBackColor = false;
             this.fogLink_button.Click += new System.EventHandler(this.fogLink_button_Click);
             // 
+            // yadiskSpace_progressBar
+            // 
+            this.yadiskSpace_progressBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.yadiskSpace_progressBar.CustomText = "";
+            this.yadiskSpace_progressBar.Location = new System.Drawing.Point(473, 8);
+            this.yadiskSpace_progressBar.Name = "yadiskSpace_progressBar";
+            this.yadiskSpace_progressBar.ProgressColor = System.Drawing.Color.LimeGreen;
+            this.yadiskSpace_progressBar.Size = new System.Drawing.Size(382, 42);
+            this.yadiskSpace_progressBar.TabIndex = 27;
+            this.yadiskSpace_progressBar.TextColor = System.Drawing.Color.Black;
+            this.yadiskSpace_progressBar.TextFont = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.yadiskSpace_progressBar.VisualMode = CloudFolderBrowser.ProgressBarDisplayMode.CustomText;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(938, 850);
+            this.Controls.Add(this.yadiskSpace_progressBar);
             this.Controls.Add(this.fogLink_button);
             this.Controls.Add(this.editPublicFolderKey_button);
             this.Controls.Add(this.appVersion_linkLabel);
@@ -844,7 +839,6 @@
             this.Controls.Add(this.SaveToFile_button);
             this.Controls.Add(this.LoadFromFile_button);
             this.Controls.Add(this.tableLayoutPanel1);
-            this.Controls.Add(this.yadiskSpace_label);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.MinimumSize = new System.Drawing.Size(954, 571);
@@ -924,5 +918,6 @@
         private System.Windows.Forms.LinkLabel appVersion_linkLabel;
         private ToolStripMenuItem openFolder_menuItem;
         private Button fogLink_button;
+        private TextProgressBar yadiskSpace_progressBar;
     }
 }
