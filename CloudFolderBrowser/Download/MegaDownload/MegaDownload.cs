@@ -1,48 +1,18 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using CG.Web.MegaApiClient;
-using System.Threading;
+﻿using CG.Web.MegaApiClient;
 
 namespace CloudFolderBrowser
 {
-    public class MegaDownload
-    {
-        List<FileInfo> files { get; set; }               
-        public bool finished { get; internal set; } = false;
-        public List<MegaFileDownload> downloads { get; set; }
-        private readonly Queue<MegaFileDownload> downloadQueue = new Queue<MegaFileDownload>();        
-        ProgressBar[] progressbars;
-        Label[] progresslabels;
-        int finishedDownloads = 0;
-        string downloadFolderPath;
-        public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        public int OverwriteMode;
-        ToolTip toolTip1;
-        public string ShareId;
-
-        public event EventHandler DownloadCompleted;
-        protected virtual void OnDownloadCompleted(EventArgs e)
-        {
-            EventHandler handler = DownloadCompleted;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
+    public class MegaDownload: Download
+    {                                        
+        public string ShareId;      
 
         public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, 
             ToolTip toolTip, string baseDownloadPath, int overwriteMode = 3, bool folderNewFiles = true, string shareId = "")
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
-            toolTip1 = toolTip;
-            downloads = new List<MegaFileDownload>();
+            ToolTip = toolTip;
+            Downloads = new List<IFileDownload>();
             OverwriteMode = overwriteMode;
             ShareId = shareId;
 
@@ -50,9 +20,9 @@ namespace CloudFolderBrowser
             megaApiClient.LoginAnonymous();
 
             if (folderNewFiles)
-                downloadFolderPath = baseDownloadPath + @"\0_New Files\" + DateTime.Now.Date.ToShortDateString();
+                DownloadFolderPath = baseDownloadPath + @"\0_New Files\" + DateTime.Now.Date.ToShortDateString();
             else
-                downloadFolderPath = baseDownloadPath + "\\";
+                DownloadFolderPath = baseDownloadPath + "\\";
 
             try
             {
@@ -67,11 +37,11 @@ namespace CloudFolderBrowser
 
                     MegaFileDownload megaFileDownload;
                     if(file.MegaNode is PublicNode)
-                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode as PublicNode, downloadFolderPath + file.Path);
+                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode as PublicNode, DownloadFolderPath + file.Path);
                     else
-                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, ShareId, downloadFolderPath + file.Path);
-                    downloadQueue.Enqueue(megaFileDownload);
-                    downloads.Add(megaFileDownload);
+                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, ShareId, DownloadFolderPath + file.Path);
+                    DownloadQueue.Enqueue(megaFileDownload);
+                    Downloads.Add(megaFileDownload);
                 }
             }
             catch(Exception ex)
@@ -80,63 +50,63 @@ namespace CloudFolderBrowser
             }
         }
 
-        public void Start()
+        public override async Task Start()
         {
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;
-            lock (downloadQueue)
-            {          
-                if (downloadQueue.Count > 0)
-                    for(int i = 0; i < progressbars.Length; i++)
+
+            FailedDownloads = new List<IFileDownload>();
+
+            if (DownloadQueue.Count > 0)
+                for (int i = 0; i < progressbars.Length; i++)
+                {
+                    if (progressbars[i].Tag == null)
                     {
-                        if (progressbars[i].Tag == null)
-                        {
-                            MegaFileDownload dd = downloadQueue.Dequeue();
-                            dd.ProgressBar = progressbars[i];
-                            dd.ProgressLabel = progresslabels[i];
-                            toolTip1.SetToolTip(dd.ProgressLabel, Path.GetFileName(dd.SavePath));
-                            dd.StartDownload();                       
-                            if (downloadQueue.Count == 0) break;
-                        }
+                        await semaphoreSlim.WaitAsync();
+                        var dd = DownloadQueue.Dequeue() as MegaFileDownload;
+                        semaphoreSlim.Release();
+                        dd.ProgressBar = progressbars[i];
+                        dd.ProgressLabel = progresslabels[i];
+                        ToolTip.SetToolTip(dd.ProgressLabel, Path.GetFileName(dd.SavePath));
+                        await dd.StartDownload();
+                        if (DownloadQueue.Count == 0) break;
                     }
-            }
-        }
+                }
+        }           
 
-        public void UpdateQueue(MegaFileDownload d)
+        public async Task UpdateQueue(MegaFileDownload d)
         {
-            lock (downloadQueue)
+            d.Finished = true;
+            d.ProgressBar.Tag = null;
+            d.ProgressBar.Value = 0;
+            d.ProgressLabel.Visible = false;
+
+            if (DownloadQueue.Count > 0 && !CancellationTokenSource.IsCancellationRequested)
             {
-                d.Finished = true;
-                d.ProgressBar.Tag = null;
-                d.ProgressBar.Value = 0;
-                d.ProgressLabel.Visible = false;
-
-                if (downloadQueue.Count > 0 && !cancellationTokenSource.IsCancellationRequested)
-                {
-                    //if (d.ProgressBar.Tag == null)
-                    //{
-                    MegaFileDownload newd = downloadQueue.Dequeue();
-                    newd.ProgressBar = d.ProgressBar;
-                    newd.ProgressLabel = d.ProgressLabel;
-                    toolTip1.SetToolTip(newd.ProgressLabel, Path.GetFileName(newd.SavePath));
-                    newd.StartDownload();
-                    //}
-                }
-                if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
-                {
-                    OnDownloadCompleted(EventArgs.Empty);
-                    DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
-                    downloadsFinishedForm.Show();
-                }
+                await semaphoreSlim.WaitAsync();
+                var newd = DownloadQueue.Dequeue() as MegaFileDownload;
+                semaphoreSlim.Release();
+                newd.ProgressBar = d.ProgressBar;
+                newd.ProgressLabel = d.ProgressLabel;
+                ToolTip.SetToolTip(newd.ProgressLabel, Path.GetFileName(newd.SavePath));
+                await newd.StartDownload();
+                if (newd.DownloadFailed)
+                    return;
             }
-            finishedDownloads++;
-            progresslabels[progresslabels.Length - 1].Text = $"{finishedDownloads}/{downloads.Count} files finished";
+
+            FinishedDownloads++;
+            progresslabels[progresslabels.Length - 1].Text = $"{FinishedDownloads}/{Downloads.Count} files finished";
+
+            if (FinishedDownloads == Downloads.Count && !CancellationTokenSource.IsCancellationRequested)
+            {
+                OnDownloadCompleted(EventArgs.Empty);              
+            }
         }
 
-        public void Stop()
+        public override void Stop()
         {
-            OnDownloadCompleted(EventArgs.Empty);
-            cancellationTokenSource.Cancel();   
+            CancellationTokenSource.Cancel();
+            OnDownloadCompleted(EventArgs.Empty);               
         }
 
     }

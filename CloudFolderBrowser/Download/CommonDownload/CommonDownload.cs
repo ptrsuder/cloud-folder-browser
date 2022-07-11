@@ -3,76 +3,44 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using CG.Web.MegaApiClient;
-using System.Threading;
-using WebDAVClient;
 using System.Net;
 
 namespace CloudFolderBrowser
 {
-    public class CommonDownload
-    {
-        List<FileInfo> files { get; set; }               
-        public bool finished { get; internal set; } = false;
-        public List<CommonFileDownload> downloads { get; set; }
-        private readonly Queue<CommonFileDownload> downloadQueue = new Queue<CommonFileDownload>();        
-        ProgressBar[] progressbars;
-        Label[] progresslabels;
-      
-        public CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
-        public int OverwriteMode;
-        public CloudServiceType CloudService;        
-
-        ToolTip toolTip1;
-        int finishedDownloads = 0;
-        string downloadFolderPath;
-
-
-        public event EventHandler DownloadCompleted;
-        protected virtual void OnDownloadCompleted(EventArgs e)
-        {
-            EventHandler handler = DownloadCompleted;
-            if (handler != null)
-            {
-                handler(this, e);
-            }
-        }
-
+    public class CommonDownload: Download
+    {      
         public CommonDownload(List<CloudFile> files, ProgressBar[] progressBars,
             Label[] progressLabels, ToolTip toolTip, CloudServiceType cloudServiceType,
             string baseDownloadPath, int overwriteMode = 3, NetworkCredential networkCredential = null, bool folderNewFiles = true)
         {
             progressbars = progressBars;
             progresslabels = progressLabels;
-            downloads = new List<CommonFileDownload>();
+            Downloads = new List<IFileDownload>();
             OverwriteMode = overwriteMode;
             CloudService = cloudServiceType;
-            toolTip1 = toolTip;
+            ToolTip = toolTip;
+
+            FailedDownloads = new List<IFileDownload>();
 
             if (folderNewFiles)
-                downloadFolderPath = baseDownloadPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
+                DownloadFolderPath = baseDownloadPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
             else
-                downloadFolderPath = baseDownloadPath + "\\";
+                DownloadFolderPath = baseDownloadPath + "\\";
 
-            //var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
-            //string log = $"{DateTime.Now}\ndownloadFolderPath:{downloadFolderPath}\nlogin: {networkCredential.UserName}\npassword: {networkCredential.Password}\n";
-            //File.AppendAllText(logFileName, log);
+            DownloadFailed += new EventHandler(CommonDownload_DownloadFailed);
 
             try
             {
                 foreach (CloudFile file in files)
                 {
-                    var newFolderDir = new DirectoryInfo(downloadFolderPath);
+                    var newFolderDir = new DirectoryInfo(DownloadFolderPath);
                     var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
                     var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
                     if (matchedFiles.Length > 0)
                         continue;
-                    CommonFileDownload fileDownload = new CommonFileDownload(this, file, downloadFolderPath + file.Path, networkCredential);
-                    downloadQueue.Enqueue(fileDownload);
-                    downloads.Add(fileDownload);
+                    CommonFileDownload fileDownload = new CommonFileDownload(this, file, DownloadFolderPath + file.Path, networkCredential);
+                    DownloadQueue.Enqueue(fileDownload);
+                    Downloads.Add(fileDownload);
                 }
             }
             catch(Exception ex)
@@ -81,64 +49,88 @@ namespace CloudFolderBrowser
             }
         }
 
-        public void Start()
+        private void CommonDownload_DownloadFailed(object? sender, EventArgs e)
         {
+            var args = e as DownloadEventArgs;
+            var download = args.Download;
+            if (download.RemainedRetries >= 0)
+            {
+                download.RetryDownload();
+            }
+        }
+
+        public override async Task Start()
+        {
+            semaphoreSlim = new SemaphoreSlim(1, 1);
             ServicePointManager.DefaultConnectionLimit = 4;
 
             progresslabels[progresslabels.Length - 1].Text = "";
             progresslabels[progresslabels.Length - 1].Visible = true;
-            lock (downloadQueue)
-            {          
-                if (downloadQueue.Count > 0)
-                    for(int i = 0; i < progressbars.Length; i++)
+               
+            if (DownloadQueue.Count > 0)
+                for (int i = 0; i < progressbars.Length; i++)
+                {
+                    if (progressbars[i].Tag == null)
                     {
-                        if (progressbars[i].Tag == null)
-                        {
-                            CommonFileDownload dd = downloadQueue.Dequeue();
-                            dd.ProgressBar = progressbars[i];
-                            dd.ProgressLabel = progresslabels[i];
-                            toolTip1.SetToolTip(dd.ProgressLabel, dd.FileInfo.Name);
-                            dd.StartDownload();                            
-                            if (downloadQueue.Count == 0) break;
-                        }
+                        await semaphoreSlim.WaitAsync();
+                        var dd = DownloadQueue.Dequeue() as CommonFileDownload;
+                        semaphoreSlim.Release();
+                        dd.ProgressBar = progressbars[i];
+                        dd.ProgressLabel = progresslabels[i];
+                        ToolTip.SetToolTip(dd.ProgressLabel, dd.FileInfo.Name);
+                        await dd.StartDownload();
+                        
+                        if (DownloadQueue.Count == 0) break;
                     }
-            }
+                }            
         }
 
-        public void UpdateQueue(CommonFileDownload d)
+        public async Task UpdateQueue(CommonFileDownload d)
         {
-            lock (downloadQueue)
+            d.Finished = true;
+            d.ProgressBar.Tag = null;
+            d.ProgressBar.Value = 0;
+            d.ProgressLabel.Visible = false;
+
+            if (DownloadQueue.Count > 0 && !CancellationTokenSource.IsCancellationRequested)
             {
-                d.Finished = true;
-                d.ProgressBar.Tag = null;
-                d.ProgressBar.Value = 0;
-                d.ProgressLabel.Visible = false;
+                await semaphoreSlim.WaitAsync();
+                var newd = DownloadQueue.Dequeue() as CommonFileDownload;
+                semaphoreSlim.Release();
 
-                if (downloadQueue.Count > 0 && !cancellationTokenSource.IsCancellationRequested)
-                {                   
-                    CommonFileDownload newd = downloadQueue.Dequeue();
-                    newd.ProgressBar = d.ProgressBar;
-                    newd.ProgressLabel = d.ProgressLabel;
-                    toolTip1.SetToolTip(newd.ProgressLabel, newd.FileInfo.Name);
-                    newd.StartDownload();
-                }                
+                newd.ProgressBar = d.ProgressBar;
+                newd.ProgressLabel = d.ProgressLabel;
+                ToolTip.SetToolTip(newd.ProgressLabel, newd.FileInfo.Name);
+                
+                await newd.StartDownload();                
+                if (newd.DownloadFailed)
+                    return;
             }
-            finishedDownloads++;
-            progresslabels[progresslabels.Length - 1].Text = $"{finishedDownloads}/{downloads.Count} files finished";
+            
+            FinishedDownloads++;
+            progresslabels[progresslabels.Length - 1].Text = $"{FinishedDownloads}/{Downloads.Count} files finished";
 
-            if (finishedDownloads == downloads.Count && !cancellationTokenSource.IsCancellationRequested)
+            if (FinishedDownloads == Downloads.Count && !CancellationTokenSource.IsCancellationRequested)
             {
-                OnDownloadCompleted(EventArgs.Empty);
-                DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(downloadFolderPath, "All downloads are finished!");
-                downloadsFinishedForm.Show();
+                OnDownloadCompleted(EventArgs.Empty);               
             }
-        }
+        }        
 
-        public void Stop()
+        public override void Stop()
         {            
-            cancellationTokenSource.Cancel();
+            CancellationTokenSource.Cancel();           
             OnDownloadCompleted(EventArgs.Empty);
         }
 
+    }
+
+    public class DownloadEventArgs: EventArgs
+    {
+        public CommonFileDownload Download { get; }
+
+        public DownloadEventArgs(CommonFileDownload dl)
+        {
+            Download = dl;
+        }
     }
 }

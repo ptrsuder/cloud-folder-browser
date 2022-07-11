@@ -23,9 +23,8 @@ namespace CloudFolderBrowser
         List<Label> progressLabels;
         bool HideForm = true;
         MegaApiClient megaApiClient;
-        NetworkCredential NetworkCredential;
-        MegaDownload megaDownload;
-        CommonDownload commonDownload;
+        NetworkCredential NetworkCredential;        
+        IDownload Download;
         Dictionary<int, string> overwriteModes = new Dictionary<int, string>()
         {
             {0, "None" },
@@ -455,9 +454,9 @@ namespace CloudFolderBrowser
             }
             usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
 
-            commonDownload = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, toolTip1, cloudServiceType, MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
-            commonDownload.DownloadCompleted += Download_DownloadCompleted;
-            commonDownload.Start();
+            Download = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, toolTip1, cloudServiceType, MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
+            Download.DownloadCompleted += Download_DownloadCompleted;
+            Download.Start();
 
             stopDownload_button.Enabled = true;
             stopDownload_button.Visible = true;
@@ -492,10 +491,10 @@ namespace CloudFolderBrowser
                 megaApiClient.LoginAnonymous();
             }
 
-            megaDownload = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, toolTip1,
-                MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked, Model.CloudPublicFolder.PublicKey);          
-            megaDownload.DownloadCompleted += Download_DownloadCompleted;
-            megaDownload.Start();
+            Download = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, toolTip1,
+                MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked, Model.CloudPublicFolder.PublicKey);
+            Download.DownloadCompleted += Download_DownloadCompleted;
+            Download.Start();
 
             stopDownload_button.Enabled = true;
             stopDownload_button.Visible = true;
@@ -817,8 +816,7 @@ namespace CloudFolderBrowser
 
         private void stopDownloads_Click(object sender, EventArgs e)
         {
-            megaDownload?.Stop();
-            commonDownload?.Stop();
+            Download?.Stop();           
             OnDownloadCompleted(EventArgs.Empty);
         }
 
@@ -840,7 +838,22 @@ namespace CloudFolderBrowser
         
         private void Download_DownloadCompleted(object sender, EventArgs e)
         {
-            OnDownloadCompleted(EventArgs.Empty);
+            for (int i = 0; i < maximumDownloads; i++)
+            {
+                progressBars[i].Value = 0;
+                progressLabels[i].Text = "";
+            }
+            progressLabels[4].Text = "";
+            string message2 = "", message1 = "All downloads are finished!";          
+
+            if (Download != null)
+            {
+                if (Download.FailedDownloads.Count > 0)
+                    message2 += $" Failed: {Download.FailedDownloads.Count}";
+
+                DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(Download.DownloadFolderPath, message1, message2);
+                downloadsFinishedForm.Show();
+            }           
         }
 
         private void filter_TextChangedComplete(object sender, EventArgs e)

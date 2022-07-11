@@ -16,11 +16,12 @@ namespace CloudFolderBrowser
     {
         string downloadFolder;
 
-        public DownloadsFinishedForm(string directoryInfo, string message)
+        public DownloadsFinishedForm(string directoryInfo, string message, string message2 = "")
         {            
             downloadFolder = directoryInfo;
             InitializeComponent();
             message_label.Text = message;
+            failed_label.Text = message2;
             CenterToParent();
         }
 

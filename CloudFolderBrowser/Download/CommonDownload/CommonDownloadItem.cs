@@ -23,18 +23,14 @@ namespace CloudFolderBrowser
         }
     }
 
-    public class CommonFileDownload
-    {              
-        public string SavePath { get; set; }       
-        public Task DownloadTask { get; set; }
-        public IProgress<double> Progress { get; }
-        public double ProgressPercent;
-        public bool Finished = false;
-        public ProgressBar ProgressBar { get; set; }
-        public Label ProgressLabel { get; set; }
+    public class CommonFileDownload : FileDownload
+    {           
         public CommonDownload ParentDownload { get; set; }
         public CloudFile FileInfo { get; }
-        public NetworkCredential _networkCredential;
+        private NetworkCredential _networkCredential;
+
+        WebClient webClient = new WebClient();
+        Dictionary<string, string> CustomHeaders = new Dictionary<string, string>() { { "X-Requested-With", "XMLHttpRequest" } };
 
         public CommonFileDownload(CommonDownload commonDownload, CloudFile fileInfo, string savePath, NetworkCredential networkCredential)
         {
@@ -68,72 +64,101 @@ namespace CloudFolderBrowser
 
         public async Task StartDownload()
         {
-            try
+            if (RemainedRetries == -1)
             {
-                ProgressBar.Tag = this;
-                ProgressLabel.Text = "";
-                ProgressLabel.Visible = true;
-                Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
-                FileInfo file = new FileInfo(SavePath);
-                DialogResult overwriteFile = DialogResult.Yes;
-                if (file.Exists)
-                {
-                    switch(ParentDownload.OverwriteMode)
-                    {
-                        case 0:
-                            overwriteFile = DialogResult.No;
-                            break;
-                        case 1:
-                            overwriteFile = DialogResult.Yes;
-                            break;
-                        case 2:
-                            if (FileInfo.Modified > file.CreationTime)
-                                overwriteFile = DialogResult.Yes;
-                            else
-                                overwriteFile = DialogResult.No;
-                            break;
-                        case 3:
-                            overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
-                            break;
-                    }                    
-                    if (overwriteFile == DialogResult.Yes)
-                        file.Delete();  
-                }
-               
-                if (overwriteFile == DialogResult.Yes)
-                {                                        
-                    CustomHeaders.Add("X-Requested-With", "XMLHttpRequest");
-                    string downloadPath = EncodeWebUrl(FileInfo.PublicUrl.OriginalString);
-                    if(ParentDownload.CloudService == CloudServiceType.Allsync)
-                    {
-                        var encodedUrl = new Uri(downloadPath);     
-                        var host = encodedUrl.Host;
-                        downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
-                    }
-
-                    //var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
-                    //string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {SavePath}\n";
-                    //File.AppendAllText(logFileName, log);   
-
-                    DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.cancellationTokenSource.Token, _networkCredential);
-                    await DownloadTask;                   
-                }               
+                ParentDownload.FinishedDownloads++;
+                ParentDownload.FailedDownloads.Add(this);             
+                if (File.Exists(SavePath))
+                    File.Delete(SavePath);
                 ParentDownload.UpdateQueue(this);
+                return;
             }
-            catch(Exception ex)
+
+            webClient = new WebClient();
+            ProgressBar.Tag = this;
+            ProgressLabel.Text = "";
+            ProgressLabel.Visible = true;
+            Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
+            FileInfo file = new FileInfo(SavePath);
+            DialogResult overwriteFile = DialogResult.Yes;
+            if (file.Exists)
             {
-                if (DownloadTask.IsCanceled)
-                    DownloadTask.Dispose();
-                //MessageBox.Show(ex.Message);
-            }            
+                switch (ParentDownload.OverwriteMode)
+                {
+                    case 0:
+                        overwriteFile = DialogResult.No;
+                        break;
+                    case 1:
+                        overwriteFile = DialogResult.Yes;
+                        break;
+                    case 2:
+                        if (FileInfo.Modified > file.CreationTime)
+                            overwriteFile = DialogResult.Yes;
+                        else
+                            overwriteFile = DialogResult.No;
+                        break;
+                    case 3:
+                        overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
+                        break;
+                }
+                if (overwriteFile == DialogResult.Yes)
+                    file.Delete();
+            }
+
+            if (overwriteFile == DialogResult.Yes)
+            {                
+                string downloadPath = EncodeWebUrl(FileInfo.PublicUrl.OriginalString);
+                if (ParentDownload.CloudService == CloudServiceType.Allsync)
+                {
+                    var encodedUrl = new Uri(downloadPath);
+                    var host = encodedUrl.Host;
+                    downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
+                }
+                try
+                {
+                    DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.CancellationTokenSource.Token, _networkCredential);
+                    await DownloadTask;
+                }
+                catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
+                {
+                    if (DownloadTask.IsCanceled)
+                        DownloadTask.Dispose();
+
+                    if (File.Exists(SavePath))
+                        File.Delete(SavePath);
+                }
+                catch (Exception ex)
+                {
+                    var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                    string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {downloadPath}\nexception: {ex.Message}";
+                    File.AppendAllText(logFileName, log);
+
+                    if (RemainedRetries >= 0)
+                    {
+                        await Task.Delay(ParentDownload.RetryDelay);
+                        RetryDownload();
+                    }                
+                    
+                    return;
+
+                }
+            }
+            ParentDownload.UpdateQueue(this);
+        }
+        public async Task RetryDownload()
+        {
+            RemainedRetries--;
+            DownloadFailed = false;
+            ProgressBar.Value = 0;
+            ProgressLabel.Text = "";
+            await StartDownload();
+            if (DownloadFailed)
+                return;
         }
 
-        WebClient webClient = new WebClient();
-      
-        Dictionary<string, string> CustomHeaders = new Dictionary<string, string>();
 
         public async Task DownloadFileAsync(string downloadUri, string outputFile, IProgress<double> progress, CancellationToken cancellationToken, NetworkCredential networkCredential)
-        {
+        {            
             var headers = new Dictionary<string, string> { { "translate", "f" } };
             if (CustomHeaders != null)
             {
@@ -142,35 +167,23 @@ namespace CloudFolderBrowser
                     headers.Add(keyValuePair.Key, keyValuePair.Value);
                 }
             }
-            try
+            using (var registration = cancellationToken.Register(() => webClient.CancelAsync()))
             {
-                using (var registration = cancellationToken.Register(() => webClient.CancelAsync()))
+                webClient.Headers = new WebHeaderCollection();
+                if (networkCredential != null)
+                    webClient.Credentials = networkCredential;
+
+                foreach (var keyValuePair in CustomHeaders)
+                    webClient.Headers.Add(keyValuePair.Key, keyValuePair.Value);
+
+                webClient.DownloadProgressChanged += (s, e) =>
                 {
-                    webClient.Headers = new WebHeaderCollection();
-                    if (networkCredential != null)
-                        webClient.Credentials = networkCredential;     
-
-                    foreach (var keyValuePair in CustomHeaders)
-                        webClient.Headers.Add(keyValuePair.Key, keyValuePair.Value);
-
-                    webClient.DownloadProgressChanged += (s, e) =>
-                    {
-                        progress.Report(e.ProgressPercentage);
-                    };
-                    
-                    await webClient.DownloadFileTaskAsync(downloadUri, outputFile);
-                }
-            }
-            catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
-            {
-                if (File.Exists(outputFile))
-                    File.Delete(outputFile);
-            }  
-            catch (Exception ex)
-            {
-                var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
-                string log = $"{DateTime.Now}\ndownloadPath: {downloadUri}\nSavePath: {outputFile}\nexception: {ex.Message}";
-                File.AppendAllText(logFileName, log);
+                    progress.Report(e.ProgressPercentage);
+                };
+                //var rand = new Random();
+                //if (rand.Next(0, 2) == 1)
+                //    throw new WebException();
+                await webClient.DownloadFileTaskAsync(downloadUri, outputFile);
             }
         }
     }
