@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CloudFolderBrowser
 {
-    public class Download : IDownload
+    public abstract class Download : IDownload
     {
         public List<IFileDownload> Downloads { get; set; }
 
@@ -52,14 +52,7 @@ namespace CloudFolderBrowser
             }
         }
 
-        public virtual Task Start()
-        {
-            throw new NotImplementedException();
-        }
-
-        public virtual void Stop()
-        {
-            throw new NotImplementedException();
-        }
+        public abstract Task Start();
+        public abstract void Stop();
     }
 }

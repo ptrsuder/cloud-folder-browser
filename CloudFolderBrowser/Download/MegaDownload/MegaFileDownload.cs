@@ -83,10 +83,12 @@ namespace CloudFolderBrowser
                     if (Node is PublicNode)
                         DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
                     else
-                    if (ParentDownload.ShareId != "")
-                        DownloadTask = MegaClient.DownloadFileAsync(new PublicNode(Node, ParentDownload.ShareId), SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
-                    else
-                        DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
+                    {
+                        if (ParentDownload.ShareId != "")
+                            DownloadTask = MegaClient.DownloadFileAsync(new PublicNode(Node, ParentDownload.ShareId), SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
+                        else
+                            DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
+                    }
                     await DownloadTask;
                 }
                 catch (Exception ex)

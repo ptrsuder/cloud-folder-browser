@@ -39,7 +39,7 @@ namespace CloudFolderBrowser
                     if(file.MegaNode is PublicNode)
                         megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode as PublicNode, DownloadFolderPath + file.Path);
                     else
-                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, ShareId, DownloadFolderPath + file.Path);
+                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, DownloadFolderPath + file.Path);
                     DownloadQueue.Enqueue(megaFileDownload);
                     Downloads.Add(megaFileDownload);
                 }

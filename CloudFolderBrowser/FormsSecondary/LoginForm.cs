@@ -25,12 +25,7 @@ namespace CloudFolderBrowser
                 string oauthReqLink = @"https://oauth.yandex.ru/authorize?response_type=token&client_id=b7b67bceb36f41058a0e9a49f1ed87b4";
                 login_webBrowser.Navigate(oauthReqLink);
 
-            }
-            if (serviceName == "mega")
-            {
-                //TODO: 
-            }
-
+            }      
         }
 
         private void login_webBrowser_Navigated(object sender, WebBrowserNavigatedEventArgs e)
