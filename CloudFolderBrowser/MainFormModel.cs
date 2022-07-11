@@ -126,7 +126,7 @@ namespace CloudFolderBrowser
             CloudPublicFolder.CalculateFolderSize();
         }
 
-        public async Task LoadMega(List<FogLinkFile> nodes) //foglink
+        public async Task LoadMega(List<FogLinkFile> nodes, string originalString) //foglink
         {
             int filecount = 0;
             
@@ -135,7 +135,7 @@ namespace CloudFolderBrowser
                     CloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate, DateTime.MinValue, 0);
                     CloudPublicFolder.Path = "/";
                     CloudPublicFolder.EncryptedUrl = nodes.ElementAt(0).EncryptedLink;
-                    CloudPublicFolder.OriginalString = CloudPublicFolder.EncryptedUrl;
+                    CloudPublicFolder.OriginalString = originalString;
 
                     Dictionary<string, CloudFolder> megaFolders = new Dictionary<string, CloudFolder>();
                     megaFolders.Add(nodes.ElementAt(0).Id, CloudPublicFolder);

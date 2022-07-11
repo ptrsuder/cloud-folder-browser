@@ -69,15 +69,23 @@ namespace CloudFolderBrowser
             {
                 if (!Model.LoadedFromFile)
                 {
+                    if (MainForm.usingFogLink)                    
+                        downloadFiles_button.Enabled = false;                        
+                    
                     downloadFiles_button.Text = "MEGA download";
+
                     if(Properties.Settings.Default.loginedMega)
-                        importMega_button.Enabled = true;                   
+                        importMega_button.Enabled = true;    
                 }
                 else
                 {
                     downloadFiles_button.Enabled = false;
                     MessageBox.Show("Files were loaded from file and will not be available for download. Load from link instead.");
-                }                
+                }
+
+                if (MainForm.usingFogLink && !Properties.Settings.Default.loginedMega)
+                    MessageBox.Show("Not signed in MEGA: unable to import files.");
+
                 getJdLinks_button.Enabled = false;                
             }
             if (cloudServiceType == CloudServiceType.Yadisk)

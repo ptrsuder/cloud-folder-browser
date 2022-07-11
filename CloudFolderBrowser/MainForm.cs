@@ -862,7 +862,7 @@ namespace CloudFolderBrowser
             Model.CloudPublicFolder = new CloudFolder();
             Directory.CreateDirectory("jsons");
 
-            if (!key.Contains("http"))
+            if (!key.Contains("http") && !key.IsBase64String())
                 key = @"https://" + key;
 
             if (publicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
@@ -1204,9 +1204,10 @@ namespace CloudFolderBrowser
                     Model.CloudServiceType = CloudServiceType.Mega;
                     usingFogLink = true;
                     SetProgress(true);
-                    await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl));
+                    await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl), publicFolderKey_textBox.Text);
                     SetProgress(false);
                     Model.LoadedFromFile = false;
+                    UpdateTreeModel();
                     return;
                 }
 
