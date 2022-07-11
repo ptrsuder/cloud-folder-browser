@@ -34,7 +34,9 @@ namespace CloudFolderBrowser
             MegaApiClient.LogonSessionToken loginToken = null;
             try
             {
+                signin_button.Enabled = false;               
                 await ParentForm.LoginMega(login_textBox.Text, password_textBox.Text);
+                signin_button.Enabled = true;
             }
             catch
             {
