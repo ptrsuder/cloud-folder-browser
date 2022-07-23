@@ -44,13 +44,13 @@
       <Project>{fe0b453d-1e3b-4ab6-bbad-f6f973356897}</Project>
       <Name>YandexDiskSharp</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Users\MKso\Documents\GitHub\MegaApiClient\MegaApiClient\MegaApiClient.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
+    <PackageReference Include="MegaApiClientAlt" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="PortableSettingsProvider" Version="0.2.4" />
   </ItemGroup>
