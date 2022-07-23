@@ -84,49 +84,76 @@ namespace CloudFolderBrowser
             string lastId = Utility.GetLastId(url);
             await Task.Run(() =>
             {
-                var nodes = megaClient.GetFullNodesFromLink(new Uri(url), out _);
-                CloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate ?? DateTime.MinValue, DateTime.MinValue, 0);
-                CloudPublicFolder.Path = "/";
-                CloudPublicFolder.MegaNode = nodes.ElementAt(0);
-                CloudPublicFolder.OriginalString = url;
-                var match = Regex.Match(url, "(/folder/)(.*)#([^/]*)(/(.*))?");
-                CloudPublicFolder.PublicKey = match.Groups[2].Value;
-                CloudPublicFolder.PublicDecryptionKey = match.Groups[3].Value;
-                Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
-                allfolders.Add(nodes.ElementAt(0).Id, CloudPublicFolder);
-                AllFolders = new List<CloudFolder>() { CloudPublicFolder };
-                foreach (var node in nodes)
+
+                IEnumerable<INode> nodes;
+                if (url.Contains("mega.nz/file"))
                 {
-                    if (node.Type == NodeType.Directory)
+                    nodes = megaClient.GetFullNodesFromLink(new Uri(url), out _);
+                    var node = nodes.ElementAt(0);
+
+                    CloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate ?? DateTime.MinValue, DateTime.MinValue, 0);
+                    CloudPublicFolder.Path = "/";                   
+                    CloudPublicFolder.OriginalString = url;
+                    var match = Regex.Match(url, "(/folder/)(.*)#([^/]*)(/(.*))?");
+                    CloudPublicFolder.PublicKey = match.Groups[2].Value;
+                    CloudPublicFolder.PublicDecryptionKey = match.Groups[3].Value;
+
+                    CloudFile file = new CloudFile(node.Name, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
+                    CloudFolder parentFolder = CloudPublicFolder;
+                    file.Path = parentFolder.Path + file.Name;
+                    file.MegaNode = node;
+                    parentFolder.SizeTopDirectoryOnly += file.Size;
+                    parentFolder.AddFile(file);
+                    filecount++;
+                }
+                else
+                {
+                    nodes = megaClient.GetFullNodesFromLink(new Uri(url), out _);
+                    CloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate ?? DateTime.MinValue, DateTime.MinValue, 0);
+                    CloudPublicFolder.Path = "/";
+                    CloudPublicFolder.MegaNode = nodes.ElementAt(0);
+                    CloudPublicFolder.OriginalString = url;
+                    var match = Regex.Match(url, "(/folder/)(.*)#([^/]*)(/(.*))?");
+                    CloudPublicFolder.PublicKey = match.Groups[2].Value;
+                    CloudPublicFolder.PublicDecryptionKey = match.Groups[3].Value;
+                    Dictionary<string, CloudFolder> allfolders = new Dictionary<string, CloudFolder>();
+                    allfolders.Add(nodes.ElementAt(0).Id, CloudPublicFolder);
+                    AllFolders = new List<CloudFolder>() { CloudPublicFolder };
+                    foreach (var node in nodes)
                     {
-                        if (node.Id == nodes.ElementAt(0).Id) //root node
+                        if (node.Type == NodeType.Directory)
+                        {
+                            if (node.Id == nodes.ElementAt(0).Id) //root node
+                                continue;
+                            CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate ?? DateTime.MinValue, DateTime.MinValue, node.Size);
+                            CloudFolder parentFolder = allfolders[node.ParentId];
+                            subfolder.MegaNode = node;
+                            subfolder.Path = parentFolder.Path + subfolder.Name + "/";
+                            allfolders.Add(node.Id, subfolder);
+                            parentFolder.AddSubfolder(subfolder);
+                            AllFolders.Add(subfolder);
                             continue;
-                        CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate ?? DateTime.MinValue, DateTime.MinValue, node.Size);
-                        CloudFolder parentFolder = allfolders[node.ParentId];
-                        subfolder.MegaNode = node;
-                        subfolder.Path = parentFolder.Path + subfolder.Name + "/";
-                        allfolders.Add(node.Id, subfolder);
-                        parentFolder.AddSubfolder(subfolder);
-                        AllFolders.Add(subfolder);
-                        continue;
+                        }
+                        if (node.Type == NodeType.File)
+                        {
+                            CloudFile file = new CloudFile(node.Name, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
+                            CloudFolder parentFolder = allfolders[node.ParentId];
+                            file.Path = parentFolder.Path + file.Name;
+                            file.MegaNode = node;
+                            parentFolder.SizeTopDirectoryOnly += file.Size;
+                            parentFolder.AddFile(file);
+                            filecount++;
+                            //parentFolder.Files.Add(file);
+                        }
                     }
-                    if (node.Type == NodeType.File)
-                    {
-                        CloudFile file = new CloudFile(node.Name, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
-                        CloudFolder parentFolder = allfolders[node.ParentId];
-                        file.Path = parentFolder.Path + file.Name;
-                        file.MegaNode = node;
-                        parentFolder.SizeTopDirectoryOnly += file.Size;
-                        parentFolder.AddFile(file);
-                        filecount++;
-                      //parentFolder.Files.Add(file);
-                    }
-                }              
+                }
+
+               
             });
             CloudPublicFolder.CalculateFolderSize();
         }
 
-        public async Task LoadMega(List<FogLinkFile> nodes, string originalString) //foglink
+        public async Task LoadMega2(List<FogLinkFile> nodes, string originalString) //foglink
         {
             int filecount = 0;
             
@@ -176,6 +203,61 @@ namespace CloudFolderBrowser
           
         }
 
+        public async Task LoadMega(List<FogLinkFile> nodes, string originalString) //foglink
+        {
+            int filecount = 0;
+
+            await Task.Run(() =>
+            {             
+                CloudPublicFolder = new CloudFolder("MEGA", nodes.ElementAt(0).ModificationDate, nodes.ElementAt(0).ModificationDate, 0);
+                CloudPublicFolder.Path = "/";
+                if (!nodes[0].IsFile)
+                    CloudPublicFolder.EncryptedUrl = nodes.ElementAt(0).EncryptedLink;
+                CloudPublicFolder.OriginalString = originalString;
+
+                AllFolders = new List<CloudFolder>() { CloudPublicFolder };
+
+                if (!nodes[0].IsFile)
+                    BuildFolderStructure(CloudPublicFolder, nodes.ElementAt(0));
+                else
+                {
+                    var parentFolder = CloudPublicFolder;
+                    var node = nodes[0];
+                    CloudFile file = new CloudFile(node.Name, node.ModificationDate, node.ModificationDate, node.Size2);
+                    file.Path = parentFolder.Path + file.Name;
+                    file.EncryptedUrl = node.EncryptedLink;
+                    parentFolder.SizeTopDirectoryOnly += file.Size;
+                    parentFolder.AddFile(file);
+                }
+            });
+            CloudPublicFolder.CalculateFolderSize();
+        }
+
+        void BuildFolderStructure(CloudFolder parentFolder, FogLinkFile parent)
+        {            
+            foreach (var node in parent.Children)
+            {
+                if (node.Type == NodeType.Directory)
+                {
+                    CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate, DateTime.MinValue, node.Size2);  
+                    subfolder.Path = parentFolder.Path + subfolder.Name + "/";
+                    subfolder.EncryptedUrl = node.EncryptedLink;                 
+                    parentFolder.AddSubfolder(subfolder);
+                    AllFolders.Add(subfolder);
+                    BuildFolderStructure(subfolder, node);
+                    continue;
+                }
+                if (node.Type == NodeType.File)
+                {
+                    CloudFile file = new CloudFile(node.Name, node.CreationDate, node.CreationDate, node.Size2);                    
+                    file.Path = parentFolder.Path + file.Name;
+                    file.EncryptedUrl = node.EncryptedLink;
+                    parentFolder.SizeTopDirectoryOnly += file.Size;
+                    parentFolder.AddFile(file);                                  
+                }
+            }
+        }
+
         List<INode> GetChildNodes(INode parent, INode[] nodes)
         {
             List<INode> allNewNodes = new List<INode>();
@@ -199,10 +281,6 @@ namespace CloudFolderBrowser
             filteredNodes.Add(parentNode);
             AddParentNode(ref allfolders, nodes, filteredNodes, parentNode, parentFolder);
         }
-
-
-
-
 
 
         public IClient webdavClient;

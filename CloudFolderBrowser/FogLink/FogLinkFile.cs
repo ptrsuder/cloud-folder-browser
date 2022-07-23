@@ -22,6 +22,8 @@ namespace CloudFolderBrowser
         public string EncryptedLink { get; set; }
         public bool IsFile { get; set; }
 
+        public FogLinkFile[] Children { get; set; }
+
         public NodeType Type { get => IsFile ? NodeType.File : NodeType.Directory; }
 
     }

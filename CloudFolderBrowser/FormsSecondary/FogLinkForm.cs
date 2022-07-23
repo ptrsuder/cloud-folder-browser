@@ -24,11 +24,13 @@ namespace CloudFolderBrowser
 
         private async void encrypt_button_Click(object sender, EventArgs e)
         {             
-            out_textBox.Text = await FogLink.GetEncodedAsync(serverAddress_textBox.Text);
+            out_textBox.Text = await FogLink.GetEncodedAsync(in_textBox.Text);
         }         
 
         private void saveServerAddress_button_Click(object sender, EventArgs e)
         {
+            if (serverAddress_textBox.Text == "")
+                serverAddress_textBox.Text = @"https://tg-sharer-foglink.herokuapp.com/";          
             FogLink.ServerAddress = new Uri(serverAddress_textBox.Text);
             Properties.Settings.Default.fogLinkAddress = serverAddress_textBox.Text;
             Properties.Settings.Default.Save();

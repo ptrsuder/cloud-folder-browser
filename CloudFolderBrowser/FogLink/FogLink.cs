@@ -17,6 +17,7 @@ namespace CloudFolderBrowser
             get => client.BaseAddress;
             set
             {
+                client = new HttpClient();                
                 client.BaseAddress = value;
             }
         }
@@ -31,9 +32,12 @@ namespace CloudFolderBrowser
 
                 return response.Content.ReadAsStringAsync().Result;
             }
-            catch
+            catch(HttpRequestException ex)
             {
-                return "";
+                var errorMessage = "Failed to encode url";
+                if (ex.HResult == -2147467259)
+                    errorMessage = errorMessage + ": No connection to the FogLink server";
+                return errorMessage;
             }
 
         }

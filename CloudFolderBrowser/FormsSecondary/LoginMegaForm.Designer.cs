@@ -75,6 +75,8 @@
             // savePassword_checkBox
             // 
             this.savePassword_checkBox.AutoSize = true;
+            this.savePassword_checkBox.Checked = true;
+            this.savePassword_checkBox.CheckState = System.Windows.Forms.CheckState.Checked;
             this.savePassword_checkBox.Location = new System.Drawing.Point(31, 125);
             this.savePassword_checkBox.Name = "savePassword_checkBox";
             this.savePassword_checkBox.Size = new System.Drawing.Size(137, 19);

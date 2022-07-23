@@ -208,7 +208,8 @@ namespace CloudFolderBrowser
                         GetCheckedFiles(subnode);
                     }
                     if (subnode.CheckState == CheckState.Checked)
-                    {                        
+                    {
+                        checkedFolders.Add(folder);
                         AddAllFiles(subnode);
                     }
                     continue;
@@ -379,7 +380,8 @@ namespace CloudFolderBrowser
                     var nodes = new List<INode>() {};
                     foreach(CloudFolder folder in checkedFolders)
                     {
-                        nodes.Add(folder.MegaNode);
+                        if(folder.MegaNode != null)
+                            nodes.Add(folder.MegaNode);
                     }
                     foreach (CloudFile file in checkedFiles)
                     {
@@ -412,21 +414,28 @@ namespace CloudFolderBrowser
                     var nodes = new List<string>() { };
                     foreach (CloudFolder folder in checkedFolders)
                     {
-                        nodes.Add(folder.EncryptedUrl);
+                        if(!string.IsNullOrEmpty(folder.EncryptedUrl))
+                            nodes.Add(folder.EncryptedUrl);
                     }
                     foreach (CloudFile file in checkedFiles)
                     {  
                         nodes.Add(file.EncryptedUrl);
                     }
                     HttpClient client = new HttpClient();
-                    var postData = new ImportLinksData() { logonToken = Properties.Settings.Default.loginTokenMega, links = nodes.ToArray() };
+                    //MegaApiClient tempClient = new MegaApiClient();
+                    //var token = tempClient.Login(Properties.Settings.Default.megaLogin, Properties.Settings.Default.megaPassword);
+                    //tempClient.Logout();
+                    var postData = new ImportLinksData() { login = Properties.Settings.Default.megaLogin, password = Properties.Settings.Default.megaPassword, links = nodes.ToArray() };
                     var postJson = JsonConvert.SerializeObject(postData);
                     var content = new StringContent(postJson, Encoding.UTF8, "application/json");
                     client.BaseAddress = FogLink.ServerAddress;
                     HttpResponseMessage response = await client.PostAsync(
-                        $"MegaPrivater/importLinks", content);
-                    
-                    MessageBox.Show("Finished");
+                        $"MegaPrivater/import", content);
+                    var megaCode = response.Content.ReadAsStringAsync().Result;
+                    if (!response.IsSuccessStatusCode)
+                        MessageBox.Show($"Failed to import files: {(ApiResultCode)(int.Parse(megaCode))}");
+                    else
+                        MessageBox.Show("Finished");
                 }
             }
             else
@@ -437,6 +446,8 @@ namespace CloudFolderBrowser
         {
             public string logonToken;
             public string[] links;
+            public string login;
+            public string password;
         }
 
         private void DownloadFiles()

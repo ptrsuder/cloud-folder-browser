@@ -364,6 +364,67 @@ namespace CloudFolderBrowser
             }
         }
 
+        async Task<bool> LoadPublicFolder(string cloudFolderUrl)
+        {
+            usingFogLink = false;
+            if (cloudFolderUrl != "")
+            {
+                if (cloudFolderUrl.IsBase64String() || cloudFolderUrl.Contains(FogLink.ServerAddress.OriginalString))
+                {
+                    Model.CloudServiceType = CloudServiceType.Mega;
+                    usingFogLink = true;
+                    SetProgress(true);
+                    await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl), publicFolderKey_textBox.Text);
+                    SetProgress(false);
+                    Model.LoadedFromFile = false;
+                    UpdateTreeModel();
+                    return true;
+                }
+
+                if (!cloudFolderUrl.Contains("http"))
+                    cloudFolderUrl = @"https://" + cloudFolderUrl;
+
+                if (cloudFolderUrl.ToLower().Contains("rebrand.ly"))
+                    cloudFolderUrl = Utility.GetFinalRedirect(cloudFolderUrl).Result;
+
+                if (cloudFolderUrl == null ||
+                    cloudFolderUrl.ToLower().Contains("rebrand.ly") ||
+                    cloudFolderUrl.ToLower().Contains("rebrandly"))
+                {
+                    MessageBox.Show("Timeout or link is dead");
+                    return false;
+                }
+
+                Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
+
+                SetProgress(true);
+                switch (Model.CloudServiceType)
+                {
+                    case CloudServiceType.Yadisk:
+                        await LoadYadisk(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.Allsync:
+                        await LoadAllsync(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.Mega:
+                        await LoadMega(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.h5ai:
+                        await Load_h5ai(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.TheTrove:
+                        await Load_TheTrove(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.Other:
+                        MessageBox.Show("Unsupported link!");
+                        return false;
+                }        
+                Model.LoadedFromFile = false;                
+            }
+            return true;
+        }
+
+
         #region LOAD WEB
 
         #region Yadisk
@@ -741,6 +802,8 @@ namespace CloudFolderBrowser
         {
             try
             {
+                if (megaClient.IsLoggedIn)
+                    megaClient.Logout();
                 var loginToken = await megaClient.LoginAsync(login, password);
 
                 Properties.Settings.Default.loginTokenMega = JsonConvert.SerializeObject(loginToken, new JsonSerializerSettings()
@@ -823,7 +886,12 @@ namespace CloudFolderBrowser
 
         public void LogoutMega()
         {
-            megaClient.Logout();
+            try
+            {
+                megaClient.Logout();
+            }
+            catch { }
+            
             Properties.Settings.Default.loginTokenMega = "";
             Properties.Settings.Default.loginedMega = false;
             Properties.Settings.Default.Save();
@@ -1187,73 +1255,24 @@ namespace CloudFolderBrowser
             }
         }
                 
-        #region #BUTTONS       
-
+        #region #BUTTONS     
+        
+        
         private async void LoadPublicFolderKey_button_Click(object sender, EventArgs e)
         {
             string cloudFolderUrl = publicFolderKey_textBox.Text;
             if (flatList_checkBox.Checked)
                 flatList_checkBox.Checked = false;
-
-            if (cloudFolderUrl != "")
-            {               
+            if (cloudFolderUrl != "")            
                 syncFolders_button.Enabled = false;
 
-                if (cloudFolderUrl.IsBase64String())
-                {
-                    Model.CloudServiceType = CloudServiceType.Mega;
-                    usingFogLink = true;
-                    SetProgress(true);
-                    await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl), publicFolderKey_textBox.Text);
-                    SetProgress(false);
-                    Model.LoadedFromFile = false;
-                    UpdateTreeModel();
-                    return;
-                }
-
-                if (!cloudFolderUrl.Contains("http"))
-                    cloudFolderUrl = @"https://" + cloudFolderUrl;
-
-                if (cloudFolderUrl.ToLower().Contains("rebrand.ly"))
-                    cloudFolderUrl = Utility.GetFinalRedirect(cloudFolderUrl).Result;
-
-                if (cloudFolderUrl == null ||
-                    cloudFolderUrl.ToLower().Contains("rebrand.ly") ||
-                    cloudFolderUrl.ToLower().Contains("rebrandly"))
-                {
-                    MessageBox.Show("Timeout or link is dead");
-                    return;
-                }
-
-                Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
-
-                SetProgress(true);
-                switch (Model.CloudServiceType)
-                {
-                    case CloudServiceType.Yadisk:
-                        await LoadYadisk(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Allsync:
-                        await LoadAllsync(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Mega:
-                        await LoadMega(cloudFolderUrl);
-                        break;                    
-                    case CloudServiceType.h5ai:
-                        await Load_h5ai(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.TheTrove:
-                        await Load_TheTrove(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Other:
-                        MessageBox.Show("Unsupported link!");
-                        break;                   
-                }
-                //await CreateDummyFolderStructure();
+            if (cloudFolderUrl != "")
+            {
+                SetProgress(false);
+                var success = LoadPublicFolder(cloudFolderUrl);               
                 publicFolderKey_textBox.ReadOnly = true;
                 flatList_checkBox.Enabled = true;
-                SetProgress(false);
-                Model.LoadedFromFile = false;
+                SetProgress(false);               
             }
         }
 
