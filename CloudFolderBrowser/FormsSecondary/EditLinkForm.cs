@@ -24,7 +24,8 @@ namespace CloudFolderBrowser
 
         public EditLinkForm()
         {
-            InitializeComponent();           
+            InitializeComponent();
+            CenterToParent();
         }
 
         private void ok_button_Click(object sender, EventArgs e)

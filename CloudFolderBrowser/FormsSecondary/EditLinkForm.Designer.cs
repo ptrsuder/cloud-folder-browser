@@ -51,6 +51,7 @@
             // 
             // ok_button
             // 
+            this.ok_button.DialogResult = System.Windows.Forms.DialogResult.OK;
             this.ok_button.Location = new System.Drawing.Point(314, 117);
             this.ok_button.Name = "ok_button";
             this.ok_button.Size = new System.Drawing.Size(75, 23);
@@ -58,7 +59,6 @@
             this.ok_button.Text = "OK";
             this.ok_button.UseVisualStyleBackColor = true;
             this.ok_button.Click += new System.EventHandler(this.ok_button_Click);
-            this.ok_button.DialogResult = DialogResult.OK;
             // 
             // label1
             // 
@@ -78,7 +78,7 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Name";
             // 
-            // AddNewLinkForm
+            // EditLinkForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -88,8 +88,8 @@
             this.Controls.Add(this.ok_button);
             this.Controls.Add(this.url_textBox);
             this.Controls.Add(this.name_textBox);
-            this.Name = "AddNewLinkForm";
-            this.Text = "AddNewLinkForm";
+            this.Name = "EditLinkForm";
+            this.Text = "Add/Edit link";
             this.ResumeLayout(false);
             this.PerformLayout();
 
