@@ -130,7 +130,7 @@ namespace CloudFolderBrowser
                 catch (Exception ex)
                 {
                     var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
-                    string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {downloadPath}\nexception: {ex.Message}";
+                    string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {downloadPath}\nexception: {ex.Message}\n";
                     File.AppendAllText(logFileName, log);
 
                     if (RemainedRetries >= 0)
