@@ -433,7 +433,12 @@ namespace CloudFolderBrowser
                         $"MegaPrivater/import", content);
                     var megaCode = response.Content.ReadAsStringAsync().Result;
                     if (!response.IsSuccessStatusCode)
-                        MessageBox.Show($"Failed to import files: {(ApiResultCode)(int.Parse(megaCode))}");
+                    {
+                        int code;
+                        var codeOk = int.TryParse(megaCode, out code);
+                        var error = codeOk?((ApiResultCode)code).ToString():response.StatusCode.ToString();
+                        MessageBox.Show($"Failed to import files: {(error)}");
+                    }
                     else
                         MessageBox.Show("Finished");
                 }
