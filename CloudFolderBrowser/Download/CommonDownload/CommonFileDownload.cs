@@ -129,6 +129,15 @@ namespace CloudFolderBrowser
                 }
                 catch (Exception ex)
                 {
+                    if(ex.HResult == -2146233029)
+                    {
+                        if (DownloadTask.IsCanceled)
+                            DownloadTask.Dispose();
+
+                        if (File.Exists(SavePath))
+                            File.Delete(SavePath);
+                        return;
+                    }
                     var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
                     string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {downloadPath}\nexception: {ex.Message}\n";
                     File.AppendAllText(logFileName, log);
