@@ -68,7 +68,7 @@ namespace CloudFolderBrowser
                         dd.ProgressBar = progressbars[i];
                         dd.ProgressLabel = progresslabels[i];
                         ToolTip.SetToolTip(dd.ProgressLabel, Path.GetFileName(dd.SavePath));
-                        await dd.StartDownload();
+                        dd.StartDownload();
                         if (DownloadQueue.Count == 0) break;
                     }
                 }
