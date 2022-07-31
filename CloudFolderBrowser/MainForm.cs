@@ -30,9 +30,7 @@ namespace CloudFolderBrowser
         string AppVersion = "0.10.00";
 
         public static RestClient rc;
-        public ResourceList rl_root;
-        public List<Task> tasks;
-        public List<Task<CloudFolder>> tasks2;
+        public ResourceList rl_root;            
         public string syncFolderPath = "";
         public TreeModel cloudPublicFolder_model, cloudFlatFolder_model, syncFolder_model, newFiles_model;
         public LocalFolder syncFolder;
@@ -55,8 +53,7 @@ namespace CloudFolderBrowser
         double checkedFilesSize = 0.0;
         public  long freeSpace;
 
-        const double b2Mb = 1.0 / (1024 * 1024);       
-
+        const double b2Mb = 1.0 / (1024 * 1024);    
        
         //filter textbox 
         [DllImport("user32.dll")]
@@ -745,7 +742,9 @@ namespace CloudFolderBrowser
         
         async Task<bool> LoadAllsync(string url, bool onlyCheck = false)
         {
-            await Model.PreloadAllsync(url, onlyCheck);
+            bool success = await Model.PreloadAllsync(url, onlyCheck);
+            if (onlyCheck) return success;
+
             var code = await Model.LoadAllsync(Model.folderKey, Model.password);
 
             if (code == 401)
@@ -883,7 +882,6 @@ namespace CloudFolderBrowser
                $" {Math.Round(freeGb, 2)}" +
                $" GB out of {totalSpace / 1024} GB";
         }
-
         public void LogoutMega()
         {
             try
@@ -899,7 +897,6 @@ namespace CloudFolderBrowser
             loginMega_button.Text = "MEGA Sign in";
             yadiskSpace_progressBar.Visible = false;
         }
-
         async Task LoadMega(string url)
         {            
             try
@@ -918,7 +915,16 @@ namespace CloudFolderBrowser
 
         #endregion
 
-        #region LOAD LOCAL        
+        #region LOAD LOCAL     
+        
+        void AddSubFolders(CloudFolder folder)
+        {
+            Model.AllFolders.Add(folder);
+            foreach (var subfolder in folder.Subfolders)
+            {
+                AddSubFolders(subfolder as CloudFolder);
+            }
+        }
 
         async Task LoadFolderJson(bool checkStatus = false)
         {
@@ -947,6 +953,9 @@ namespace CloudFolderBrowser
                     {
                         TypeNameHandling = TypeNameHandling.Auto
                     });
+                    Model.AllFolders = new List<CloudFolder>() { Model.CloudPublicFolder };
+                    AddSubFolders(Model.CloudPublicFolder);
+
                     UpdateTreeModel();
                     Model.LoadedFromFile = true;
                     if (checkStatus)

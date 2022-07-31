@@ -153,7 +153,7 @@ namespace CloudFolderBrowser
             CloudPublicFolder.CalculateFolderSize();
         }
 
-        public async Task LoadMega2(List<FogLinkFile> nodes, string originalString) //foglink
+        public async Task LoadMega2(List<FogLinkFile> nodes, string originalString) //oldfoglink
         {
             int filecount = 0;
             
@@ -289,7 +289,7 @@ namespace CloudFolderBrowser
         public Dictionary<string, string> savedPasswords = new Dictionary<string, string>();
         public string folderKey = "", password = "";
 
-        public async Task PreloadAllsync(string url, bool onlyCheck = false)
+        public async Task<bool> PreloadAllsync(string url, bool onlyCheck = false)
         {
             CloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             CloudPublicFolder.OriginalString = url;
@@ -331,9 +331,9 @@ namespace CloudFolderBrowser
                 var success = await CheckAllsyncFolder();
                 WriteToLog($"\n{DateTime.Now}\n Storing password {password} \n\n");
                 WebdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
-                return;
+                return success;
             }     
-            return;
+            return true;
         }
 
         public async Task<int> LoadAllsync(string folderKey, string password = "")
