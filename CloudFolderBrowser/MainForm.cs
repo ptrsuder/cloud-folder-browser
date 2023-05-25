@@ -27,7 +27,7 @@ namespace CloudFolderBrowser
     {
         public MainFormModel Model { get; set; } = new MainFormModel();
 
-        string AppVersion = "0.10.00";
+        string AppVersion = "0.10.20";
 
         public static RestClient rc;
         public ResourceList rl_root;            
