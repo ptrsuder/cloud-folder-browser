@@ -134,7 +134,7 @@ namespace WebDAVClient
             var client = new System.Net.Http.HttpClient(handler);           
             
             client.DefaultRequestHeaders.ExpectContinue = false;
-
+            client.Timeout = new TimeSpan(0, 10, 0);
             System.Net.Http.HttpClient uploadClient = null; 
             if (uploadTimeout != null)
             {
@@ -231,6 +231,77 @@ namespace WebDAVClient
             }
         }
 
+        public async Task<IEnumerable<Item>> ListShared(string path = "/", int? depth = 1)
+        {
+            var listUri = new Uri($"{Server}/public.php/webdav/");
+
+            // Depth header: http://webdav.org/specs/rfc4918.html#rfc.section.9.1.4
+            IDictionary<string, string> headers = new Dictionary<string, string>();
+            if (depth != null)
+            {
+                headers.Add("Depth", depth.ToString());
+            }
+
+            if (CustomHeaders != null)
+            {
+                foreach (var keyValuePair in CustomHeaders)
+                {
+                    headers.Add(keyValuePair);
+                }
+            }
+
+
+            HttpResponseMessage response = null;
+
+            try
+            {
+                response = await HttpRequest(listUri, PropFind, headers, Encoding.UTF8.GetBytes(PropFindRequestContent)).ConfigureAwait(false) ;
+
+                if (response.StatusCode != HttpStatusCode.OK &&
+                    (int)response.StatusCode != HttpStatusCode_MultiStatus)
+                {
+                    throw new WebDAVException((int)response.StatusCode, "Failed retrieving items in folder.");
+                }
+
+                using (var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
+                {
+                    var items = ResponseParser.ParseItems(stream);
+
+                    if (items == null)
+                    {
+                        throw new WebDAVException("Failed deserializing data returned from server.");
+                    }
+
+                    var listUrl = listUri.ToString();
+
+                    var result = new List<Item>(items.Count());
+                    foreach (var item in items)
+                    {
+                        // If it's not a collection, add it to the result
+                        if (!item.IsCollection)
+                        {
+                            result.Add(item);
+                        }
+                        else
+                        {
+                            // If it's not the requested parent folder, add it to the result                            
+                            if (!string.Equals(item.Href.ToString(), "/public.php/webdav/", StringComparison.CurrentCultureIgnoreCase))
+                            {
+                                result.Add(item);
+                            }
+                        }
+                    }
+                    return result;
+                }
+
+            }
+            finally
+            {
+                if (response != null)
+                    response.Dispose();
+            }
+        }
+
         /// <summary>
         /// List all files present on the server.
         /// </summary>
@@ -261,7 +332,7 @@ namespace WebDAVClient
 
             // Depth header: http://webdav.org/specs/rfc4918.html#rfc.section.9.1.4
             IDictionary<string, string> headers = new Dictionary<string, string>();
-            headers.Add("Depth", "0");
+            headers.Add("Depth", "1");
             
             if (CustomHeaders != null)
             {
@@ -275,7 +346,7 @@ namespace WebDAVClient
             HttpResponseMessage response = null;
 
             try
-            {
+            {                
                 response = await HttpRequest(listUri, PropFind, headers, Encoding.UTF8.GetBytes(PropFindRequestContent)).ConfigureAwait(false);
 
                 if (response.StatusCode != HttpStatusCode.OK &&
@@ -654,9 +725,12 @@ namespace WebDAVClient
         {
             using (var request = new HttpRequestMessage(method, uri))
             {
+                
                 request.Headers.Connection.Add("Keep-Alive");
                 if (!string.IsNullOrWhiteSpace(UserAgent))
-                    request.Headers.UserAgent.Add(new ProductInfoHeaderValue(UserAgent, UserAgentVersion));
+                {
+                    request.Headers.Add("User-Agent", UserAgent);
+                }
                 else
                     request.Headers.UserAgent.Add(new ProductInfoHeaderValue("WebDAVClient", AssemblyVersion));
 
@@ -673,8 +747,7 @@ namespace WebDAVClient
                 {
                     request.Content = new ByteArrayContent(content);
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
-                }
-
+                }              
                 return await _httpClientWrapper.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             }
         }

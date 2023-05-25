@@ -44,6 +44,8 @@ namespace WebDAVClient
         /// <returns>A list of files (entries without a trailing slash) and directories (entries with a trailing slash)</returns>
         Task<IEnumerable<Item>> List(string path = "/", int? depth = 1);
 
+        Task<IEnumerable<Item>> ListShared(string path = "/", int? depth = 1);
+
         /// <summary>
         /// Get folder information from the server.
         /// </summary>
