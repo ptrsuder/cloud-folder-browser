@@ -114,6 +114,10 @@ namespace CloudFolderBrowser
                     var host = encodedUrl.Host;
                     downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
                 }
+                if(ParentDownload.CloudService == CloudServiceType.QCloud)
+                {                                          
+                    downloadPath = $"https://efss.qloud.my/index.php/s/{_networkCredential.UserName}/download?path=/&files={EncodeAllsyncUrl(FileInfo.Path)}";                  
+                }
                 try
                 {
                     DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.CancellationTokenSource.Token, _networkCredential);
@@ -129,7 +133,7 @@ namespace CloudFolderBrowser
                 }
                 catch (Exception ex)
                 {
-                    if(ex.HResult == -2146233029)
+                    if(ex.HResult == -2146233029 || ex.HResult == -2146233079)
                     {
                         if (DownloadTask.IsCanceled)
                             DownloadTask.Dispose();

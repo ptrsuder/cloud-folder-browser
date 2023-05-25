@@ -301,7 +301,9 @@ namespace CloudFolderBrowser
                 uriStructure.Add(m.Value);
             allsyncUrl = uriStructure[0];
             string path = "";
+
             allsyncRootFolderAddress = allsyncUrl + @"/s/" + uriStructure[2] + "?path=";
+            if(url.Contains(".qloud")) allsyncRootFolderAddress = allsyncUrl + @"/s/" + uriStructure[3] + "?path=";
 
             if (uriStructure.Count < 5)
             {
@@ -316,7 +318,10 @@ namespace CloudFolderBrowser
                 CloudPublicFolder.Name = uriStructure[uriStructure.Count - 1];
             }
             CloudPublicFolder.Path = path;           
+
             folderKey = uriStructure[2];
+            if(url.Contains("qloud")) folderKey = uriStructure[3];
+
             WriteToLog($"\n{DateTime.Now}\n Searching for password for {folderKey} \n\n");
             if (savedPasswords.ContainsKey(folderKey))
             {
@@ -343,7 +348,7 @@ namespace CloudFolderBrowser
             {
                 if (password != "")
                     UpdateWebdavClient(folderKey, password);
-                items = await webdavClient.List(CloudPublicFolder.Path, 9999);                
+                items = await webdavClient.ListShared(CloudPublicFolder.Path, 999);                
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
@@ -436,7 +441,7 @@ namespace CloudFolderBrowser
         {           
             try
             {
-                var items = await webdavClient.List(CloudPublicFolder.Path, 1);
+                var items = await webdavClient.ListShared(CloudPublicFolder.Path, 1);
                 if (items.Count() > 0)
                     return true;                
             }
@@ -467,7 +472,9 @@ namespace CloudFolderBrowser
             webdavClient.BasePath = "/public.php/webdav/";
             Dictionary<string, string> customHeaders = new Dictionary<string, string>();
             customHeaders.Add("X-Requested-With", "XMLHttpRequest");
-            webdavClient.CustomHeaders = customHeaders;
+            customHeaders.Add("Accept-Encoding", "gzip, deflate, br");            
+            webdavClient.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0";
+            webdavClient.CustomHeaders = customHeaders;           
         }
     }
 

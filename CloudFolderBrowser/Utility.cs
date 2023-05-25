@@ -139,6 +139,8 @@ namespace CloudFolderBrowser
                 return CloudServiceType.Yadisk;
             if (url.Contains(".allsync.com"))
                 return CloudServiceType.Allsync;
+            if (url.Contains("efss.qloud."))
+                return CloudServiceType.QCloud;
             if (url.Contains("mega.nz"))
                 return CloudServiceType.Mega;
             if (url.Contains("thetrove.is"))
@@ -146,7 +148,7 @@ namespace CloudFolderBrowser
             if (url.Contains("h5ailink"))
                 return CloudServiceType.h5ai;
 
-            using (var webpage = new System.Net.WebClient())
+            using (var webpage = new WebClient())
             {
                 webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
                 var data = webpage.DownloadString(url);
@@ -164,64 +166,7 @@ namespace CloudFolderBrowser
                 }
             }
 
-
-
             return CloudServiceType.Other;
-        }
-
-
-        static void Fetch(string url, string hash, string sk, string path)
-        {            
-            Dictionary<string, string> postParams = new Dictionary<string, string>();
-            postParams.Add("hash", hash);
-            postParams.Add("sk", sk);
-            postParams.Add("offset", "0");
-
-            using (var client = new HttpClient())
-            {
-                HttpRequestMessage requestMessage = new HttpRequestMessage(new HttpMethod("POST"), $"https://yadi.sk/public/api/get-dir-size");
-
-                if (postParams != null)
-                    requestMessage.Content = new FormUrlEncodedContent(postParams);   // This is where your content gets added to the request body
-
-                //client.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "text/plain");
-
-                var st = HttpUtility.UrlEncode($"{{\"hash\":\"{hash}\",\"sk\":\"{sk}\"}}").Replace("+", "%20");
-
-                byte[] messageBytes = System.Text.Encoding.UTF8.GetBytes(st);
-                var content = new ByteArrayContent(messageBytes);
-
-                var body = new StringContent(st);
-                requestMessage.Content = content;
-
-                requestMessage.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0");
-                requestMessage.Headers.Add("Referer", @"https://yadi.sk/d/uXiHcdtMNc2zzA");
-                requestMessage.Headers.Add("Accept", "*/*");
-                requestMessage.Headers.Add("Accept-Encoding", "gzip, deflate, br");
-                requestMessage.Headers.Add("Accept-Language", "en-US,en;q=0.5");
-                requestMessage.Headers.Add("Origin", "https://yadi.sk");
-                requestMessage.Headers.Add("Host", "yadi.sk");
-
-                HttpResponseMessage response = client.SendAsync(requestMessage).Result;
-
-                var response2 = client.PostAsync($"https://yadi.sk/public/api/get-dir-size", new StringContent(st, Encoding.UTF8, "application/json"));
-                response2.Wait();
-
-                string apiResponse = response.Content.ReadAsStringAsync().Result;
-                try
-                {
-                    // Attempt to deserialise the reponse to the desired type, otherwise throw an expetion with the response from the api.
-                    //if (apiResponse != "")
-                    //    return JsonConvert.DeserializeObject<T>(apiResponse);
-                    //else
-                    //    throw new Exception();
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception($"An error ocurred while calling the API. It responded with the following message: {response.StatusCode} {response.ReasonPhrase}");
-                }
-            }
-        }
-
+        }       
     }
 }

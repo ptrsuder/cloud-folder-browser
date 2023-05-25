@@ -21,7 +21,7 @@ using Exception = System.Exception;
 
 namespace CloudFolderBrowser
 {
-    public enum CloudServiceType { Yadisk, Mega, h5ai, Allsync, TheTrove, Other}    
+    public enum CloudServiceType { Yadisk, Mega, h5ai, Allsync, QCloud, TheTrove, Other}    
 
     public partial class MainForm : Form
     {
@@ -53,7 +53,9 @@ namespace CloudFolderBrowser
         double checkedFilesSize = 0.0;
         public  long freeSpace;
 
-        const double b2Mb = 1.0 / (1024 * 1024);    
+        const double b2Mb = 1.0 / (1024 * 1024);
+
+        const string browserUserAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0";
        
         //filter textbox 
         [DllImport("user32.dll")]
@@ -133,9 +135,13 @@ namespace CloudFolderBrowser
                 FogLink.ServerAddress = new Uri("https://tg-sharer-foglink.herokuapp.com/");            
         }
 
-        void SetProgress(bool waiting = true)
+        void SetProgress(bool waiting = true, bool loadingWeb = true)
         {
-            if(waiting)
+            if (loadingWeb)
+                loadLink_progressBar.ForeColor = Color.LightGreen;
+            else
+                loadLink_progressBar.ForeColor = Color.DodgerBlue;
+            if (waiting)
             {
                 loadLink_progressBar.Style = ProgressBarStyle.Marquee;
                 loadLink_progressBar.MarqueeAnimationSpeed = 40;
@@ -370,11 +376,12 @@ namespace CloudFolderBrowser
                 {
                     Model.CloudServiceType = CloudServiceType.Mega;
                     usingFogLink = true;
-                    SetProgress(true);
+                    SetProgress();
                     await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl), publicFolderKey_textBox.Text);
                     SetProgress(false);
-                    Model.LoadedFromFile = false;
-                    UpdateTreeModel();
+                    Model.LoadedFromFile = false;      
+                    
+                    UpdateTreeModel();            
                     return true;
                 }
 
@@ -394,13 +401,16 @@ namespace CloudFolderBrowser
 
                 Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
 
-                SetProgress(true);
+                SetProgress();
                 switch (Model.CloudServiceType)
                 {
                     case CloudServiceType.Yadisk:
                         await LoadYadisk(cloudFolderUrl);
                         break;
                     case CloudServiceType.Allsync:
+                        await LoadAllsync(cloudFolderUrl);
+                        break;
+                    case CloudServiceType.QCloud:
                         await LoadAllsync(cloudFolderUrl);
                         break;
                     case CloudServiceType.Mega:
@@ -415,7 +425,8 @@ namespace CloudFolderBrowser
                     case CloudServiceType.Other:
                         MessageBox.Show("Unsupported link!");
                         return false;
-                }        
+                }
+                SetProgress(false);
                 Model.LoadedFromFile = false;                
             }
             return true;
@@ -546,7 +557,7 @@ namespace CloudFolderBrowser
             //ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
             using (var webpage = new System.Net.WebClient())
             {
-                webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
+                webpage.Headers[HttpRequestHeader.UserAgent] = browserUserAgentString;
                 data = await webpage.DownloadStringTaskAsync(WebIndexFolderDomain + path);
             }
                         
@@ -666,7 +677,7 @@ namespace CloudFolderBrowser
             var url = EncodeTroveUrl(TroveRootFolderAddress + folder.Path);
             using (var webpage = new System.Net.WebClient())
             {
-                webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
+                webpage.Headers[HttpRequestHeader.UserAgent] = browserUserAgentString;
                 
                 try
                 {
@@ -741,10 +752,10 @@ namespace CloudFolderBrowser
         #region Allsync  
         
         async Task<bool> LoadAllsync(string url, bool onlyCheck = false)
-        {
+        {            
             bool success = await Model.PreloadAllsync(url, onlyCheck);
             if (onlyCheck) return success;
-
+          
             var code = await Model.LoadAllsync(Model.folderKey, Model.password);
 
             if (code == 401)
@@ -754,26 +765,40 @@ namespace CloudFolderBrowser
                 PasswordForm passwordForm = new PasswordForm();
                 var dr = passwordForm.ShowDialog();
 
-                while (200 != await Model.LoadAllsync(Model.folderKey, passwordForm.Password) || dr == DialogResult.Cancel)
+                while (dr == DialogResult.OK && 200 != await Model.LoadAllsync(Model.folderKey, passwordForm.Password))
                 {
                     dr = passwordForm.ShowDialog();                    
                 }
                 if (dr == DialogResult.Cancel)
                     return false;
-            }            
+            }
+
+            if (code == 504)
+            {
+                MessageBox.Show("Failed to load folder: Connection Timeout");
+                return false;
+            }
             
             try
             {
                 if (Model.CloudPublicFolder.Name == "")
                 {
-                    var webpage = new System.Net.WebClient();
-                    webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
-                    var ts = await webpage.DownloadStringTaskAsync(new Uri(Model.allsyncRootFolderAddress));
+                    loadLink_progressBar.ForeColor = Color.PaleGreen;
 
                     HtmlWeb web = new HtmlWeb();
                     HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-                    htmlDoc.LoadHtml(ts);
-                    HtmlNode rootFolderName = htmlDoc.DocumentNode.SelectSingleNode("//h1[@class='header-appname']");
+                    using (var httpClient = new HttpClient())
+                    {
+                        httpClient.DefaultRequestHeaders.UserAgent.Clear();
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", browserUserAgentString);
+                        using (var request = new HttpRequestMessage(new HttpMethod("GET"), Model.allsyncRootFolderAddress))
+                        {
+                            var response = await httpClient.SendAsync(request);
+                            var ts = await response.Content.ReadAsStringAsync();
+                            htmlDoc.LoadHtml(ts);
+                        }
+                    } 
+                    var rootFolderName = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='header-appname']");
                     if (rootFolderName == null)
                         Model.CloudPublicFolder.Name = publicFolders_comboBox.Text;
                     else
@@ -781,7 +806,7 @@ namespace CloudFolderBrowser
                         Model.CloudPublicFolder.Name = rootFolderName.InnerText;
                         Model.CloudPublicFolder.Name = Regex.Replace(Model.CloudPublicFolder.Name, @"\t|\n|\r", "");
                     }
-                }
+                }                
                 UpdateTreeModel();
                 return true;
             }
@@ -989,6 +1014,7 @@ namespace CloudFolderBrowser
 
         void UpdateTreeModel()
         {
+            SetProgress(true, false);
             cloudPublicFolder_model = new TreeModel();
             cloudFlatFolder_model = new TreeModel();
             ColumnNode rootNode = new ColumnNode(HttpUtility.UrlDecode(Model.CloudPublicFolder.Name), Model.CloudPublicFolder.Created, Model.CloudPublicFolder.Modified, Model.CloudPublicFolder.Size);
@@ -1009,6 +1035,7 @@ namespace CloudFolderBrowser
                 refreshFolder_menuItem.Enabled = true;
                 openFolder_menuItem.Enabled = true;
             }
+            SetProgress(false);
         }
 
         public void BuildSubfolderNodes(ColumnNode node)
@@ -1276,12 +1303,10 @@ namespace CloudFolderBrowser
                 syncFolders_button.Enabled = false;
 
             if (cloudFolderUrl != "")
-            {
-                SetProgress(false);
+            {               
                 var success = LoadPublicFolder(cloudFolderUrl);               
                 publicFolderKey_textBox.ReadOnly = true;
-                flatList_checkBox.Enabled = true;
-                SetProgress(false);               
+                flatList_checkBox.Enabled = true;                             
             }
         }
 
