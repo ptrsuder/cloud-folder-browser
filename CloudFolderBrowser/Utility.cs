@@ -56,7 +56,7 @@ namespace CloudFolderBrowser
                 HttpClient httpClient = new HttpClient(webRequestHandler);
                 try
                 {
-                    HttpResponseMessage responseMessage = httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead).Result;
+                    HttpResponseMessage responseMessage = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
                     switch (responseMessage.StatusCode)
                     {

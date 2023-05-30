@@ -431,7 +431,7 @@ namespace CloudFolderBrowser
                     client.BaseAddress = FogLink.ServerAddress;
                     HttpResponseMessage response = await client.PostAsync(
                         $"MegaPrivater/import", content);
-                    var megaCode = response.Content.ReadAsStringAsync().Result;
+                    var megaCode = await response.Content.ReadAsStringAsync();
                     if (!response.IsSuccessStatusCode)
                     {
                         int code;

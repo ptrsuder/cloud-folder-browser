@@ -30,7 +30,7 @@ namespace CloudFolderBrowser
                     $"MegaPrivater/encode?url={WebUtility.UrlEncode(url)}");
                 //response.EnsureSuccessStatusCode();
 
-                return response.Content.ReadAsStringAsync().Result;
+                return await response.Content.ReadAsStringAsync();
             }
             catch(HttpRequestException ex)
             {
@@ -48,7 +48,7 @@ namespace CloudFolderBrowser
                 $"MegaPrivater/decode?encriptedLink={WebUtility.UrlEncode(url)}");
             //response.EnsureSuccessStatusCode();
 
-            var nodes = JsonConvert.DeserializeObject<FogLinkFile[]>(response.Content.ReadAsStringAsync().Result);
+            var nodes = JsonConvert.DeserializeObject<FogLinkFile[]>(await response.Content.ReadAsStringAsync());
             return nodes.ToList();
         }
     }

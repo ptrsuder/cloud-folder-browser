@@ -389,7 +389,7 @@ namespace CloudFolderBrowser
                     cloudFolderUrl = @"https://" + cloudFolderUrl;
 
                 if (cloudFolderUrl.ToLower().Contains("rebrand.ly"))
-                    cloudFolderUrl = Utility.GetFinalRedirect(cloudFolderUrl).Result;
+                    cloudFolderUrl = await Utility.GetFinalRedirect(cloudFolderUrl);
 
                 if (cloudFolderUrl == null ||
                     cloudFolderUrl.ToLower().Contains("rebrand.ly") ||
