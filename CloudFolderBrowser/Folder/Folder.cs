@@ -12,7 +12,19 @@ namespace CloudFolderBrowser
         public long SizeTopDirectoryOnly { get; set; }
         public int FilesNumber { get; set; }
         public virtual int FilesNumberTopDirectoryOnly { get; set; }
-        public string Name { get; set; }
+
+        string _name;
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                if (value.EndsWith("."))
+                    _name = value.Remove(value.Length - 1, 1);
+                else
+                    _name = value;
+            }
+        }
         public string Path { get; set; }
         public DateTime Modified { get; set; }
         public DateTime Created { get; set; }
