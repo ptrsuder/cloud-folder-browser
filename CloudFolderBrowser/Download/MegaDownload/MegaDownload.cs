@@ -6,7 +6,7 @@ namespace CloudFolderBrowser
     {                                        
         public string ShareId;      
 
-        public MegaDownload(MegaApiClient megaClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, 
+        public MegaDownload(MegaApiClient megaApiClient, List<CloudFile> files, ProgressBar[] progressBars, Label[] progressLabels, 
             ToolTip toolTip, string baseDownloadPath, int overwriteMode = 3, bool folderNewFiles = true, string shareId = "")
         {
             progressbars = progressBars;
@@ -16,8 +16,8 @@ namespace CloudFolderBrowser
             OverwriteMode = overwriteMode;
             ShareId = shareId;
 
-            MegaApiClient megaApiClient = new MegaApiClient();
-            megaApiClient.LoginAnonymous();
+            //MegaApiClient megaApiClient = new MegaApiClient();
+            //megaApiClient.LoginAnonymous();
 
             if (folderNewFiles)
                 DownloadFolderPath = baseDownloadPath + @"\0_New Files\" + DateTime.Now.Date.ToShortDateString();
@@ -36,10 +36,16 @@ namespace CloudFolderBrowser
                     //    continue;                    
 
                     MegaFileDownload megaFileDownload;
-                    if(file.MegaNode is PublicNode)
-                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode as PublicNode, DownloadFolderPath + file.Path);
+
+                    var filePath = file.Path;
+                    if (filePath.StartsWith("/"))
+                        filePath = filePath.Remove(0, 1);
+                    filePath = filePath.Replace("/", "\\");
+
+                    if (file.MegaNode is PublicNode)
+                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode as PublicNode, DownloadFolderPath + filePath);
                     else
-                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, DownloadFolderPath + file.Path);
+                        megaFileDownload = new MegaFileDownload(megaApiClient, this, file.MegaNode, DownloadFolderPath + filePath);
                     DownloadQueue.Enqueue(megaFileDownload);
                     Downloads.Add(megaFileDownload);
                 }

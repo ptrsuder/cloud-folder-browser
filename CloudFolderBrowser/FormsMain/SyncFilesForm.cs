@@ -86,7 +86,7 @@ namespace CloudFolderBrowser
                 if (MainForm.usingFogLink && !Properties.Settings.Default.loginedMega)
                     MessageBox.Show("Not signed in MEGA: unable to import files.");
 
-                getJdLinks_button.Enabled = false;                
+                getJdLinks_button.Enabled = true;                
             }
             if (cloudServiceType == CloudServiceType.Yadisk)
             {
@@ -241,15 +241,17 @@ namespace CloudFolderBrowser
 
         void CreateJdLinkcontainer()
         {
-            DirectoryInfo di = new DirectoryInfo("Links");
+            var appPath = Directory.GetCurrentDirectory();
+
+            DirectoryInfo di = new DirectoryInfo($"{appPath}\\Links");
 
             if (checkedFiles.Count == 0)
             {
                 MessageBox.Show("No files checked!");
                 return;
             }
-            if(!di.Exists)
-                Directory.CreateDirectory("Links");
+            if (!di.Exists)
+                di.Create();
             else
             {
                 foreach (FileInfo file in di.EnumerateFiles())
@@ -277,7 +279,7 @@ namespace CloudFolderBrowser
                     pak.numberId = packages.Count.ToString("D3");
                     pak.downloadFolder = folderPath;
                     packages.Add(pak);
-                    File.WriteAllText("Links" + @"\" + pak.numberId, JsonConvert.SerializeObject(pak));
+                    File.WriteAllText($"{di.FullName}\\{pak.numberId}", JsonConvert.SerializeObject(pak));
                 }
                 else
                 {
@@ -296,11 +298,12 @@ namespace CloudFolderBrowser
                         link = new JDLink(file.Name, downloadLink);
                         break;
                     default:
-                        link = new JDLink(file.Name, file.PublicUrl.AbsoluteUri.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F"));
+                        link = new JDLink(file.Name, System.Web.HttpUtility.UrlDecode(file.PublicUrl.AbsoluteUri));
+                        //link = new JDLink(file.Name, file.PublicUrl.AbsoluteUri.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F"));                        
                         break;
                 }
                 link.downloadLink.size = (int)file.Size;
-                File.WriteAllText("Links" + @"\" + pak.numberId + "_" + pak.linksCount.ToString("D3"), JsonConvert.SerializeObject(link));
+                File.WriteAllText($"{di.FullName}\\{pak.numberId}_{pak.linksCount.ToString("D3")}", JsonConvert.SerializeObject(link));
                 pak.linksCount++;
             }          
 
@@ -315,9 +318,10 @@ namespace CloudFolderBrowser
             foreach (char c in Path.GetInvalidFileNameChars())
                 rootFolderName = rootFolderName.Replace(c.ToString(), "");
 
-            string dirPath = @"linkcontainers\" + rootFolderName;            
+            string dirPath = $"{appPath}\\linkcontainers\\{rootFolderName}";  
+            
             Directory.CreateDirectory(dirPath);
-            System.IO.Compression.ZipFile.CreateFromDirectory("Links", dirPath + @"\linkcollector" + number + ".zip");
+            System.IO.Compression.ZipFile.CreateFromDirectory($"{appPath}\\Links", dirPath + @"\linkcollector" + number + ".zip");
 
             DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(dirPath, @"linkcollector" + number + ".zip created!");
             downloadsFinishedForm.Show();

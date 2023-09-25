@@ -64,7 +64,10 @@ namespace CloudFolderBrowser
             await Task.Run(() =>
             {
                 List<CloudFile> localFiles = syncFolderFileList.ToList().ConvertAll(
-                    x => new CloudFile(x.Name, DateTime.Now, DateTime.Now, x.Length) { Path = x.FullName.Replace(syncFolderPath, @"\").Replace(@"\", @"/") });
+                    x => new CloudFile(x.Name, DateTime.Now, DateTime.Now, x.Length)
+                    { 
+                        Path = x.FullName.Replace(syncFolderPath, @"\").Replace(@"\", @"/") 
+                    });
 
                 missingFiles = cloudFolderFileList.Except(localFiles, new FileComparer()).ToList();
             });
@@ -72,8 +75,8 @@ namespace CloudFolderBrowser
             return missingFiles;
         }
 
-        public async Task LoadMega(string url)
-        {
+        public async Task LoadMega(string url, IProgress<int> progress = null)
+        {            
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
             MegaApiClient megaClient = new MegaApiClient();
@@ -89,6 +92,7 @@ namespace CloudFolderBrowser
                 if (url.Contains("mega.nz/file"))
                 {
                     nodes = megaClient.GetFullNodesFromLink(new Uri(url), out _);
+                    progress?.Report(1);
                     var node = nodes.ElementAt(0);
 
                     CloudPublicFolder = new CloudFolder(nodes.ElementAt(0).Name, nodes.ElementAt(0).CreationDate ?? DateTime.MinValue, DateTime.MinValue, 0);
@@ -102,6 +106,7 @@ namespace CloudFolderBrowser
                     CloudFolder parentFolder = CloudPublicFolder;
                     file.Path = parentFolder.Path + file.Name;
                     file.MegaNode = node;
+                    file.PublicUrl = new Uri($"{CloudPublicFolder.OriginalString}/file/{node.Id}");
                     parentFolder.SizeTopDirectoryOnly += file.Size;
                     parentFolder.AddFile(file);
                     filecount++;
@@ -139,18 +144,18 @@ namespace CloudFolderBrowser
                             CloudFile file = new CloudFile(node.Name, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
                             CloudFolder parentFolder = allfolders[node.ParentId];
                             file.Path = parentFolder.Path + file.Name;
-                            file.MegaNode = node;
+                            file.MegaNode = node;                            
+
+                            file.PublicUrl = new Uri($"{CloudPublicFolder.OriginalString}/file/{node.Id}");
                             parentFolder.SizeTopDirectoryOnly += file.Size;
                             parentFolder.AddFile(file);
                             filecount++;
                             //parentFolder.Files.Add(file);
                         }
                     }
-                }
-
-               
+                }               
             });
-            CloudPublicFolder.CalculateFolderSize();
+            CloudPublicFolder.CalculateFolderSize();            
         }
 
         public async Task LoadMega2(List<FogLinkFile> nodes, string originalString) //oldfoglink
@@ -341,14 +346,15 @@ namespace CloudFolderBrowser
             return true;
         }
 
-        public async Task<int> LoadAllsync(string folderKey, string password = "")
+        public async Task<int> LoadAllsync(string folderKey, string password = "", IProgress<int> progress = null)
         {
-            IEnumerable<WebDAVClient.Model.Item> items;
+            WebDAVClient.Model.Item[] items;
             try
             {
                 if (password != "")
                     UpdateWebdavClient(folderKey, password);
-                items = await webdavClient.ListShared(CloudPublicFolder.Path, 999);                
+                items = (await webdavClient.ListShared(CloudPublicFolder.Path, 999)).ToArray();
+                progress?.Report(1);
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
@@ -430,6 +436,9 @@ namespace CloudFolderBrowser
                     parentFolder.SizeTopDirectoryOnly += file.Size;
                 }
             }
+            //Array.Clear(items);
+            //items = null;
+            //GC.Collect();
             if (CloudPublicFolder.Subfolders.Count == 0 && CloudPublicFolder.Files.Count == 0)
                 return 9999;
 
@@ -484,6 +493,7 @@ namespace CloudFolderBrowser
         {
             var a = WebUtility.UrlDecode(x.Path);
             var b = WebUtility.UrlDecode(y.Path);
+
             return (a == b);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Drawing.Imaging;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -21,42 +22,42 @@ using Exception = System.Exception;
 
 namespace CloudFolderBrowser
 {
-    public enum CloudServiceType { Yadisk, Mega, h5ai, Allsync, QCloud, TheTrove, Other}    
+    public enum CloudServiceType { Yadisk, Mega, h5ai, Allsync, QCloud, TheTrove, Other }
 
     public partial class MainForm : Form
     {
         public MainFormModel Model { get; set; } = new MainFormModel();
 
-        string AppVersion = "0.10.20";
+        string AppVersion = "0.10.30";
 
         public static RestClient rc;
-        public ResourceList rl_root;            
+        public ResourceList rl_root;
         public string syncFolderPath = "";
         public TreeModel cloudPublicFolder_model, cloudFlatFolder_model, syncFolder_model, newFiles_model;
         public LocalFolder syncFolder;
         public CloudFolder yadiskFolder;
-        
-        public List<CloudFolder> checkedFolders, mixedFolders;        
+
+        public List<CloudFolder> checkedFolders, mixedFolders;
         Dictionary<string, string> publicFolders = new Dictionary<string, string>();
         string hotDictKey = "";
         string WebIndexFolderDomain = "";
-        string TroveRootFolderAddress = "";        
-        
+        string TroveRootFolderAddress = "";
+
         SyncFilesForm activeSyncForm;
         public bool usingFogLink = false;
-       
+
         public IClient webdavClient;
         public MegaApiClient megaClient = new MegaApiClient();
         public INode MegaRootNode = null;
 
         int checkedFilesNumber = 0;
         double checkedFilesSize = 0.0;
-        public  long freeSpace;
+        public long freeSpace;
 
         const double b2Mb = 1.0 / (1024 * 1024);
 
         const string browserUserAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0";
-       
+
         //filter textbox 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
@@ -70,10 +71,10 @@ namespace CloudFolderBrowser
 
             beforeDate_dateTimePicker.MaxDate = DateTime.Today;
             afterDate_dateTimePicker.MaxDate = DateTime.Today;
-            beforeDate_dateTimePicker.Value = DateTime.Today;           
+            beforeDate_dateTimePicker.Value = DateTime.Today;
 
-            if (Properties.Settings.Default.publicFoldersJson == "")                  
-                publicFolders.Add("ExampleFolderName", "https://examplefolderurl.com");              
+            if (Properties.Settings.Default.publicFoldersJson == "")
+                publicFolders.Add("ExampleFolderName", "https://examplefolderurl.com");
             else
                 publicFolders = JsonConvert.DeserializeObject<Dictionary<string, string>>(Properties.Settings.Default.publicFoldersJson);
 
@@ -104,7 +105,7 @@ namespace CloudFolderBrowser
             }
 
             HttpWebRequest.DefaultWebProxy = null;
-            WebRequest.DefaultWebProxy = null;  
+            WebRequest.DefaultWebProxy = null;
 
             if (Properties.Settings.Default.savedPasswordsJson != "")
             {
@@ -117,45 +118,35 @@ namespace CloudFolderBrowser
             collapseAllToolStripMenuItem.Click += CollapseAllToolStripMenuItem_Click;
 
             appVersion_linkLabel.Text = "v " + AppVersion;
-           
+
             if (Properties.Settings.Default.loginedMega && Properties.Settings.Default.loginTokenMega != "")
-            {                
+            {
                 var megaLoginToken = JsonConvert.DeserializeObject<MegaApiClient.LogonSessionToken>(
                     Properties.Settings.Default.loginTokenMega, new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+                    {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
 
-                LoginMega(megaLoginToken);                
+                LoginMega(megaLoginToken);
             }
 
-            if(Properties.Settings.Default.fogLinkAddress != "")           
-                FogLink.ServerAddress = new Uri(Properties.Settings.Default.fogLinkAddress);       
+            if (Properties.Settings.Default.fogLinkAddress != "")
+                FogLink.ServerAddress = new Uri(Properties.Settings.Default.fogLinkAddress);
             else
-                FogLink.ServerAddress = new Uri("https://tg-sharer-foglink.herokuapp.com/");            
+                FogLink.ServerAddress = new Uri("https://foglink.onrender.com/");
+
+            (ProgressStage as Progress<int>).ProgressChanged += MainForm_ProgressChanged;
+            MainProgressBar.Value = 0;
+            SetDoubleBuffered(ProgressLoading_panel);
+            SetDoubleBuffered(MainProgressBar);
+            SetDoubleBuffered(tableLayoutPanel1);
+            //SetDoubleBuffered(cloudPublicFolder_treeViewAdv);
         }
 
-        void SetProgress(bool waiting = true, bool loadingWeb = true)
-        {
-            if (loadingWeb)
-                loadLink_progressBar.ForeColor = Color.LightGreen;
-            else
-                loadLink_progressBar.ForeColor = Color.DodgerBlue;
-            if (waiting)
-            {
-                loadLink_progressBar.Style = ProgressBarStyle.Marquee;
-                loadLink_progressBar.MarqueeAnimationSpeed = 40;
-            }
-            else
-            {
-                loadLink_progressBar.MarqueeAnimationSpeed = 0;
-                loadLink_progressBar.Style = ProgressBarStyle.Continuous;
-            }          
-        }
 
         void UpdatePublicFoldersSetting()
         {
-            if(publicFolders.Count <= 1)
+            if (publicFolders.Count <= 1)
             {
                 deletePublicFolder_button.Enabled = false;
             }
@@ -176,7 +167,7 @@ namespace CloudFolderBrowser
             fldsd.ShowDialog();
             return fldsd.SelectedPath;
         }
-        
+
         #region #NODE CHECKBOX
 
         void CheckIndex(object sender, NodeControlValueEventArgs e)
@@ -217,7 +208,7 @@ namespace CloudFolderBrowser
                 checkedFilesSize -= ((CloudFolder)checkedNode.Tag).Size;
                 checkedFilesNumber -= ((CloudFolder)checkedNode.Tag).FilesNumber;
                 if (checkedFilesSize < 0.0001)
-                    checkedFilesSize = 0;               
+                    checkedFilesSize = 0;
                 //if (checkedNode.Parent.Index != -1)
                 //    UpdateParentCheckState((ColumnNode)checkedNode.Parent);                
                 //CheckAllSubnodes(checkedNode, true);                                               
@@ -302,7 +293,7 @@ namespace CloudFolderBrowser
                     if (cst == CheckState.Unchecked)
                     {
 
-                    }                    
+                    }
                     if (cst == CheckState.Checked)
                     {
                         if (origState == CheckState.Indeterminate)
@@ -311,10 +302,10 @@ namespace CloudFolderBrowser
                         }
                         if (origState == CheckState.Unchecked)
                         {
-                            checkedFilesSize += ((CloudFolder)subnode.Tag).SizeTopDirectoryOnly;                                                    
+                            checkedFilesSize += ((CloudFolder)subnode.Tag).SizeTopDirectoryOnly;
                         }
                     }
-                    
+
                     subnode.CheckState = cst;
                     CheckAllSubnodes(subnode, uncheck);
                 }
@@ -322,10 +313,10 @@ namespace CloudFolderBrowser
         }
 
         void GetCheckedFolders(ColumnNode node)
-        {            
+        {
             if (node.CheckState == CheckState.Checked)
             {
-                checkedFolders.Add((CloudFolder)(node.Tag));                
+                checkedFolders.Add((CloudFolder)(node.Tag));
                 return;
             }
             //if mixed
@@ -354,7 +345,7 @@ namespace CloudFolderBrowser
         }
 
         #endregion
-                
+
         async Task CreateDummyFolder(CloudFolder folder)
         {
             foreach (var file in folder.Files)
@@ -367,8 +358,11 @@ namespace CloudFolderBrowser
             }
         }
 
+        IProgress<int> ProgressStage = new Progress<int>();
+
         async Task<bool> LoadPublicFolder(string cloudFolderUrl)
         {
+            ProgressStage.Report(1);
             usingFogLink = false;
             if (cloudFolderUrl != "")
             {
@@ -376,12 +370,10 @@ namespace CloudFolderBrowser
                 {
                     Model.CloudServiceType = CloudServiceType.Mega;
                     usingFogLink = true;
-                    SetProgress();
                     await Model.LoadMega(await FogLink.GetDecodedAsync(cloudFolderUrl), publicFolderKey_textBox.Text);
-                    SetProgress(false);
-                    Model.LoadedFromFile = false;      
-                    
-                    UpdateTreeModel();            
+                    Model.LoadedFromFile = false;
+
+                    UpdateTreeModel();
                     return true;
                 }
 
@@ -401,7 +393,7 @@ namespace CloudFolderBrowser
 
                 Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
 
-                SetProgress();
+                ProgressStage.Report(0);
                 switch (Model.CloudServiceType)
                 {
                     case CloudServiceType.Yadisk:
@@ -426,10 +418,148 @@ namespace CloudFolderBrowser
                         MessageBox.Show("Unsupported link!");
                         return false;
                 }
-                SetProgress(false);
-                Model.LoadedFromFile = false;                
+                Model.LoadedFromFile = false;
+                ProgressStage?.Report(2);
             }
+
             return true;
+        }
+
+        public static void SetDoubleBuffered(Control c)
+        {
+            if (SystemInformation.TerminalServerSession)
+                return;
+            System.Reflection.PropertyInfo aProp = typeof(Control).GetProperty("DoubleBuffered", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            aProp.SetValue(c, true, null);
+        }
+
+        Bitmap mainFormScreenshot;
+        void SetProgress(bool waiting = true, bool loadingWeb = true)
+        {
+            bool progressChanged = waiting && MainProgressBar.Value == 0;
+            Action progressBarAction = () =>
+            {
+                if (loadingWeb)
+                    MainProgressBar.ProgressColor = Color.LimeGreen;
+                else
+                    MainProgressBar.ProgressColor = Color.DodgerBlue;
+
+                if (waiting && MainProgressBar.Value == 0)
+                {
+                    MainProgressBar.Value = 75;
+                    MainProgressBar.Style = ProgressBarStyle.Marquee;
+                    MainProgressBar.AnimationSpeed = 2000;
+                }
+                else if (!waiting)
+                {
+                    MainProgressBar.Value = 0;
+                    MainProgressBar.Style = ProgressBarStyle.Continuous;
+                    MainProgressBar.AnimationSpeed = 0;
+                }
+            };
+
+            Action progressPanelAction = () =>
+            {
+                if (waiting && MainProgressBar.Value == 0)
+                {
+                    mainFormScreenshot = new Bitmap(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, PixelFormat.Format32bppArgb);
+                    Graphics g = Graphics.FromImage(mainFormScreenshot);
+                    Color BackgroundFadeColor = Color.FromArgb(15, Color.Black);
+                    Rectangle screenRectangle = RectangleToScreen(ClientRectangle);
+                    int titleHeight = screenRectangle.Top - Top;
+                    int titleWidth = screenRectangle.Left - Left;
+
+                    // COPY BACKGROUND
+                    int x = Left + titleWidth;
+                    int y = Top + titleHeight;
+                    var size = new Size(Size.Width - 2 * titleWidth, Size.Height - titleHeight);
+                    //Enabled = false;
+                    g.CopyFromScreen(x, y, 0, 0, size, CopyPixelOperation.SourceCopy);
+
+                    // FADE IF DESIRED
+                    //var fadedForm = new Bitmap(mainFormScreenshot);
+                    //Graphics g2 = Graphics.FromImage(fadedForm);
+                    var rect = new Rectangle(0, 0, size.Width, size.Height);
+                    g.FillRectangle(new SolidBrush(BackgroundFadeColor), rect);
+
+                    //ProgressLoading_panel.Location = new Point(0, 0);
+                    ProgressLoading_panel.BackgroundImage = mainFormScreenshot;
+                    ProgressLoading_panel.Size = size;
+                    //ProgressLoading_panel.Invalidate();
+                    ProgressLoading_panel.Visible = true;
+                    ProgressLoading_panel.BringToFront();
+
+
+                }
+                else if (!waiting)
+                {
+                    //ProgressLoading_panel.BackgroundImage = mainFormScreenshot;
+                    ProgressLoading_panel.Visible = false;
+                    //Enabled = true;
+
+                }
+
+                ProgressLoading_panel.Invalidate();
+            };
+
+            Action progressFormAction = () =>
+            {
+                if (progressChanged)
+                {
+                    FormBorderStyle = FormBorderStyle.FixedSingle;
+                }
+                else if (!waiting)
+                {
+                    FormBorderStyle = FormBorderStyle.Sizable;
+                }
+            };
+
+            Action SuspendLayoutAction = () =>
+            {
+                SuspendLayout();
+            };
+
+            Action ResumeLayoutAction = () =>
+            {
+                ResumeLayout();
+            };
+
+            //if (InvokeRequired)
+            //    BeginInvoke(SuspendLayoutAction);
+
+            if (ProgressLoading_panel.InvokeRequired && waiting && MainProgressBar.Value == 0 || (!waiting && MainProgressBar.Value != 0))
+                ProgressLoading_panel.BeginInvoke(progressPanelAction);
+            else if (waiting && MainProgressBar.Value == 0 || (!waiting && MainProgressBar.Value != 0))
+                progressPanelAction();
+
+            if (MainProgressBar.InvokeRequired)
+                MainProgressBar.BeginInvoke(progressBarAction);
+            else
+                progressBarAction();
+
+            if (InvokeRequired)
+                BeginInvoke(progressFormAction);
+            else
+                progressFormAction();
+
+            //if (InvokeRequired)
+            //    BeginInvoke(ResumeLayoutAction);
+        }
+
+        private void MainForm_ProgressChanged(object? sender, int e)
+        {
+            switch (e)
+            {
+                case 0: //web
+                    SetProgress();
+                    break;
+                case 1: //treeview
+                    SetProgress(true, false);
+                    break;
+                case 2: //completed
+                    SetProgress(false, false);
+                    break;
+            }
         }
 
 
@@ -438,14 +568,14 @@ namespace CloudFolderBrowser
         #region Yadisk
 
         async Task LoadYadisk(string publicKey)
-        {          
+        {
             try
-            {                
+            {
                 rl_root = rc.GetPublicResource(publicKey, limit: 200);
-                Model.CloudPublicFolder = new CloudFolder(rl_root);              
+                Model.CloudPublicFolder = new CloudFolder(rl_root);
                 await GetFolders(new List<CloudFolder> { Model.CloudPublicFolder });
                 Model.CloudPublicFolder.CalculateFolderSize();
-                UpdateTreeModel();                
+                UpdateTreeModel();
             }
             catch
             {
@@ -454,9 +584,9 @@ namespace CloudFolderBrowser
         }
 
         async Task GetFolders(List<CloudFolder> folders)
-        {            
+        {
             List<CloudFolder> nextLevel = new List<CloudFolder>();
-  
+
             string rootPublicKey = folders[0].PublicKey;
             List<CloudFolder> list = new List<CloudFolder>();
 
@@ -465,9 +595,9 @@ namespace CloudFolderBrowser
                 foreach (CloudFolder subfolder in folder.Subfolders)
                     list.Add(subfolder);
             }
-            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 1 };            
-            Parallel.ForEach(list, options, (subfolder) =>{ GetSubfolders(subfolder, rootPublicKey);});           
-           
+            ParallelOptions options = new ParallelOptions() { MaxDegreeOfParallelism = 1 };
+            Parallel.ForEach(list, options, (subfolder) => { GetSubfolders(subfolder, rootPublicKey); });
+
             foreach (CloudFolder folder in folders)
             {
                 foreach (CloudFolder subfolder in folder.Subfolders)
@@ -494,17 +624,17 @@ namespace CloudFolderBrowser
                         }
                         else
                         {
-                            CloudFile r = new CloudFile(item);                         
+                            CloudFile r = new CloudFile(item);
                             subfolder.AddFile(r);
                             subfolder.SizeTopDirectoryOnly += r.Size;
                         }
-                    }                   
+                    }
                 }
                 else
                     subfolder.Copy(rc.GetResource(subfolder.Path, limit: 200));
             }
             catch (Exception ex)
-            { 
+            {
             }
             return subfolder;
         }
@@ -536,7 +666,7 @@ namespace CloudFolderBrowser
                 await ParseWebIndexFolder(Model.CloudPublicFolder, path);
                 Model.CloudPublicFolder.CalculateFolderSize();
                 UpdateTreeModel();
-                
+
             }
             catch
             {
@@ -560,7 +690,7 @@ namespace CloudFolderBrowser
                 webpage.Headers[HttpRequestHeader.UserAgent] = browserUserAgentString;
                 data = await webpage.DownloadStringTaskAsync(WebIndexFolderDomain + path);
             }
-                        
+
             HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.LoadHtml(data);
             HtmlNode table = htmlDoc.DocumentNode.SelectSingleNode("//body//table");
@@ -609,7 +739,7 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Use path to specific folder!");
                 return;
             }
-            string[] bigFolders = new string[] {"Browse", "Books", "Assets" };
+            string[] bigFolders = new string[] { "Browse", "Books", "Assets" };
             foreach (var folder in bigFolders)
                 if (url == $@"https://thetrove.is/{folder}" || url == $@"https://thetrove.is/{folder}/")
                 {
@@ -618,7 +748,7 @@ namespace CloudFolderBrowser
                 }
             Model.CloudPublicFolder = new CloudFolder("", DateTime.Now, DateTime.Now, 0);
             List<string> uriStructure = new List<string>();
-            MatchCollection mc = Regex.Matches(url, "(?:https?://)?(?:[^@\n]+@)?(?:www.)?([^:/\n?]+)");            
+            MatchCollection mc = Regex.Matches(url, "(?:https?://)?(?:[^@\n]+@)?(?:www.)?([^:/\n?]+)");
 
             foreach (Match m in mc)
                 uriStructure.Add(m.Value);
@@ -647,18 +777,18 @@ namespace CloudFolderBrowser
                 var errorForm = new ErrorForm("Warning", $"{errorMessage}");
                 errorForm.Show();
             }
-            Model.CloudPublicFolder.CalculateFolderSize();                       
+            Model.CloudPublicFolder.CalculateFolderSize();
             UpdateTreeModel();
         }
 
         string EncodeTroveUrl(string url)
         {
-            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F").Replace(" ", "%20"); 
+            return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F").Replace(" ", "%20");
         }
 
         string DecodeTroveUrl(string url)
         {
-            return url.Replace("%23", "#").Replace("%2C", ",").Replace("%3F", "?").Replace("%20", " "); 
+            return url.Replace("%23", "#").Replace("%2C", ",").Replace("%3F", "?").Replace("%20", " ");
         }
 
         ErrorLogForm logForm = new ErrorLogForm();
@@ -678,18 +808,18 @@ namespace CloudFolderBrowser
             using (var webpage = new System.Net.WebClient())
             {
                 webpage.Headers[HttpRequestHeader.UserAgent] = browserUserAgentString;
-                
+
                 try
                 {
                     //throw new System.Web.HttpException();
                     data = await webpage.DownloadStringTaskAsync(url);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     logForm.Show();
-                    logForm.AddErrorLine($"Failed to load <{url}>");                 
+                    logForm.AddErrorLine($"Failed to load <{url}>");
                     return;
-                }                   
+                }
             }
 
             HtmlWeb web = new HtmlWeb();
@@ -701,20 +831,20 @@ namespace CloudFolderBrowser
 
             if (rows == null)
             {
-                failedToParsePages.Add(url);               
+                failedToParsePages.Add(url);
                 return;
             }
 
-            for(int i = 1; i < rows.Count; i++)
+            for (int i = 1; i < rows.Count; i++)
             {
-                HtmlNodeCollection cells = htmlDoc.DocumentNode.SelectNodes($"//*[@id='list']/tbody/tr[{i+1}]/td");
+                HtmlNodeCollection cells = htmlDoc.DocumentNode.SelectNodes($"//*[@id='list']/tbody/tr[{i + 1}]/td");
                 HtmlNode a = cells[0].SelectSingleNode("./a");
                 string href = a.Attributes["href"].Value;
                 string title = a.Attributes["title"].Value;
                 string date = cells[2].InnerText;
                 string size = cells[1].InnerText;
-                if (href.EndsWith("/"))                
-                {                    
+                if (href.EndsWith("/"))
+                {
                     CloudFolder subfolder = new CloudFolder(title, DateTime.MinValue, DateTime.Parse(date), ParseSizeToKb(size));
                     subfolder.Path = folder.Path + DecodeTroveUrl(href);
                     folder.Subfolders.Add(subfolder);
@@ -724,39 +854,39 @@ namespace CloudFolderBrowser
                 {
                     CloudFile file = new CloudFile(title, DateTime.MinValue, DateTime.Parse(date), ParseSizeToKb(size))
                     {
-                        Path = folder.Path + DecodeTroveUrl(href)                        
+                        Path = folder.Path + DecodeTroveUrl(href)
                     };
                     file.PublicUrl = new Uri(TroveRootFolderAddress + file.Path);
                     folder.AddFile(file);
                     folder.SizeTopDirectoryOnly += file.Size;
                 }
             }
-        }        
-          
+        }
+
         long ParseSizeToKb(string size)
         {
             size = size.Replace('.', ',');
             if (size.Contains(" KiB"))
-                return (long)Double.Parse(size.Replace(" KiB", "")) *1024;
+                return (long)Double.Parse(size.Replace(" KiB", "")) * 1024;
 
             if (size.Contains(" MiB"))
-                return (long)Double.Parse(size.Replace(" MiB", ""))*1024000;
+                return (long)Double.Parse(size.Replace(" MiB", "")) * 1024000;
 
             if (size.Contains(" GiB"))
-                return (long)Double.Parse(size.Replace(" GiB", "")) *1024000000;
+                return (long)Double.Parse(size.Replace(" GiB", "")) * 1024000000;
 
             return 0;
         }
         #endregion
 
         #region Allsync  
-        
+
         async Task<bool> LoadAllsync(string url, bool onlyCheck = false)
-        {            
+        {
             bool success = await Model.PreloadAllsync(url, onlyCheck);
             if (onlyCheck) return success;
-          
-            var code = await Model.LoadAllsync(Model.folderKey, Model.password);
+
+            var code = await Model.LoadAllsync(Model.folderKey, Model.password, ProgressStage);
 
             if (code == 401)
             {
@@ -765,9 +895,9 @@ namespace CloudFolderBrowser
                 PasswordForm passwordForm = new PasswordForm();
                 var dr = passwordForm.ShowDialog();
 
-                while (dr == DialogResult.OK && 200 != await Model.LoadAllsync(Model.folderKey, passwordForm.Password))
+                while (dr == DialogResult.OK && 200 != await Model.LoadAllsync(Model.folderKey, passwordForm.Password, ProgressStage))
                 {
-                    dr = passwordForm.ShowDialog();                    
+                    dr = passwordForm.ShowDialog();
                 }
                 if (dr == DialogResult.Cancel)
                     return false;
@@ -778,13 +908,11 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Failed to load folder: Connection Timeout");
                 return false;
             }
-            
+
             try
             {
                 if (Model.CloudPublicFolder.Name == "")
                 {
-                    loadLink_progressBar.ForeColor = Color.PaleGreen;
-
                     HtmlWeb web = new HtmlWeb();
                     HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
                     using (var httpClient = new HttpClient())
@@ -797,7 +925,7 @@ namespace CloudFolderBrowser
                             var ts = await response.Content.ReadAsStringAsync();
                             htmlDoc.LoadHtml(ts);
                         }
-                    } 
+                    }
                     var rootFolderName = htmlDoc.DocumentNode.SelectSingleNode("//span[@class='header-appname']");
                     if (rootFolderName == null)
                         Model.CloudPublicFolder.Name = publicFolders_comboBox.Text;
@@ -806,7 +934,7 @@ namespace CloudFolderBrowser
                         Model.CloudPublicFolder.Name = rootFolderName.InnerText;
                         Model.CloudPublicFolder.Name = Regex.Replace(Model.CloudPublicFolder.Name, @"\t|\n|\r", "");
                     }
-                }                
+                }
                 UpdateTreeModel();
                 return true;
             }
@@ -815,11 +943,11 @@ namespace CloudFolderBrowser
                 MessageBox.Show("Cannot retrieve data from URL");
                 Model.WriteToLog(ex.Message, true);
                 return false;
-            }                
+            }
         }
-      
+
         #endregion
-               
+
         #region MEGA
 
         public async Task LoginMega(string login, string password)
@@ -848,14 +976,14 @@ namespace CloudFolderBrowser
                 loginMegaForm.ShowDialog();
                 return;
             }
-            
+
             Properties.Settings.Default.loginedMega = true;
             Properties.Settings.Default.Save();
 
             await GetMegaInfo();
         }
         public async Task LoginMega(MegaApiClient.LogonSessionToken token)
-        {           
+        {
             try
             {
                 await megaClient.LoginAsync(token);
@@ -866,7 +994,7 @@ namespace CloudFolderBrowser
             }
             catch (ApiException ex)
             {
-                LogoutMega();            
+                LogoutMega();
 
                 var loginMegaForm = new LoginMegaForm(this);
                 loginMegaForm.ShowDialog();
@@ -914,7 +1042,7 @@ namespace CloudFolderBrowser
                 megaClient.Logout();
             }
             catch { }
-            
+
             Properties.Settings.Default.loginTokenMega = "";
             Properties.Settings.Default.loginedMega = false;
             Properties.Settings.Default.Save();
@@ -923,13 +1051,13 @@ namespace CloudFolderBrowser
             yadiskSpace_progressBar.Visible = false;
         }
         async Task LoadMega(string url)
-        {            
+        {
             try
             {
-                await Model.LoadMega(publicFolderKey_textBox.Text);                
-                UpdateTreeModel();               
+                await Model.LoadMega(publicFolderKey_textBox.Text, ProgressStage);
+                UpdateTreeModel();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show("Cannot retrieve data from URL");
                 Model.WriteToLog(ex.Message, true);
@@ -941,7 +1069,7 @@ namespace CloudFolderBrowser
         #endregion
 
         #region LOAD LOCAL     
-        
+
         void AddSubFolders(CloudFolder folder)
         {
             Model.AllFolders.Add(folder);
@@ -951,15 +1079,19 @@ namespace CloudFolderBrowser
             }
         }
 
+        static string appPath = Directory.GetCurrentDirectory();
+
         async Task LoadFolderJson(bool checkStatus = false)
         {
+            ProgressStage?.Report(1);
             var key = publicFolderKey_textBox.Text;
             if (key == "")
                 checkStatus = false;
 
-
             Model.CloudPublicFolder = new CloudFolder();
-            Directory.CreateDirectory("jsons");
+
+            var dir = new DirectoryInfo($"{appPath}\\jsons");
+            dir.Create();
 
             if (!key.Contains("http") && !key.IsBase64String())
                 key = @"https://" + key;
@@ -969,20 +1101,26 @@ namespace CloudFolderBrowser
 
             string hashString = Utility.GetHashString(key);
 
-            foreach (string fileName in Directory.GetFiles("jsons"))
+            foreach (string fileName in Directory.GetFiles(dir.FullName))
             {
-                if (fileName == @"jsons\" + hashString + ".json")
+                if (fileName.Equals($"{dir.FullName}\\{hashString}.json", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string jsonString = File.ReadAllText(fileName);
-                    Model.CloudPublicFolder = JsonConvert.DeserializeObject<CloudFolder>(jsonString, new JsonSerializerSettings()
+                    await Task.Run(() =>
                     {
-                        TypeNameHandling = TypeNameHandling.Auto
+                        string jsonString = File.ReadAllText(fileName);
+                        JsonSerializer serializer = new JsonSerializer();
+                        Model.CloudPublicFolder = JsonConvert.DeserializeObject<CloudFolder>(jsonString, new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.Auto
+                        });
+                        Model.AllFolders = new List<CloudFolder>() { Model.CloudPublicFolder };
+                        AddSubFolders(Model.CloudPublicFolder);
+                        Model.LoadedFromFile = true;
+
                     });
-                    Model.AllFolders = new List<CloudFolder>() { Model.CloudPublicFolder };
-                    AddSubFolders(Model.CloudPublicFolder);
 
                     UpdateTreeModel();
-                    Model.LoadedFromFile = true;
+
                     if (checkStatus)
                     {
                         Model.CloudServiceType = Utility.GetCloudServiceType(key);
@@ -1007,26 +1145,26 @@ namespace CloudFolderBrowser
                 }
             }
         }
-        
+
         #endregion
 
         #region BUILD NODE TREE
 
         void UpdateTreeModel()
         {
-            SetProgress(true, false);
+            ProgressStage?.Report(1);
             cloudPublicFolder_model = new TreeModel();
             cloudFlatFolder_model = new TreeModel();
             ColumnNode rootNode = new ColumnNode(HttpUtility.UrlDecode(Model.CloudPublicFolder.Name), Model.CloudPublicFolder.Created, Model.CloudPublicFolder.Modified, Model.CloudPublicFolder.Size);
             rootNode.Tag = Model.CloudPublicFolder;
-           
+
             cloudPublicFolder_model.Nodes.Add(rootNode);
             BuildSubfolderNodes(rootNode);
             BuildFullFolderStructure(rootNode);
 
             cloudPublicFolder_treeViewAdv.Model = new SortedTreeModel(cloudPublicFolder_model);
-            cloudPublicFolder_treeViewAdv.NodeFilter = filter;           
-            
+            cloudPublicFolder_treeViewAdv.NodeFilter = filter;
+
             cloudPublicFolder_treeViewAdv.Columns[0].MinColumnWidth = 100;
 
             if (syncFolderPath_textBox.Text != "")
@@ -1035,7 +1173,7 @@ namespace CloudFolderBrowser
                 refreshFolder_menuItem.Enabled = true;
                 openFolder_menuItem.Enabled = true;
             }
-            SetProgress(false);
+            ProgressStage?.Report(2);
         }
 
         public void BuildSubfolderNodes(ColumnNode node)
@@ -1099,7 +1237,7 @@ namespace CloudFolderBrowser
                 return;
             }
 
-            var missingFiles = await Model.GetMissingFiles(checkedFolders,mixedFolders, syncFolder.Path, hideExistingFiles_checkBox.Checked);
+            var missingFiles = await Model.GetMissingFiles(checkedFolders, mixedFolders, syncFolder.Path, hideExistingFiles_checkBox.Checked);
 
             if (missingFiles.Count > 0)
             {
@@ -1109,7 +1247,7 @@ namespace CloudFolderBrowser
                 newFilesFolder.Size = (missingFiles.ConvertAll(x => x.Size)).Sum();
 
                 Model.WriteToLog($"\n{DateTime.Now}\n  Create SyncFilesForm with {Model.WebdavCredential?.UserName}-{Model.WebdavCredential?.Password} \n\n");
-                SyncFilesForm syncFilesForm = new SyncFilesForm(this, newFilesFolder, Model);               
+                SyncFilesForm syncFilesForm = new SyncFilesForm(this, newFilesFolder, Model);
                 activeSyncForm = syncFilesForm;
                 activeSyncForm.DownloadCompleted += SyncForm_DownloadCompleted;
             }
@@ -1160,7 +1298,6 @@ namespace CloudFolderBrowser
 
         #endregion
 
-
         #region #EVENT HANDLERS
 
         #region #TREEVIEW
@@ -1172,7 +1309,7 @@ namespace CloudFolderBrowser
         }
         private async void openFolder_menuItem_Click(object sender, EventArgs e)
         {
-            Process.Start(new ProcessStartInfo { FileName = syncFolderPath_textBox.Text, UseShellExecute = true });            
+            Process.Start(new ProcessStartInfo { FileName = syncFolderPath_textBox.Text, UseShellExecute = true });
         }
         private async void syncFolderPath_textBox_TextChanged(object sender, EventArgs e)
         {
@@ -1180,7 +1317,7 @@ namespace CloudFolderBrowser
             LoadSyncFolder(syncFolderPath_textBox.Text);
         }
 
-      
+
         private void CollapseAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
             cloudPublicFolder_treeViewAdv.Model = new SortedTreeModel(cloudPublicFolder_model);
@@ -1208,7 +1345,7 @@ namespace CloudFolderBrowser
             cloudPublicFolder_model.Nodes[0].IsChecked = true;
             CheckAllSubnodes(cloudPublicFolder_model.Nodes[0] as ColumnNode, false);
             checkedFilesSize = Model.CloudPublicFolder.Size;
-            checkedFilesNumber = Model.CloudPublicFolder.FilesNumber;       
+            checkedFilesNumber = Model.CloudPublicFolder.FilesNumber;
             checkedFiles_label.Text = $"Selected: {Math.Round(checkedFilesSize * b2Mb, 2)} MB | {checkedFilesNumber} files";
             cloudPublicFolder_treeViewAdv.Refresh();
         }
@@ -1241,7 +1378,7 @@ namespace CloudFolderBrowser
             else
                 clicked.SortOrder = SortOrder.Ascending;
 
-            if(((TreeViewAdv)sender).Model != null)
+            if (((TreeViewAdv)sender).Model != null)
                 (((TreeViewAdv)sender).Model as SortedTreeModel).Comparer = new FolderItemSorter(clicked.Header, clicked.SortOrder);
         }
 
@@ -1290,33 +1427,32 @@ namespace CloudFolderBrowser
                 cloudPublicFolder_treeViewAdv.Root.Children[0].Expand();
             }
         }
-                
+
         #region #BUTTONS     
-        
-        
+
         private async void LoadPublicFolderKey_button_Click(object sender, EventArgs e)
         {
             string cloudFolderUrl = publicFolderKey_textBox.Text;
             if (flatList_checkBox.Checked)
                 flatList_checkBox.Checked = false;
-            if (cloudFolderUrl != "")            
+            if (cloudFolderUrl != "")
                 syncFolders_button.Enabled = false;
 
             if (cloudFolderUrl != "")
-            {               
-                var success = LoadPublicFolder(cloudFolderUrl);               
+            {
+                var success = LoadPublicFolder(cloudFolderUrl);
                 publicFolderKey_textBox.ReadOnly = true;
-                flatList_checkBox.Enabled = true;                             
+                flatList_checkBox.Enabled = true;
             }
         }
 
         private void SavePublicFolderKey_button_Click(object sender, EventArgs e)
         {
-            if(!publicFolders.Keys.Contains(hotDictKey))
+            if (!publicFolders.Keys.Contains(hotDictKey))
                 return;
             KeyValuePair<string, string> selectedItem = publicFolders.First(x => x.Key == hotDictKey);
             string hotDictValue = selectedItem.Value;
-            
+
             publicFolders.Remove(hotDictKey);
             if (publicFolders.ContainsKey(publicFolders_comboBox.Text))
             {
@@ -1324,11 +1460,11 @@ namespace CloudFolderBrowser
                 return;
             }
             publicFolders.Add(publicFolders_comboBox.Text, publicFolderKey_textBox.Text);
-                    
+
             publicFolders_comboBox.DataSource = new BindingSource(publicFolders, null);
             publicFolders_comboBox.Update();
-          
-            UpdatePublicFoldersSetting();            
+
+            UpdatePublicFoldersSetting();
             publicFolderKey_textBox.ReadOnly = true;
         }
 
@@ -1373,7 +1509,7 @@ namespace CloudFolderBrowser
             }
 
             publicFolders_comboBox.DataSource = new BindingSource(publicFolders, null);
-            UpdatePublicFoldersSetting();   
+            UpdatePublicFoldersSetting();
         }
 
         private void deletePublicFolder_button_Click(object sender, EventArgs e)
@@ -1392,11 +1528,11 @@ namespace CloudFolderBrowser
             if (!Properties.Settings.Default.loginedMega)
             {
                 var loginMegaForm = new LoginMegaForm(this);
-                var result = loginMegaForm.ShowDialog();                
+                var result = loginMegaForm.ShowDialog();
             }
             else
             {
-                LogoutMega();                           
+                LogoutMega();
                 loginMega_button.Text = "MEGA Sign in";
                 yadiskSpace_progressBar.Visible = false;
             }
@@ -1406,14 +1542,14 @@ namespace CloudFolderBrowser
         {
             activeSyncForm?.Show();
         }
-      
+
         private void createArchive_button_Click(object sender, EventArgs e)
-        {          
+        {
         }
 
         private void appVersion_linkLabel_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Process.Start(new ProcessStartInfo { FileName = @"https://github.com/ptrsuder/cloud-folder-browser/releases/latest", UseShellExecute = true });                    
+            Process.Start(new ProcessStartInfo { FileName = @"https://github.com/ptrsuder/cloud-folder-browser/releases/latest", UseShellExecute = true });
         }
 
         private void fogLink_button_Click(object sender, EventArgs e)
@@ -1421,13 +1557,13 @@ namespace CloudFolderBrowser
             var form = new FogLinkForm();
             form.Show();
         }
-             
+
 
         private async void syncFolders_button_Click(object sender, EventArgs e)
         {
             activeSyncForm?.CloseForm();
             checkedFolders = new List<CloudFolder>();
-            mixedFolders = new List<CloudFolder>();               
+            mixedFolders = new List<CloudFolder>();
             GetCheckedFolders(cloudPublicFolder_model.Nodes[0] as ColumnNode);
             await SyncFiles();
             showSyncForm_button.Enabled = true;
@@ -1448,13 +1584,13 @@ namespace CloudFolderBrowser
             Model.CloudPublicFolder.SaveToJson();
         }
 
-        private void LoadFromFile_button_Click(object sender, EventArgs e)
+        private async void LoadFromFile_button_Click(object sender, EventArgs e)
         {
             LoadFolderJson(true);
         }
         #endregion
 
         #endregion
-    }    
+    }
 }
 

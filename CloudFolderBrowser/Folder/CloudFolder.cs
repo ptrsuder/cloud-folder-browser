@@ -83,7 +83,7 @@ namespace CloudFolderBrowser
             Size = size;
             SizeTopDirectoryOnly = Size;
             Subfolders = new List<IFolder>();
-            Files = new List<CloudFile>();
+            Files = new List<CloudFile>();            
         }
 
         public CloudFolder()
@@ -138,9 +138,10 @@ namespace CloudFolderBrowser
 
         public void SaveToJson()
         {
-            Directory.CreateDirectory("jsons");
+            var appPath = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory($"{appPath}\\jsons");
             string hashString = Utility.GetHashString(OriginalString);            
-            File.WriteAllText("jsons/" + hashString + ".json", JsonConvert.SerializeObject(this, new JsonSerializerSettings()
+            File.WriteAllText($"{appPath}\\jsons\\" + hashString + ".json", JsonConvert.SerializeObject(this, new JsonSerializerSettings()
             {
                 TypeNameHandling = TypeNameHandling.Auto
             }));
@@ -149,12 +150,13 @@ namespace CloudFolderBrowser
         public async Task<CloudFolder> LoadFromJson(bool checkStatus = false)
         {
             var cloudFolder = new CloudFolder();
-            Directory.CreateDirectory("jsons");
+            var appPath = Directory.GetCurrentDirectory();            
+            Directory.CreateDirectory($"{appPath}\\jsons");
             string hashString = Utility.GetHashString(OriginalString);
 
-            foreach (string fileName in Directory.GetFiles("jsons"))
+            foreach (string fileName in Directory.GetFiles($"{appPath}\\jsons"))
             {
-                if (fileName == @"jsons\" + hashString + ".json")
+                if (fileName == $"{appPath}\\jsons\\" + hashString + ".json")
                 {
                     string jsonString = File.ReadAllText(fileName);
                     cloudFolder = JsonConvert.DeserializeObject<CloudFolder>(jsonString, new JsonSerializerSettings()
