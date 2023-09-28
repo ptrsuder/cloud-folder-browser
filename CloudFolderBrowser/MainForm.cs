@@ -420,7 +420,8 @@ namespace CloudFolderBrowser
                         await Load_TheTrove(cloudFolderUrl);
                         break;
                     case CloudServiceType.Other:
-                        MessageBox.Show("Unsupported link!");
+                        MessageBox.Show("Unsupported link type");
+                        ProgressStage?.Report(2);
                         return false;
                 }
                 Model.LoadedFromFile = false;
