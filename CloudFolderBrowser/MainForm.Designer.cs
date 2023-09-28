@@ -134,7 +134,7 @@
             publicFolderKey_textBox.Margin = new Padding(4, 3, 4, 3);
             publicFolderKey_textBox.Name = "publicFolderKey_textBox";
             publicFolderKey_textBox.ReadOnly = true;
-            publicFolderKey_textBox.Size = new Size(357, 23);
+            publicFolderKey_textBox.Size = new Size(355, 23);
             publicFolderKey_textBox.TabIndex = 3;
             // 
             // browseSyncFolder_button
@@ -144,7 +144,7 @@
             browseSyncFolder_button.Location = new Point(0, 0);
             browseSyncFolder_button.Margin = new Padding(4, 3, 4, 3);
             browseSyncFolder_button.Name = "browseSyncFolder_button";
-            browseSyncFolder_button.Size = new Size(54, 23);
+            browseSyncFolder_button.Size = new Size(56, 23);
             browseSyncFolder_button.TabIndex = 4;
             browseSyncFolder_button.Text = "...";
             browseSyncFolder_button.UseVisualStyleBackColor = true;
@@ -158,7 +158,7 @@
             syncFolderPath_textBox.Margin = new Padding(4, 3, 4, 3);
             syncFolderPath_textBox.Name = "syncFolderPath_textBox";
             syncFolderPath_textBox.ReadOnly = true;
-            syncFolderPath_textBox.Size = new Size(380, 23);
+            syncFolderPath_textBox.Size = new Size(378, 23);
             syncFolderPath_textBox.TabIndex = 5;
             syncFolderPath_textBox.TextChanged += syncFolderPath_textBox_TextChanged;
             // 
@@ -205,7 +205,7 @@
             splitContainer2.Panel2.RightToLeft = RightToLeft.No;
             splitContainer2.RightToLeft = RightToLeft.No;
             splitContainer2.Size = new Size(439, 23);
-            splitContainer2.SplitterDistance = 380;
+            splitContainer2.SplitterDistance = 378;
             splitContainer2.SplitterWidth = 5;
             splitContainer2.TabIndex = 9;
             // 
@@ -370,7 +370,7 @@
             splitContainer1.Panel2.RightToLeft = RightToLeft.No;
             splitContainer1.RightToLeft = RightToLeft.No;
             splitContainer1.Size = new Size(439, 23);
-            splitContainer1.SplitterDistance = 357;
+            splitContainer1.SplitterDistance = 355;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 8;
             // 
@@ -381,7 +381,7 @@
             loadPublicFolderKey_button.Location = new Point(0, 0);
             loadPublicFolderKey_button.Margin = new Padding(4, 3, 4, 3);
             loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            loadPublicFolderKey_button.Size = new Size(77, 23);
+            loadPublicFolderKey_button.Size = new Size(79, 23);
             loadPublicFolderKey_button.TabIndex = 9;
             loadPublicFolderKey_button.Text = "Load";
             loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -470,7 +470,7 @@
             filter_textBox.BorderStyle = BorderStyle.FixedSingle;
             filter_textBox.Location = new Point(0, 3);
             filter_textBox.Name = "filter_textBox";
-            filter_textBox.Size = new Size(121, 23);
+            filter_textBox.Size = new Size(174, 23);
             filter_textBox.TabIndex = 13;
             filter_textBox.TextChangedCompleteDelay = TimeSpan.Parse("00:00:00.6000000");
             // 
@@ -480,7 +480,7 @@
             flatList_checkBox.AutoSize = true;
             flatList_checkBox.Enabled = false;
             flatList_checkBox.FlatStyle = FlatStyle.Flat;
-            flatList_checkBox.Location = new Point(125, 5);
+            flatList_checkBox.Location = new Point(178, 5);
             flatList_checkBox.Margin = new Padding(4, 3, 4, 3);
             flatList_checkBox.Name = "flatList_checkBox";
             flatList_checkBox.Size = new Size(60, 19);
