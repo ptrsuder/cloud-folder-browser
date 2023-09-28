@@ -148,23 +148,23 @@ namespace CloudFolderBrowser
             if (url.Contains("h5ailink"))
                 return CloudServiceType.h5ai;
 
-            using (var webpage = new WebClient())
-            {
-                webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
-                var data = webpage.DownloadString(url);
-                HtmlWeb web = new HtmlWeb();
-                HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
-                htmlDoc.LoadHtml(data);
-                HtmlNode mdnode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
-                if (mdnode != null)
-                {
-                    HtmlAttribute desc;
-                    desc = mdnode.Attributes["content"];
-                    string fulldescription = desc.Value;
-                    if (fulldescription.ToLower().Contains("powered by h5ai"))
-                        return CloudServiceType.h5ai;
-                }
-            }
+            //using (var webpage = new WebClient())
+            //{
+            //    webpage.Headers[HttpRequestHeader.UserAgent] = "Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0";
+            //    var data = webpage.DownloadString(url);
+            //    HtmlWeb web = new HtmlWeb();
+            //    HtmlAgilityPack.HtmlDocument htmlDoc = new HtmlAgilityPack.HtmlDocument();
+            //    htmlDoc.LoadHtml(data);
+            //    HtmlNode mdnode = htmlDoc.DocumentNode.SelectSingleNode("//meta[@name='description']");
+            //    if (mdnode != null)
+            //    {
+            //        HtmlAttribute desc;
+            //        desc = mdnode.Attributes["content"];
+            //        string fulldescription = desc.Value;
+            //        if (fulldescription.ToLower().Contains("powered by h5ai"))
+            //            return CloudServiceType.h5ai;
+            //    }
+            //}
 
             return CloudServiceType.Other;
         }       
