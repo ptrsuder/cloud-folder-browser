@@ -30,6 +30,8 @@ namespace CloudFolderBrowser
 
         string AppVersion = "0.10.30";
 
+        public bool UseProgressPanel = false;
+
         public static RestClient rc;
         public ResourceList rl_root;
         public string syncFolderPath = "";
@@ -141,6 +143,9 @@ namespace CloudFolderBrowser
             SetDoubleBuffered(MainProgressBar);
             SetDoubleBuffered(tableLayoutPanel1);
             //SetDoubleBuffered(cloudPublicFolder_treeViewAdv);
+
+            UseProgressPanel = Properties.Settings.Default.useProgressBar;
+            enableProgressPanel_checkBox.Checked = UseProgressPanel;
         }
 
 
@@ -436,6 +441,16 @@ namespace CloudFolderBrowser
         Bitmap mainFormScreenshot;
         void SetProgress(bool waiting = true, bool loadingWeb = true)
         {
+            if (!UseProgressPanel)
+            {
+                if (this.InvokeRequired)
+                    MainProgressBar.BeginInvoke(() => Enabled = !waiting);
+                else
+                    Enabled = !waiting;
+
+                return;
+            }
+
             bool progressChanged = waiting && MainProgressBar.Value == 0;
             Action progressBarAction = () =>
             {
@@ -496,7 +511,6 @@ namespace CloudFolderBrowser
                     //ProgressLoading_panel.BackgroundImage = mainFormScreenshot;
                     ProgressLoading_panel.Visible = false;
                     //Enabled = true;
-
                 }
 
                 ProgressLoading_panel.Invalidate();
@@ -1591,6 +1605,13 @@ namespace CloudFolderBrowser
         #endregion
 
         #endregion
+
+        private void enableProgressPanel_checkBox_CheckedChanged(object sender, EventArgs e)
+        {
+            UseProgressPanel = enableProgressPanel_checkBox.Checked;
+            Properties.Settings.Default.useProgressBar = UseProgressPanel;
+            Properties.Settings.Default.Save();
+        }
     }
 }
 

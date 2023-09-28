@@ -109,6 +109,7 @@
             yadiskSpace_progressBar = new TextProgressBar();
             ProgressLoading_panel = new Panel();
             MainProgressBar = new CircularProgressBar.CircularProgressBar();
+            enableProgressPanel_checkBox = new CheckBox();
             tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
             splitContainer2.Panel1.SuspendLayout();
@@ -133,7 +134,7 @@
             publicFolderKey_textBox.Margin = new Padding(4, 3, 4, 3);
             publicFolderKey_textBox.Name = "publicFolderKey_textBox";
             publicFolderKey_textBox.ReadOnly = true;
-            publicFolderKey_textBox.Size = new Size(360, 23);
+            publicFolderKey_textBox.Size = new Size(357, 23);
             publicFolderKey_textBox.TabIndex = 3;
             // 
             // browseSyncFolder_button
@@ -143,7 +144,7 @@
             browseSyncFolder_button.Location = new Point(0, 0);
             browseSyncFolder_button.Margin = new Padding(4, 3, 4, 3);
             browseSyncFolder_button.Name = "browseSyncFolder_button";
-            browseSyncFolder_button.Size = new Size(51, 23);
+            browseSyncFolder_button.Size = new Size(54, 23);
             browseSyncFolder_button.TabIndex = 4;
             browseSyncFolder_button.Text = "...";
             browseSyncFolder_button.UseVisualStyleBackColor = true;
@@ -157,7 +158,7 @@
             syncFolderPath_textBox.Margin = new Padding(4, 3, 4, 3);
             syncFolderPath_textBox.Name = "syncFolderPath_textBox";
             syncFolderPath_textBox.ReadOnly = true;
-            syncFolderPath_textBox.Size = new Size(383, 23);
+            syncFolderPath_textBox.Size = new Size(380, 23);
             syncFolderPath_textBox.TabIndex = 5;
             syncFolderPath_textBox.TextChanged += syncFolderPath_textBox_TextChanged;
             // 
@@ -204,7 +205,7 @@
             splitContainer2.Panel2.RightToLeft = RightToLeft.No;
             splitContainer2.RightToLeft = RightToLeft.No;
             splitContainer2.Size = new Size(439, 23);
-            splitContainer2.SplitterDistance = 383;
+            splitContainer2.SplitterDistance = 380;
             splitContainer2.SplitterWidth = 5;
             splitContainer2.TabIndex = 9;
             // 
@@ -369,7 +370,7 @@
             splitContainer1.Panel2.RightToLeft = RightToLeft.No;
             splitContainer1.RightToLeft = RightToLeft.No;
             splitContainer1.Size = new Size(439, 23);
-            splitContainer1.SplitterDistance = 360;
+            splitContainer1.SplitterDistance = 357;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 8;
             // 
@@ -380,7 +381,7 @@
             loadPublicFolderKey_button.Location = new Point(0, 0);
             loadPublicFolderKey_button.Margin = new Padding(4, 3, 4, 3);
             loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            loadPublicFolderKey_button.Size = new Size(74, 23);
+            loadPublicFolderKey_button.Size = new Size(77, 23);
             loadPublicFolderKey_button.TabIndex = 9;
             loadPublicFolderKey_button.Text = "Load";
             loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -841,11 +842,23 @@
             MainProgressBar.TextMargin = new Padding(8, 8, 0, 0);
             MainProgressBar.Value = 68;
             // 
+            // enableProgressPanel_checkBox
+            // 
+            enableProgressPanel_checkBox.AutoSize = true;
+            enableProgressPanel_checkBox.Location = new Point(719, 826);
+            enableProgressPanel_checkBox.Name = "enableProgressPanel_checkBox";
+            enableProgressPanel_checkBox.Size = new Size(113, 19);
+            enableProgressPanel_checkBox.TabIndex = 31;
+            enableProgressPanel_checkBox.Text = "Use progress bar";
+            enableProgressPanel_checkBox.UseVisualStyleBackColor = true;
+            enableProgressPanel_checkBox.CheckedChanged += enableProgressPanel_checkBox_CheckedChanged;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(924, 850);
+            Controls.Add(enableProgressPanel_checkBox);
             Controls.Add(yadiskSpace_progressBar);
             Controls.Add(fogLink_button);
             Controls.Add(editPublicFolderKey_button);
@@ -942,5 +955,6 @@
         private TextProgressBar yadiskSpace_progressBar;
         private Panel ProgressLoading_panel;
         public CircularProgressBar.CircularProgressBar MainProgressBar;
+        private CheckBox enableProgressPanel_checkBox;
     }
 }
