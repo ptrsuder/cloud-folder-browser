@@ -399,7 +399,7 @@ namespace CloudFolderBrowser
                 {
                     if (folder.Path == CloudPublicFolder.Path || folder.Path == "")
                         continue;
-                    string parentFolderPath = folder.Path.Remove(folder.Path.Length - 2 - folder.Name.Length, folder.Name.Length + 1);                    
+                    string parentFolderPath = folder.Path.Remove(folder.Path.Length - 1 - folder.Name.Length, folder.Name.Length + 1);                    
                     allFolders.Find(x => x.Path == parentFolderPath).AddSubfolder(folder);                   
                 }
             }
@@ -413,9 +413,9 @@ namespace CloudFolderBrowser
             {
                 if (!item.IsCollection)
                 {
-                    string encodedPath = item.Href.Replace("/public.php/webdav", "/download?path=");
-                    string path = HttpUtility.UrlDecode(item.Href).Replace("/public.php/webdav", "");
-                    string parentFolderPath = path.Remove(path.Length - item.DisplayName.Length, item.DisplayName.Length);
+                    string encodedPath = item.Href.Replace("/public.php/webdav/", "/download?path=");
+                    string path = HttpUtility.UrlDecode(item.Href).Replace("/public.php/webdav/", "");
+                    string parentFolderPath = "/" + path.Remove(path.Length - item.DisplayName.Length, item.DisplayName.Length);
                     string url = allsyncRootFolderAddress.Replace("?path=", "") + encodedPath;
                     CloudFile file = new CloudFile(
                             item.DisplayName,

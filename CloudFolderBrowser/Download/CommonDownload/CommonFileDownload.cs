@@ -34,7 +34,7 @@ namespace CloudFolderBrowser
 
         public CommonFileDownload(CommonDownload commonDownload, CloudFile fileInfo, string savePath, NetworkCredential networkCredential)
         {
-            SavePath = savePath.Replace("%27", "'");           
+            SavePath = savePath.Replace("%27", "'").Replace("/", "\\");           
             FileInfo = fileInfo;
             var progressHandler = new Progress<double>(value =>
             {
@@ -60,6 +60,11 @@ namespace CloudFolderBrowser
         string EncodeWebUrl(string url)
         {
             return url.Replace("#", "%23").Replace(",", "%2C").Replace("?", "%3F");
+        }
+
+        string EncodeQloudUrl(string url)
+        {
+            return EncodeAllsyncUrl(url).Replace(":", "%3A").Replace(";", "%3B").Replace("&", "%26");
         }
 
         public async Task StartDownload()
@@ -108,20 +113,29 @@ namespace CloudFolderBrowser
             if (overwriteFile == DialogResult.Yes)
             {                
                 string downloadPath = EncodeWebUrl(FileInfo.PublicUrl.OriginalString);
+
+                var filename = Path.GetFileName(SavePath);
+                var dir = Path.GetDirectoryName(SavePath);
+
+                foreach(var ch in Path.GetInvalidFileNameChars())
+                    filename = filename.Replace(ch.ToString(), "");
+
+                SavePath = dir + "\\" + file;
+
                 if (ParentDownload.CloudService == CloudServiceType.Allsync)
                 {
                     var encodedUrl = new Uri(downloadPath);
                     var host = encodedUrl.Host;
-                    downloadPath = $"https://{host}/public.php/webdav{EncodeAllsyncUrl(FileInfo.Path)}";
+                    downloadPath = $"https://{host}/public.php/webdav/{EncodeAllsyncUrl(FileInfo.Path)}";
                 }
                 if(ParentDownload.CloudService == CloudServiceType.QCloud)
                 {                                          
-                    downloadPath = $"https://efss.qloud.my/index.php/s/{_networkCredential.UserName}/download?path=/&files={EncodeAllsyncUrl(FileInfo.Path)}";                  
+                    downloadPath = $"https://efss.qloud.my/index.php/s/{_networkCredential.UserName}/download?path=/&files={HttpUtility.UrlEncode(FileInfo.Path)}";                  
                 }
                 try
                 {
                     DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.CancellationTokenSource.Token, _networkCredential);
-                    await DownloadTask;
+                    await DownloadTask;              
                 }
                 catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
                 {
@@ -140,6 +154,7 @@ namespace CloudFolderBrowser
 
                         if (File.Exists(SavePath))
                             File.Delete(SavePath);
+
                         return;
                     }
                     var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
