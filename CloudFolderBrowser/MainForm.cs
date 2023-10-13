@@ -399,33 +399,44 @@ namespace CloudFolderBrowser
                 Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
 
                 ProgressStage.Report(0);
-                switch (Model.CloudServiceType)
+
+                try
                 {
-                    case CloudServiceType.Yadisk:
-                        await LoadYadisk(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Allsync:
-                        await LoadAllsync(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.QCloud:
-                        await LoadAllsync(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Mega:
-                        await LoadMega(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.h5ai:
-                        await Load_h5ai(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.TheTrove:
-                        await Load_TheTrove(cloudFolderUrl);
-                        break;
-                    case CloudServiceType.Other:
-                        MessageBox.Show("Unsupported link type");
-                        ProgressStage?.Report(2);
-                        return false;
+                    switch (Model.CloudServiceType)
+                    {
+                        case CloudServiceType.Yadisk:
+                            await LoadYadisk(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Allsync:
+                            await LoadAllsync(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.QCloud:
+                            await LoadAllsync(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Mega:
+                            await LoadMega(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.h5ai:
+                            await Load_h5ai(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.TheTrove:
+                            await Load_TheTrove(cloudFolderUrl);
+                            break;
+                        case CloudServiceType.Other:
+                            MessageBox.Show("Unsupported link type");
+                            ProgressStage?.Report(2);
+                            return false;
+                    }
+                    Model.LoadedFromFile = false;
                 }
-                Model.LoadedFromFile = false;
-                ProgressStage?.Report(2);
+                catch
+                {
+
+                }
+                finally
+                {
+                    ProgressStage?.Report(2);
+                }      
             }
 
             return true;
