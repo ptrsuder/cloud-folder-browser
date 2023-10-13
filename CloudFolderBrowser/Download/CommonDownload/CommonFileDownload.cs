@@ -120,7 +120,7 @@ namespace CloudFolderBrowser
                 foreach(var ch in Path.GetInvalidFileNameChars())
                     filename = filename.Replace(ch.ToString(), "");
 
-                SavePath = dir + "\\" + file;
+                SavePath = dir + "\\" + filename;
 
                 if (ParentDownload.CloudService == CloudServiceType.Allsync)
                 {
