@@ -436,7 +436,7 @@ namespace CloudFolderBrowser
                 finally
                 {
                     ProgressStage?.Report(2);
-                }      
+                }
             }
 
             return true;
@@ -978,30 +978,32 @@ namespace CloudFolderBrowser
 
         public async Task LoginMega(string login, string password)
         {
-            try
+            //try
+            //{
+            if (megaClient.IsLoggedIn)
+                megaClient.Logout();
+            var loginToken = await megaClient.LoginAsync(login, password);
+
+            Properties.Settings.Default.loginTokenMega = JsonConvert.SerializeObject(loginToken, new JsonSerializerSettings()
             {
-                if (megaClient.IsLoggedIn)
-                    megaClient.Logout();
-                var loginToken = await megaClient.LoginAsync(login, password);
+                TypeNameHandling = TypeNameHandling.Auto
+            });
 
-                Properties.Settings.Default.loginTokenMega = JsonConvert.SerializeObject(loginToken, new JsonSerializerSettings()
-                {
-                    TypeNameHandling = TypeNameHandling.Auto
-                });
+            loginMega_button.Text = "Sign out";
 
-                loginMega_button.Text = "Sign out";
+            var nodes = await megaClient.GetNodesAsync();
+            MegaRootNode = nodes.FirstOrDefault();
+            //}
+            //catch (ApiException ex)
+            //{
+            //    LogoutMega();
 
-                var nodes = await megaClient.GetNodesAsync();
-                MegaRootNode = nodes.FirstOrDefault();
-            }
-            catch (ApiException ex)
-            {
-                LogoutMega();
+            //    //MessageBox.Show($"Failed to sign in: {ex.ApiResultCode.ToString()}");
 
-                var loginMegaForm = new LoginMegaForm(this);
-                loginMegaForm.ShowDialog();
-                return;
-            }
+            //    //var loginMegaForm = new LoginMegaForm(this);
+            //    //loginMegaForm.ShowDialog();
+            //    return;
+            //}
 
             Properties.Settings.Default.loginedMega = true;
             Properties.Settings.Default.Save();

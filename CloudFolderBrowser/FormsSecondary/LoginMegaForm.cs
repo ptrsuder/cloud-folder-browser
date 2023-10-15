@@ -32,28 +32,33 @@ namespace CloudFolderBrowser
         private async void signIn_button_Click(object sender, EventArgs e)
         {
             MegaApiClient.LogonSessionToken loginToken = null;
+
+            Properties.Settings.Default.megaLogin = login_textBox.Text;
+            if (savePassword_checkBox.Checked)
+            {
+                Properties.Settings.Default.megaPassword = password_textBox.Text;
+                Properties.Settings.Default.Save();
+            }
+            else
+            {
+                Properties.Settings.Default.megaPassword = "";
+                Properties.Settings.Default.Save();
+            }
+
+
             try
             {
-                signin_button.Enabled = false;               
+                signin_button.Enabled = false;
                 await ParentForm.LoginMega(login_textBox.Text, password_textBox.Text);
-                signin_button.Enabled = true;
             }
             catch
             {
                 MessageBox.Show("Failed to sign in.");
                 return;
             }
-
-            Properties.Settings.Default.megaLogin = login_textBox.Text;
-            if (savePassword_checkBox.Checked)
-            {                
-                Properties.Settings.Default.megaPassword = password_textBox.Text;
-                Properties.Settings.Default.Save();
-            }
-            else
-            {                
-                Properties.Settings.Default.megaPassword = "";
-                Properties.Settings.Default.Save();
+            finally
+            {
+                signin_button.Enabled = true;
             }
             Close();            
         }

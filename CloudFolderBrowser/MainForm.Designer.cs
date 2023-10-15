@@ -134,7 +134,7 @@
             publicFolderKey_textBox.Margin = new Padding(4, 3, 4, 3);
             publicFolderKey_textBox.Name = "publicFolderKey_textBox";
             publicFolderKey_textBox.ReadOnly = true;
-            publicFolderKey_textBox.Size = new Size(355, 23);
+            publicFolderKey_textBox.Size = new Size(348, 23);
             publicFolderKey_textBox.TabIndex = 3;
             // 
             // browseSyncFolder_button
@@ -144,7 +144,7 @@
             browseSyncFolder_button.Location = new Point(0, 0);
             browseSyncFolder_button.Margin = new Padding(4, 3, 4, 3);
             browseSyncFolder_button.Name = "browseSyncFolder_button";
-            browseSyncFolder_button.Size = new Size(56, 23);
+            browseSyncFolder_button.Size = new Size(63, 23);
             browseSyncFolder_button.TabIndex = 4;
             browseSyncFolder_button.Text = "...";
             browseSyncFolder_button.UseVisualStyleBackColor = true;
@@ -158,7 +158,7 @@
             syncFolderPath_textBox.Margin = new Padding(4, 3, 4, 3);
             syncFolderPath_textBox.Name = "syncFolderPath_textBox";
             syncFolderPath_textBox.ReadOnly = true;
-            syncFolderPath_textBox.Size = new Size(378, 23);
+            syncFolderPath_textBox.Size = new Size(371, 23);
             syncFolderPath_textBox.TabIndex = 5;
             syncFolderPath_textBox.TextChanged += syncFolderPath_textBox_TextChanged;
             // 
@@ -205,7 +205,7 @@
             splitContainer2.Panel2.RightToLeft = RightToLeft.No;
             splitContainer2.RightToLeft = RightToLeft.No;
             splitContainer2.Size = new Size(439, 23);
-            splitContainer2.SplitterDistance = 378;
+            splitContainer2.SplitterDistance = 371;
             splitContainer2.SplitterWidth = 5;
             splitContainer2.TabIndex = 9;
             // 
@@ -370,7 +370,7 @@
             splitContainer1.Panel2.RightToLeft = RightToLeft.No;
             splitContainer1.RightToLeft = RightToLeft.No;
             splitContainer1.Size = new Size(439, 23);
-            splitContainer1.SplitterDistance = 355;
+            splitContainer1.SplitterDistance = 348;
             splitContainer1.SplitterWidth = 5;
             splitContainer1.TabIndex = 8;
             // 
@@ -381,7 +381,7 @@
             loadPublicFolderKey_button.Location = new Point(0, 0);
             loadPublicFolderKey_button.Margin = new Padding(4, 3, 4, 3);
             loadPublicFolderKey_button.Name = "loadPublicFolderKey_button";
-            loadPublicFolderKey_button.Size = new Size(79, 23);
+            loadPublicFolderKey_button.Size = new Size(86, 23);
             loadPublicFolderKey_button.TabIndex = 9;
             loadPublicFolderKey_button.Text = "Load";
             loadPublicFolderKey_button.UseVisualStyleBackColor = true;
@@ -745,7 +745,7 @@
             loginMega_button.Name = "loginMega_button";
             loginMega_button.Size = new Size(62, 42);
             loginMega_button.TabIndex = 20;
-            loginMega_button.Text = "MEGA sing in";
+            loginMega_button.Text = "MEGA sign in";
             loginMega_button.UseVisualStyleBackColor = true;
             loginMega_button.Click += loginMega_button_Click;
             // 
@@ -799,6 +799,7 @@
             yadiskSpace_progressBar.TabIndex = 27;
             yadiskSpace_progressBar.TextColor = Color.Black;
             yadiskSpace_progressBar.TextFont = new Font("Tahoma", 11.25F, FontStyle.Regular, GraphicsUnit.Point);
+            yadiskSpace_progressBar.Visible = false;
             yadiskSpace_progressBar.VisualMode = ProgressBarDisplayMode.CustomText;
             // 
             // ProgressLoading_panel
