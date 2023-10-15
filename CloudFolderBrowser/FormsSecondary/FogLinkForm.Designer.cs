@@ -28,110 +28,120 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.in_textBox = new System.Windows.Forms.TextBox();
-            this.encrypt_button = new System.Windows.Forms.Button();
-            this.out_textBox = new System.Windows.Forms.TextBox();
-            this.serverAddress_textBox = new CloudFolderBrowser.TextBox();
-            this.saveServerAddress_button = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.SuspendLayout();
+            in_textBox = new System.Windows.Forms.TextBox();
+            encrypt_button = new Button();
+            out_textBox = new System.Windows.Forms.TextBox();
+            serverAddress_textBox = new TextBox();
+            saveServerAddress_button = new Button();
+            label1 = new Label();
+            label2 = new Label();
+            progressBar1 = new ProgressBar();
+            SuspendLayout();
             // 
             // in_textBox
             // 
-            this.in_textBox.Location = new System.Drawing.Point(13, 95);
-            this.in_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.in_textBox.Name = "in_textBox";
-            this.in_textBox.Size = new System.Drawing.Size(866, 23);
-            this.in_textBox.TabIndex = 1;
+            in_textBox.Location = new Point(13, 95);
+            in_textBox.Margin = new Padding(4, 3, 4, 3);
+            in_textBox.Name = "in_textBox";
+            in_textBox.Size = new Size(866, 23);
+            in_textBox.TabIndex = 1;
             // 
             // encrypt_button
             // 
-            this.encrypt_button.Location = new System.Drawing.Point(12, 155);
-            this.encrypt_button.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.encrypt_button.Name = "encrypt_button";
-            this.encrypt_button.Size = new System.Drawing.Size(88, 27);
-            this.encrypt_button.TabIndex = 2;
-            this.encrypt_button.Text = "encrypt";
-            this.encrypt_button.UseVisualStyleBackColor = true;
-            this.encrypt_button.Click += new System.EventHandler(this.encrypt_button_Click);
+            encrypt_button.Location = new Point(12, 155);
+            encrypt_button.Margin = new Padding(4, 3, 4, 3);
+            encrypt_button.Name = "encrypt_button";
+            encrypt_button.Size = new Size(88, 27);
+            encrypt_button.TabIndex = 2;
+            encrypt_button.Text = "encrypt";
+            encrypt_button.UseVisualStyleBackColor = true;
+            encrypt_button.Click += encrypt_button_Click;
             // 
             // out_textBox
             // 
-            this.out_textBox.Location = new System.Drawing.Point(13, 125);
-            this.out_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.out_textBox.Name = "out_textBox";
-            this.out_textBox.ReadOnly = true;
-            this.out_textBox.Size = new System.Drawing.Size(866, 23);
-            this.out_textBox.TabIndex = 4;
+            out_textBox.Location = new Point(13, 125);
+            out_textBox.Margin = new Padding(4, 3, 4, 3);
+            out_textBox.Name = "out_textBox";
+            out_textBox.ReadOnly = true;
+            out_textBox.Size = new Size(866, 23);
+            out_textBox.TabIndex = 4;
             // 
             // serverAddress_textBox
             // 
-            this.serverAddress_textBox.Location = new System.Drawing.Point(13, 32);
-            this.serverAddress_textBox.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.serverAddress_textBox.Name = "serverAddress_textBox";
-            this.serverAddress_textBox.Size = new System.Drawing.Size(414, 23);
-            this.serverAddress_textBox.TabIndex = 0;
-            this.serverAddress_textBox.TextChangedCompleteDelay = System.TimeSpan.Parse("00:00:00.6000000");
+            serverAddress_textBox.Location = new Point(13, 32);
+            serverAddress_textBox.Margin = new Padding(4, 3, 4, 3);
+            serverAddress_textBox.Name = "serverAddress_textBox";
+            serverAddress_textBox.Size = new Size(414, 23);
+            serverAddress_textBox.TabIndex = 0;
+            serverAddress_textBox.TextChangedCompleteDelay = TimeSpan.Parse("00:00:00.6000000");
             // 
             // saveServerAddress_button
             // 
-            this.saveServerAddress_button.Location = new System.Drawing.Point(434, 32);
-            this.saveServerAddress_button.Name = "saveServerAddress_button";
-            this.saveServerAddress_button.Size = new System.Drawing.Size(75, 23);
-            this.saveServerAddress_button.TabIndex = 5;
-            this.saveServerAddress_button.Text = "Save";
-            this.saveServerAddress_button.UseVisualStyleBackColor = true;
-            this.saveServerAddress_button.Click += new System.EventHandler(this.saveServerAddress_button_Click);
+            saveServerAddress_button.Location = new Point(434, 32);
+            saveServerAddress_button.Name = "saveServerAddress_button";
+            saveServerAddress_button.Size = new Size(75, 23);
+            saveServerAddress_button.TabIndex = 5;
+            saveServerAddress_button.Text = "save";
+            saveServerAddress_button.UseVisualStyleBackColor = true;
+            saveServerAddress_button.Click += saveServerAddress_button_Click;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(13, 14);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 15);
-            this.label1.TabIndex = 6;
-            this.label1.Text = "FogLink server adress";
+            label1.AutoSize = true;
+            label1.Location = new Point(13, 14);
+            label1.Name = "label1";
+            label1.Size = new Size(119, 15);
+            label1.TabIndex = 6;
+            label1.Text = "FogLink server adress";
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 77);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(88, 15);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "URL encryption";
+            label2.AutoSize = true;
+            label2.Location = new Point(12, 77);
+            label2.Name = "label2";
+            label2.Size = new Size(88, 15);
+            label2.TabIndex = 6;
+            label2.Text = "URL encryption";
+            // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(107, 155);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(772, 27);
+            progressBar1.TabIndex = 7;
             // 
             // FogLinkForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(898, 193);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.saveServerAddress_button);
-            this.Controls.Add(this.out_textBox);
-            this.Controls.Add(this.encrypt_button);
-            this.Controls.Add(this.in_textBox);
-            this.Controls.Add(this.serverAddress_textBox);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "FogLinkForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "FogLink";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(898, 193);
+            Controls.Add(progressBar1);
+            Controls.Add(label2);
+            Controls.Add(label1);
+            Controls.Add(saveServerAddress_button);
+            Controls.Add(out_textBox);
+            Controls.Add(encrypt_button);
+            Controls.Add(in_textBox);
+            Controls.Add(serverAddress_textBox);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(4, 3, 4, 3);
+            MaximizeBox = false;
+            Name = "FogLinkForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "FogLink";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
 
         private TextBox serverAddress_textBox;
         private System.Windows.Forms.TextBox in_textBox;
-        private System.Windows.Forms.Button encrypt_button;
+        private Button encrypt_button;
         private System.Windows.Forms.TextBox out_textBox;
         private Button saveServerAddress_button;
         private Label label1;
         private Label label2;
+        private ProgressBar progressBar1;
     }
 }
