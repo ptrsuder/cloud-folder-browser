@@ -2,20 +2,23 @@
 
 ![icon](https://i.imgur.com/jy2KCG1.png) 
 
+
 ![downloads_latest](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/latest/total.svg?color=magenta)
 ![downloads_total](https://img.shields.io/github/downloads/ptrsuder/cloud-folder-browser/total.svg?label=downloads%40total)
+
+![Clipboard Image (1)](https://github.com/ptrsuder/cloud-folder-browser/assets/18538582/c1e82722-ec59-43dc-bbb0-2cb7458afcf2)
 
 Desktop application that allows user to browse shared folders from few cloud storage services. 
 
 Features:
 * Name/date filter, sort, flat file list
-* Sync with files on disk
+* Sync with files on local disk
 * Export selected files as JDownloader2 packages 
-* Donwload selected files directly from app
+* Download selected files directly from app
 
 Supported cloud storages:
 * MEGA
-* Allsync (support for password protected)
+* Allsync/Qloud (support for password protected)
 * YandexDisk (legacy, bad support)
 
 ## Requirements
