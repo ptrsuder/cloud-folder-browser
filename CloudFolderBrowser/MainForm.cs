@@ -29,7 +29,7 @@ namespace CloudFolderBrowser
     {
         public MainFormModel Model { get; set; } = new MainFormModel();
 
-        string AppVersion = "0.10.31";
+        string AppVersion = "0.10.32";
 
         public bool UseProgressPanel = false;
 
