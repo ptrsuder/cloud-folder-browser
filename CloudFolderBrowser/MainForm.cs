@@ -2,6 +2,7 @@
 using System.Drawing.Imaging;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using Aga.Controls.Tree;
@@ -1111,6 +1112,7 @@ namespace CloudFolderBrowser
 
         async Task LoadFolderJson(bool checkStatus = false)
         {
+            syncFolders_button.Enabled = false;
             ProgressStage?.Report(1);
             var key = publicFolderKey_textBox.Text;
             if (key == "")
@@ -1169,9 +1171,13 @@ namespace CloudFolderBrowser
                         }
                     }
                     flatList_checkBox.Enabled = true;
+                    syncFolders_button.Enabled = true;
                     return;
                 }
             }
+
+            ProgressStage?.Report(2);
+
         }
 
         #endregion
@@ -1197,9 +1203,12 @@ namespace CloudFolderBrowser
 
             if (syncFolderPath_textBox.Text != "")
             {
-                syncFolders_button.Enabled = true;
                 refreshFolder_menuItem.Enabled = true;
                 openFolder_menuItem.Enabled = true;
+            }
+            else
+            {
+                syncFolders_button.Enabled = false;
             }
             ProgressStage?.Report(2);
         }
@@ -1316,7 +1325,9 @@ namespace CloudFolderBrowser
 
                 syncFolder_treeViewAdv.Root.Children[0].Expand();
 
-                if (Model.CloudPublicFolder != null)
+                if (Model.CloudPublicFolder.Path == null)
+                    syncFolders_button.Enabled = false;
+                else
                     syncFolders_button.Enabled = true;
 
                 openFolder_menuItem.Enabled = true;
@@ -1461,16 +1472,21 @@ namespace CloudFolderBrowser
         private async void LoadPublicFolderKey_button_Click(object sender, EventArgs e)
         {
             string cloudFolderUrl = publicFolderKey_textBox.Text;
+
+            syncFolders_button.Enabled = false;
+
             if (flatList_checkBox.Checked)
                 flatList_checkBox.Checked = false;
-            if (cloudFolderUrl != "")
-                syncFolders_button.Enabled = false;
 
             if (cloudFolderUrl != "")
             {
-                var success = LoadPublicFolder(cloudFolderUrl);
+                var success = await LoadPublicFolder(cloudFolderUrl);
+                if (success)
+                {
+                    syncFolders_button.Enabled = true;
+                    flatList_checkBox.Enabled = true;
+                }
                 publicFolderKey_textBox.ReadOnly = true;
-                flatList_checkBox.Enabled = true;
             }
         }
 
