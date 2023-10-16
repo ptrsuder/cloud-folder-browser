@@ -413,9 +413,9 @@ namespace CloudFolderBrowser
             {
                 if (!item.IsCollection)
                 {
-                    string encodedPath = item.Href.Replace("/public.php/webdav/", "/download?path=");
-                    string path = HttpUtility.UrlDecode(item.Href).Replace("/public.php/webdav/", "");
-                    string parentFolderPath = "/" + path.Remove(path.Length - item.DisplayName.Length, item.DisplayName.Length);
+                    string encodedPath = item.Href.Replace("/public.php/webdav", "/download?path=");
+                    string path = HttpUtility.UrlDecode(item.Href).Replace("/public.php/webdav", "");
+                    string parentFolderPath = path.Remove(path.Length - item.DisplayName.Length, item.DisplayName.Length);
                     string url = allsyncRootFolderAddress.Replace("?path=", "") + encodedPath;
                     CloudFile file = new CloudFile(
                             item.DisplayName,

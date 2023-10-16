@@ -38,7 +38,7 @@ namespace CloudFolderBrowser
                     var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
                     if (matchedFiles.Length > 0)
                         continue;
-                    CommonFileDownload fileDownload = new CommonFileDownload(this, file, DownloadFolderPath + file.Path, networkCredential);
+                    CommonFileDownload fileDownload = new CommonFileDownload(this, file, DownloadFolderPath + file.Path.Remove(0,1).Replace("/","\\"), networkCredential);
                     DownloadQueue.Enqueue(fileDownload);
                     Downloads.Add(fileDownload);
                 }
