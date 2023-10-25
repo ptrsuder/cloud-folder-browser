@@ -5,6 +5,7 @@ using System.Text;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using CG.Web.MegaApiClient;
+using CloudFolderBrowser.FormsSecondary;
 using CloudFolderBrowser.JDownloader;
 using Newtonsoft.Json;
 using YandexDiskSharp.Models;
@@ -12,26 +13,18 @@ using YandexDiskSharp.Models;
 namespace CloudFolderBrowser
 {
     public partial class SyncFilesForm : Form
-    {        
+    {
         List<CloudFile> checkedFiles;
         TreeModel newFiles_model, newFilesFlat_model;
-        long checkedFilesSize = 0;        
+        long checkedFilesSize = 0;
         CloudFolder rootFolder;
         CloudServiceType cloudServiceType;
-        int maximumDownloads = 4;
         List<ProgressBar> progressBars;
         List<Label> progressLabels;
         bool HideForm = true;
         MegaApiClient megaApiClient;
-        NetworkCredential NetworkCredential;        
-        IDownload Download;
-        Dictionary<int, string> overwriteModes = new Dictionary<int, string>()
-        {
-            {0, "None" },
-            {1, "Overwrite all" },
-            {2, "Overwrite older"},
-            {3, "Ask" }
-        };
+        NetworkCredential NetworkCredential;
+        Download Download;
 
         MainForm MainForm;
         MainFormModel Model;
@@ -45,6 +38,14 @@ namespace CloudFolderBrowser
                 handler(this, e);
             }
         }
+
+        public int OverwriteMode = 0;
+        public int MaximumDownloads = 4;
+        public int RetryDelay = 300;
+        public int RetryMax = 4;
+        public double CheckFileSizeError = 0.999;
+        public bool FolderNewFiles = false;
+        public bool CheckDownloadedFileSize = false;
 
         //Textbox filter
         [DllImport("user32.dll")]
@@ -60,22 +61,18 @@ namespace CloudFolderBrowser
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
             filter_textBox.TextChangedComplete += filter_TextChangedComplete;
 
-            overwriteMode_comboBox.DataSource = new BindingSource(overwriteModes, null);
-            overwriteMode_comboBox.DisplayMember = "Value";
-            overwriteMode_comboBox.ValueMember = "Key";
-
             cloudServiceType = Model.CloudServiceType;
             if (cloudServiceType == CloudServiceType.Mega)
             {
                 if (!Model.LoadedFromFile)
                 {
-                    if (MainForm.usingFogLink)                    
-                        downloadFiles_button.Enabled = false;                        
-                    
+                    if (MainForm.usingFogLink)
+                        downloadFiles_button.Enabled = false;
+
                     downloadFiles_button.Text = "MEGA download";
 
-                    if(Properties.Settings.Default.loginedMega)
-                        importMega_button.Enabled = true;    
+                    if (Properties.Settings.Default.loginedMega)
+                        importMega_button.Enabled = true;
                 }
                 else
                 {
@@ -86,22 +83,22 @@ namespace CloudFolderBrowser
                 if (MainForm.usingFogLink && !Properties.Settings.Default.loginedMega)
                     MessageBox.Show("Not signed in MEGA: unable to import files.");
 
-                getJdLinks_button.Enabled = true;                
+                getJdLinks_button.Enabled = true;
             }
             if (cloudServiceType == CloudServiceType.Yadisk)
             {
                 if (Properties.Settings.Default.loginedYandex)
                     importMega_button.Enabled = true;
-                getJdLinks_button.Enabled = true;                
-            }            
+                getJdLinks_button.Enabled = true;
+            }
 
             progressBars = new List<ProgressBar> { progressBar1, progressBar2, progressBar3, progressBar4 };
             progressLabels = new List<Label> { label1, label2, label3, label4, DownloadProgress_label };
 
             rootFolder = newFilesFolder;
-            nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);            
+            nodeCheckBox2.CheckStateChanged += new EventHandler<TreePathEventArgs>(NodeCheckStateChanged);
             newFilesTreeViewAdv.ShowNodeToolTips = true;
-            newFilesTreeViewAdv.NodeControls[2].ToolTipProvider = new ToolTipProvider();          
+            newFilesTreeViewAdv.NodeControls[2].ToolTipProvider = new ToolTipProvider();
             newFilesTreeViewAdv.NodeFilter = filter;
 
             newFiles_model = new TreeModel();
@@ -111,7 +108,7 @@ namespace CloudFolderBrowser
             newFilesFlat_model.Nodes.Add(rootFlatNode);
             ColumnNode rootNode = new ColumnNode(newFilesFolder.Name, newFilesFolder.Created, newFilesFolder.Modified, newFilesFolder.Size);
             rootNode.Tag = rootFlatNode.Tag = Model.CloudPublicFolder;
-            
+
             newFilesTreeViewAdv.Model = new SortedTreeModel(newFiles_model);
             newFilesTreeViewAdv.BeginUpdate();
             newFiles_model.Nodes.Add(rootNode);
@@ -144,14 +141,14 @@ namespace CloudFolderBrowser
                         currentFolderPath += folders[i] + @"/";
                         ColumnNode subNode = new ColumnNode(folders[i], file.Created, file.Modified, 0);
                         var folderNode = folderNodes.Find(x => x.Path == currentFolderPath);
-                        if (folderNode != null)                           
+                        if (folderNode != null)
                             currentNode = folderNode;
                         else
                         {
                             subNode.Path = currentFolderPath;
                             var cloudFolder = Model.AllFolders.Where(x => x.Path == currentFolderPath).FirstOrDefault();
                             subNode.Tag = cloudFolder;
-                            currentNode.Nodes.Add(subNode);                            
+                            currentNode.Nodes.Add(subNode);
                             folderNodes.Add(subNode);
                             currentNode = subNode;
                         }
@@ -166,11 +163,11 @@ namespace CloudFolderBrowser
                         currentNode.Size += file.Size;
                     }
                 }
-            }                   
+            }
             newFilesTreeViewAdv.EndUpdate();
-            newFilesTreeViewAdv.Root.Children[0].Expand();            
+            newFilesTreeViewAdv.Root.Children[0].Expand();
             newFiles_model.Nodes[0].IsChecked = true;
-            CheckAllSubnodes(newFiles_model.Nodes[0] as ColumnNode, false);           
+            CheckAllSubnodes(newFiles_model.Nodes[0] as ColumnNode, false);
             newFilesTreeViewAdv.Columns[0].MinColumnWidth = 100;
 
             checkAllToolStripMenuItem.Click += CheckAllToolStripMenuItem_Click;
@@ -179,7 +176,7 @@ namespace CloudFolderBrowser
             collapseAllToolStripMenuItem.Click += CollapseAllToolStripMenuItem_Click;
             Show();
         }
-              
+
         public void CloseForm()
         {
             HideForm = false;
@@ -197,14 +194,14 @@ namespace CloudFolderBrowser
                 AddAllFiles(node);
                 return;
             }
-            
+
             foreach (Node subnode in node.Nodes)
             {
                 if (subnode.Tag.GetType().ToString() == "CloudFolderBrowser.CloudFolder")
                 {
                     var folder = subnode.Tag as CloudFolder;
                     if (subnode.CheckState == CheckState.Indeterminate)
-                    {                        
+                    {
                         GetCheckedFiles(subnode);
                     }
                     if (subnode.CheckState == CheckState.Checked)
@@ -229,9 +226,9 @@ namespace CloudFolderBrowser
                 if (subnode.Tag == null || subnode.Tag.GetType().ToString() == "CloudFolderBrowser.CloudFolder")
                 {
                     checkedFolders.Add(subnode.Tag as CloudFolder);
-                    AddAllFiles(subnode);                    
+                    AddAllFiles(subnode);
                 }
-                else             
+                else
                 {
                     checkedFiles.Add((CloudFile)(subnode.Tag));
                     checkedFilesSize += ((CloudFile)(subnode.Tag)).Size;
@@ -269,12 +266,12 @@ namespace CloudFolderBrowser
             }
 
             foreach (CloudFile file in checkedFiles)
-            {                
+            {
                 //string folderPath = file.Path.Replace(file.Name, "");
                 var folderPath = Path.GetDirectoryName(file.Path);
                 JDPackage pak;
                 if (!packages.ConvertAll(x => x.name).Contains(folderPath))
-                {                    
+                {
                     pak = new JDPackage(folderPath, folderPath);
                     pak.numberId = packages.Count.ToString("D3");
                     pak.downloadFolder = folderPath;
@@ -305,7 +302,7 @@ namespace CloudFolderBrowser
                 link.downloadLink.size = (int)file.Size;
                 File.WriteAllText($"{di.FullName}\\{pak.numberId}_{pak.linksCount.ToString("D3")}", JsonConvert.SerializeObject(link));
                 pak.linksCount++;
-            }          
+            }
 
             DialogResult dialogResult = MessageBox.Show("Got links for " + (checkedFiles.Count) + " files! Continue?", "Result", MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
@@ -318,8 +315,8 @@ namespace CloudFolderBrowser
             foreach (char c in Path.GetInvalidFileNameChars())
                 rootFolderName = rootFolderName.Replace(c.ToString(), "");
 
-            string dirPath = $"{appPath}\\linkcontainers\\{rootFolderName}";  
-            
+            string dirPath = $"{appPath}\\linkcontainers\\{rootFolderName}";
+
             Directory.CreateDirectory(dirPath);
             System.IO.Compression.ZipFile.CreateFromDirectory($"{appPath}\\Links", dirPath + @"\linkcollector" + number + ".zip");
 
@@ -368,9 +365,9 @@ namespace CloudFolderBrowser
             else
                 MessageBox.Show("No files checked!");
         }
-        
+
         async Task ImportCheckedToMega()
-        {           
+        {
             if (checkedFilesSize > MainForm.freeSpace)
             {
                 MessageBox.Show("MEGA: Not enough free space");
@@ -381,19 +378,19 @@ namespace CloudFolderBrowser
                 DialogResult dialogResult = MessageBox.Show(checkedFiles.Count + $" new files found. Size: {Math.Round(checkedFilesSize / 1000000.0, 2)} MB. Download?", "", MessageBoxButtons.YesNo);
                 if (dialogResult == DialogResult.Yes)
                 {
-                    var nodes = new List<INode>() {};
-                    foreach(CloudFolder folder in checkedFolders)
+                    var nodes = new List<INode>() { };
+                    foreach (CloudFolder folder in checkedFolders)
                     {
-                        if(folder.MegaNode != null)
+                        if (folder.MegaNode != null)
                             nodes.Add(folder.MegaNode);
                     }
                     foreach (CloudFile file in checkedFiles)
                     {
-                        string savePath = Model.CloudPublicFolder.Name + file.Path;                      
+                        string savePath = Model.CloudPublicFolder.Name + file.Path;
                         var fileUri = new Uri($"https://mega.nz/folder/" +
                             $"{Model.CloudPublicFolder.PublicKey}#{Model.CloudPublicFolder.PublicDecryptionKey}/file/" + file.MegaNode.Id);
-                        
-                        nodes.Add(file.MegaNode);                                         
+
+                        nodes.Add(file.MegaNode);
                     }
                     MainForm.megaClient.ImportNodes(nodes.ToArray(), MainForm.MegaRootNode);
                     MessageBox.Show("Finished");
@@ -418,11 +415,11 @@ namespace CloudFolderBrowser
                     var nodes = new List<string>() { };
                     foreach (CloudFolder folder in checkedFolders)
                     {
-                        if(!string.IsNullOrEmpty(folder.EncryptedUrl))
+                        if (!string.IsNullOrEmpty(folder.EncryptedUrl))
                             nodes.Add(folder.EncryptedUrl);
                     }
                     foreach (CloudFile file in checkedFiles)
-                    {  
+                    {
                         nodes.Add(file.EncryptedUrl);
                     }
                     HttpClient client = new HttpClient();
@@ -440,7 +437,7 @@ namespace CloudFolderBrowser
                     {
                         int code;
                         var codeOk = int.TryParse(megaCode, out code);
-                        var error = codeOk?((ApiResultCode)code).ToString():response.StatusCode.ToString();
+                        var error = codeOk ? ((ApiResultCode)code).ToString() : response.StatusCode.ToString();
                         MessageBox.Show($"Failed to import files: {(error)}");
                     }
                     else
@@ -461,28 +458,36 @@ namespace CloudFolderBrowser
 
         private void DownloadFiles()
         {
-            maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
             GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
 
-            DialogResult dialogResult = MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize / 1000000)} MB]  Continue?", "Result", MessageBoxButtons.YesNo);
+            DialogResult dialogResult =
+                MessageBox.Show($"Got links for {checkedFiles.Count} files [{(int)(checkedFilesSize / 1000000)} MB]  Continue?", "Result",
+                MessageBoxButtons.YesNo);
             if (dialogResult == DialogResult.No)
                 return;
 
-            if (folderNewFiles_checkBox.Checked)
+            if (FolderNewFiles)
                 Directory.CreateDirectory(MainForm.syncFolderPath + @"\0_New Files\" + DateTime.Now.ToShortDateString());
 
-            ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
-            Label[] usedLabels = new Label[maximumDownloads + 1];
-            for (int i = 0; i < maximumDownloads; i++)
+            ProgressBar[] usedProgressBars = new ProgressBar[MaximumDownloads];
+            Label[] usedLabels = new Label[MaximumDownloads + 1];
+            for (int i = 0; i < MaximumDownloads; i++)
             {
                 usedProgressBars[i] = progressBars[i];
                 usedLabels[i] = progressLabels[i];
             }
-            usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
+            usedLabels[MaximumDownloads] = progressLabels[progressLabels.Count - 1];
 
-            Download = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, toolTip1, cloudServiceType, MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, NetworkCredential, folderNewFiles_checkBox.Checked);
+            Download = new CommonDownload(checkedFiles, usedProgressBars, usedLabels, toolTip1, cloudServiceType,
+                MainForm.syncFolderPath, OverwriteMode, NetworkCredential, FolderNewFiles);
+            Download.MaxDownloadRetries = RetryMax;
+            Download.RetryDelay = RetryDelay;
+
+            Download.CheckFileSizeError = CheckFileSizeError;
+            Download.CheckDownloadedFileSize = CheckDownloadedFileSize;
+
             Download.DownloadCompleted += Download_DownloadCompleted;
             Download.Start();
 
@@ -492,7 +497,6 @@ namespace CloudFolderBrowser
 
         private void DownloadMega()
         {
-            maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
             GetCheckedFiles((((SortedTreeModel)newFilesTreeViewAdv.Model).InnerModel as TreeModel).Nodes[0]);
@@ -501,17 +505,17 @@ namespace CloudFolderBrowser
             if (dialogResult == DialogResult.No)
                 return;
 
-            if (folderNewFiles_checkBox.Checked)
+            if (FolderNewFiles)
                 Directory.CreateDirectory(MainForm.syncFolderPath + @"\0_New Files\" + DateTime.Now.ToShortDateString());
 
-            ProgressBar[] usedProgressBars = new ProgressBar[maximumDownloads];
-            Label[] usedLabels = new Label[maximumDownloads + 1];
-            for (int i = 0; i < maximumDownloads; i++)
+            ProgressBar[] usedProgressBars = new ProgressBar[MaximumDownloads];
+            Label[] usedLabels = new Label[MaximumDownloads + 1];
+            for (int i = 0; i < MaximumDownloads; i++)
             {
                 usedProgressBars[i] = progressBars[i];
                 usedLabels[i] = progressLabels[i];
             }
-            usedLabels[maximumDownloads] = progressLabels[progressLabels.Count - 1];
+            usedLabels[MaximumDownloads] = progressLabels[progressLabels.Count - 1];
 
             if (megaApiClient == null)
             {
@@ -520,7 +524,7 @@ namespace CloudFolderBrowser
             }
 
             Download = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, toolTip1,
-                MainForm.syncFolderPath, overwriteMode_comboBox.SelectedIndex, folderNewFiles_checkBox.Checked, Model.CloudPublicFolder.PublicKey);
+                MainForm.syncFolderPath, OverwriteMode, FolderNewFiles, Model.CloudPublicFolder.PublicKey);
             Download.DownloadCompleted += Download_DownloadCompleted;
             Download.Start();
 
@@ -551,7 +555,7 @@ namespace CloudFolderBrowser
         void CheckIndex(object sender, NodeControlValueEventArgs e)
         {
             var currentNode = (ColumnNode)(e.Node.Tag);
-            var parentNode = (currentNode.Parent);            
+            var parentNode = (currentNode.Parent);
             bool parentChecked = false;
             bool parentCheckBoxEnabled = true;
             if (parentNode.Index != -1)
@@ -611,13 +615,13 @@ namespace CloudFolderBrowser
         void NodeCheckStateChanged(object sender, TreePathEventArgs e)
         {
             ColumnNode checkedNode = (ColumnNode)e.Path.LastNode;
-            
+
             if (checkedNode.CheckState == CheckState.Checked)
             {
                 //if (checkedNode.Tag?.GetType().ToString() != "CloudFolderBrowser.CloudFile") checkedFolders.Add(MainForm.);
-                    //if (checkedNode.Parent.CheckState != CheckState.Checked && checkedNode.Parent.Index != -1)
-                    //    UpdateParentCheckState((ColumnNode)checkedNode.Parent);
-                    CheckAllSubnodes(checkedNode, false);
+                //if (checkedNode.Parent.CheckState != CheckState.Checked && checkedNode.Parent.Index != -1)
+                //    UpdateParentCheckState((ColumnNode)checkedNode.Parent);
+                CheckAllSubnodes(checkedNode, false);
                 //checkedFilesSize += ((CloudFolder)checkedNode.Tag).Size - ((CloudFolder)checkedNode.Tag).SizeTopDirectoryOnly;
                 //label1.Text = $"{Math.Round(checkedFilesSize * b2Mb, 2)} MB checked";
             }
@@ -667,7 +671,7 @@ namespace CloudFolderBrowser
                     break;
                 }
                 else
-                    UnCheckedNodes++;            
+                    UnCheckedNodes++;
             }
 
             if (MixedNodes > 0)
@@ -679,7 +683,7 @@ namespace CloudFolderBrowser
             {
                 // all children are checked
                 //if (parentNode.CheckState == CheckState.Indeterminate)
-                    parentNode.CheckState = CheckState.Checked;
+                parentNode.CheckState = CheckState.Checked;
                 //parentNode.CheckState = CheckState.Indeterminate;
                 //else
                 //   parentNode.CheckState = CheckState.Indeterminate;
@@ -687,7 +691,7 @@ namespace CloudFolderBrowser
             else if (CheckedNodes > 0)
             {
                 // some children are checked, the rest are unchecked                   
-                parentNode.CheckState = CheckState.Indeterminate;               
+                parentNode.CheckState = CheckState.Indeterminate;
             }
             if (CheckedNodes == 0 && MixedNodes == 0)
             {
@@ -704,7 +708,7 @@ namespace CloudFolderBrowser
                 UpdateParentCheckState((ColumnNode)parentNode.Parent);
 
         }
-                
+
         void TransferNodeCheckState(ColumnNode node)
         {
             foreach (ColumnNode subnode in node.Nodes)
@@ -734,19 +738,19 @@ namespace CloudFolderBrowser
             string[] parsedPath = Utility.ParsePath(path, true);
             Node currentNode = root;
             int i = 0;
-            while(i<parsedPath.Length)
+            while (i < parsedPath.Length)
             {
                 if (currentNode.Nodes == null)
                     return null;
-                foreach(Node n in currentNode.Nodes)
+                foreach (Node n in currentNode.Nodes)
                 {
-                    if(n.Text == (parsedPath[i]))
+                    if (n.Text == (parsedPath[i]))
                     {
                         currentNode = n;
-                        i++;                        
+                        i++;
                         break;
                     }
-                }                
+                }
             }
             return currentNode;
 
@@ -804,7 +808,7 @@ namespace CloudFolderBrowser
         }
 
         #endregion
-            
+
         #region #BUTTONS
 
         private void importYadisk_button_Click(object sender, EventArgs e)
@@ -826,14 +830,14 @@ namespace CloudFolderBrowser
                 ImportCheckedToMega();
         }
 
-        private void getJdLinks_button_Click(object sender, EventArgs e) 
+        private void getJdLinks_button_Click(object sender, EventArgs e)
         {
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
-            GetCheckedFiles(((newFilesTreeViewAdv.Model as SortedTreeModel).InnerModel as TreeModel).Nodes[0]);                   
+            GetCheckedFiles(((newFilesTreeViewAdv.Model as SortedTreeModel).InnerModel as TreeModel).Nodes[0]);
             CreateJdLinkcontainer();
         }
-       
+
         private void downloadFiles_button_Click(object sender, EventArgs e)
         {
             if (cloudServiceType == CloudServiceType.Mega)
@@ -844,12 +848,12 @@ namespace CloudFolderBrowser
 
         private void stopDownloads_Click(object sender, EventArgs e)
         {
-            Download?.Stop();           
+            Download?.Stop();
             OnDownloadCompleted(EventArgs.Empty);
         }
 
         #endregion
-       
+
         private void syncFilesForm2_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (HideForm)
@@ -859,20 +863,15 @@ namespace CloudFolderBrowser
             }
         }
 
-        private void maximumDownloads_numericUpDown_ValueChanged(object sender, EventArgs e)
-        {
-            maximumDownloads = (int) maximumDownloads_numericUpDown.Value;
-        }
-        
         private void Download_DownloadCompleted(object sender, EventArgs e)
         {
-            for (int i = 0; i < maximumDownloads; i++)
+            for (int i = 0; i < MaximumDownloads; i++)
             {
                 progressBars[i].Value = 0;
                 progressLabels[i].Text = "";
             }
             progressLabels[4].Text = "";
-            string message2 = "", message1 = "All downloads are finished!";          
+            string message2 = "", message1 = "All downloads are finished!";
 
             if (Download != null)
             {
@@ -881,13 +880,13 @@ namespace CloudFolderBrowser
 
                 DownloadsFinishedForm downloadsFinishedForm = new DownloadsFinishedForm(Download.DownloadFolderPath, message1, message2);
                 downloadsFinishedForm.Show();
-            }           
+            }
         }
 
         private void filter_TextChangedComplete(object sender, EventArgs e)
         {
             newFilesTreeViewAdv.UpdateNodeFilter();
-        }             
+        }
 
         private void flatList2_checkBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -895,7 +894,7 @@ namespace CloudFolderBrowser
             {
                 newFilesTreeViewAdv.Model = new SortedTreeModel(newFilesFlat_model);
                 TransferNodeCheckState(newFiles_model.Nodes[0] as ColumnNode);
-                newFilesTreeViewAdv.ShowNodeToolTips = true;  
+                newFilesTreeViewAdv.ShowNodeToolTips = true;
                 newFilesTreeViewAdv.ExpandAll();
                 newFilesTreeViewAdv.AutoSizeColumn(newFilesTreeViewAdv.Columns[0]);
                 newFilesTreeViewAdv.AutoSizeColumn(newFilesTreeViewAdv.Columns[3]);
@@ -904,9 +903,14 @@ namespace CloudFolderBrowser
             {
                 newFilesTreeViewAdv.Model = new SortedTreeModel(newFiles_model);
                 TransferNodeCheckState(newFilesFlat_model.Nodes[0] as ColumnNode);
-                newFilesTreeViewAdv.ShowNodeToolTips = false;   
-                newFilesTreeViewAdv.Root.Children[0].Expand();              
-            }            
+                newFilesTreeViewAdv.ShowNodeToolTips = false;
+                newFilesTreeViewAdv.Root.Children[0].Expand();
+            }
         }
-    }        
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new SyncSettingsForm(this).ShowDialog();
+        }
+    }
 }

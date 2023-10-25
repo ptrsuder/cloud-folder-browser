@@ -237,6 +237,11 @@ namespace CloudFolderBrowser
 
                 //var ct = new CancellationTokenSource();
                 await webClient.DownloadFileTaskAsync(downloadUri, outputFile); //.WaitAsync(new TimeSpan(99999), ct.Token);
+
+                if (File.Exists(SavePath) && ParentDownload.CheckDownloadedFileSize)                
+                    if(new FileInfo(SavePath).Length * ParentDownload.CheckFileSizeError < FileInfo.Size)                    
+                        RetryDownload();
+                                    
                 //ct.CancelAfter(200);
                 //if (new Random().Next(0, 2) == 1)
                 //throw new WebException("", WebExceptionStatus.ConnectionClosed);

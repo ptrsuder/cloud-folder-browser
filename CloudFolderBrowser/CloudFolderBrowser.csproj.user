@@ -38,6 +38,9 @@
     <Compile Update="FormsSecondary\PasswordForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="FormsSecondary\SyncSettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

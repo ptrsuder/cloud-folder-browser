@@ -26,6 +26,10 @@ namespace CloudFolderBrowser
 
         public int FinishedDownloads = 0, MaxDownloadRetries = 4, RetryDelay = 300;
 
+        public bool CheckDownloadedFileSize = true;
+
+        public double CheckFileSizeError = 0.999;
+
         public List<IFileDownload> FailedDownloads { get; set; }
 
         public string DownloadFolderPath { get; set; }
