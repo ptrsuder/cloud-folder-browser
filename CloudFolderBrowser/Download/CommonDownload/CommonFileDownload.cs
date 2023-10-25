@@ -86,7 +86,7 @@ namespace CloudFolderBrowser
             Directory.CreateDirectory(Path.GetDirectoryName(SavePath));
             FileInfo file = new FileInfo(SavePath);
             DialogResult overwriteFile = DialogResult.Yes;
-            if (file.Exists)
+            if (file.Exists && file.Length >= 0.999 * FileInfo.Size)
             {
                 switch (ParentDownload.OverwriteMode)
                 {
