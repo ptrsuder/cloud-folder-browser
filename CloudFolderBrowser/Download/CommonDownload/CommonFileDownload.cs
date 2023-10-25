@@ -145,9 +145,28 @@ namespace CloudFolderBrowser
                     if (File.Exists(SavePath))
                         File.Delete(SavePath);
                 }
+                catch (WebException ex) when (ex.Status != WebExceptionStatus.RequestCanceled)
+                {
+                    var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
+                    string log =
+                        $"{DateTime.Now}\n" +
+                        $"DownloadPath: {downloadPath}\n" +
+                        $"SavePath: {downloadPath}\n" +
+                        $"WebException:[{ex.Status}] {ex.Message}\n" +
+                        $"Retry: {ParentDownload.MaxDownloadRetries - RemainedRetries}\n";
+
+                    File.AppendAllText(logFileName, log);
+
+                    if (RemainedRetries >= 0)
+                    {
+                        await Task.Delay(ParentDownload.RetryDelay);
+                        RetryDownload();
+                    }
+                    return;
+                }
                 catch (Exception ex)
                 {
-                    if(ex.HResult == -2146233029 || ex.HResult == -2146233079)
+                    if(ex.HResult == -2146233029) //|| ex.HResult == -2146233079)
                     {
                         if (DownloadTask.IsCanceled)
                             DownloadTask.Dispose();
@@ -158,17 +177,19 @@ namespace CloudFolderBrowser
                         return;
                     }
                     var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
-                    string log = $"{DateTime.Now}\ndownloadPath: {downloadPath}\nSavePath: {downloadPath}\nexception: {ex.Message}\n";
+                    string log = 
+                        $"{DateTime.Now}\n" +
+                        $"DownloadPath: {downloadPath}\n" +
+                        $"SavePath: {downloadPath}\n" +
+                        $"Exception: {ex.Message}\n\n";
                     File.AppendAllText(logFileName, log);
 
                     if (RemainedRetries >= 0)
                     {
                         await Task.Delay(ParentDownload.RetryDelay);
                         RetryDownload();
-                    }                
-                    
+                    }
                     return;
-
                 }
             }
             ParentDownload.UpdateQueue(this);
@@ -179,7 +200,12 @@ namespace CloudFolderBrowser
             DownloadFailed = false;
             ProgressBar.Value = 0;
             ProgressLabel.Text = "";
+
+            if (File.Exists(SavePath))
+                File.Delete(SavePath);
+
             await StartDownload();
+
             if (DownloadFailed)
                 return;
         }
@@ -208,10 +234,13 @@ namespace CloudFolderBrowser
                 {
                     progress.Report(e.ProgressPercentage);
                 };
-                //var rand = new Random();
-                //if (rand.Next(0, 2) == 1)
-                //    throw new WebException();
-                await webClient.DownloadFileTaskAsync(downloadUri, outputFile);
+
+                //var ct = new CancellationTokenSource();
+                await webClient.DownloadFileTaskAsync(downloadUri, outputFile); //.WaitAsync(new TimeSpan(99999), ct.Token);
+                //ct.CancelAfter(200);
+                //if (new Random().Next(0, 2) == 1)
+                //throw new WebException("", WebExceptionStatus.ConnectionClosed);
+                //throw new Exception();
             }
         }
     }
