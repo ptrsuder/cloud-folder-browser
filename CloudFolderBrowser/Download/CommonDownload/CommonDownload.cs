@@ -23,7 +23,7 @@ namespace CloudFolderBrowser
             FailedDownloads = new List<IFileDownload>();
 
             if (folderNewFiles)
-                DownloadFolderPath = baseDownloadPath + "/0_New Files/" + DateTime.Now.Date.ToShortDateString();
+                DownloadFolderPath = baseDownloadPath + "\\0_New Files\\" + DateTime.Now.Date.ToShortDateString();
             else
                 DownloadFolderPath = baseDownloadPath + "\\";
 
@@ -35,9 +35,9 @@ namespace CloudFolderBrowser
                 {
                     var newFolderDir = new DirectoryInfo(DownloadFolderPath);
                     var newFolderFiles = newFolderDir.GetFiles("*", SearchOption.AllDirectories);
-                    var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
-                    if (matchedFiles.Length > 0)
-                        continue;
+                    //var matchedFiles = newFolderFiles.Where(x => x.Name == file.Name).ToArray();
+                    //if (matchedFiles.Length > 0)
+                    //    continue;
                     CommonFileDownload fileDownload = new CommonFileDownload(this, file, DownloadFolderPath + file.Path.Remove(0,1).Replace("/","\\"), networkCredential);
                     DownloadQueue.Enqueue(fileDownload);
                     Downloads.Add(fileDownload);
