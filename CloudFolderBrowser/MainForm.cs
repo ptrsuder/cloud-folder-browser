@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Xml;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
 using CG.Web.MegaApiClient;
@@ -68,6 +69,24 @@ namespace CloudFolderBrowser
         public MainForm()
         {
             InitializeComponent();
+
+            Bluegrams.Application.PortableSettingsProvider.AllRoaming = true;
+
+            //copy local settings to roaming
+            if (File.Exists("portable.config"))
+            {
+                XmlDocument a = new();
+                a.Load("portable.config");
+
+                var roam = a.GetElementsByTagName("Roaming");
+                var local = a.GetElementsByTagName("PC_" + Environment.MachineName);
+
+                if ((roam[0] as XmlElement).IsEmpty && !(local[0] as XmlElement).IsEmpty)
+                {
+                    roam[0].AppendChild(local[0].FirstChild.CloneNode(true));
+                    a.Save("portable.config");
+                }
+            }
 
             SendMessage(filter_textBox.Handle, 0x1501, 1, "Filter by name");
             filter_textBox.TextChangedComplete += filter_TextChangedComplete;
