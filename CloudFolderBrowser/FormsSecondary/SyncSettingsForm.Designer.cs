@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             checkDownloadedFileSize_checkBox = new CheckBox();
             maxDownloadRetries_numericUpDown = new NumericUpDown();
             folderNewFiles_checkBox = new CheckBox();
@@ -42,6 +43,7 @@
             checkFileSizeError_numericUpDown = new NumericUpDown();
             groupBox6 = new GroupBox();
             groupBox7 = new GroupBox();
+            toolTip1 = new ToolTip(components);
             ((System.ComponentModel.ISupportInitialize)maxDownloadRetries_numericUpDown).BeginInit();
             ((System.ComponentModel.ISupportInitialize)maximumDownloads_numericUpDown).BeginInit();
             groupBox1.SuspendLayout();
@@ -61,9 +63,9 @@
             checkDownloadedFileSize_checkBox.FlatStyle = FlatStyle.Flat;
             checkDownloadedFileSize_checkBox.Location = new Point(26, 92);
             checkDownloadedFileSize_checkBox.Name = "checkDownloadedFileSize_checkBox";
-            checkDownloadedFileSize_checkBox.Size = new Size(161, 19);
+            checkDownloadedFileSize_checkBox.Size = new Size(170, 19);
             checkDownloadedFileSize_checkBox.TabIndex = 0;
-            checkDownloadedFileSize_checkBox.Text = "CheckDownloadedFileSize";
+            checkDownloadedFileSize_checkBox.Text = "Check Downloaded File Size";
             checkDownloadedFileSize_checkBox.UseVisualStyleBackColor = true;
             checkDownloadedFileSize_checkBox.CheckedChanged += checkDownloadedFileSize_checkBox_CheckedChanged;
             // 
@@ -120,7 +122,7 @@
             groupBox1.Size = new Size(145, 58);
             groupBox1.TabIndex = 28;
             groupBox1.TabStop = false;
-            groupBox1.Text = "MaxDownloadRetries";
+            groupBox1.Text = "Max Retries";
             // 
             // groupBox2
             // 
@@ -130,7 +132,7 @@
             groupBox2.Size = new Size(145, 58);
             groupBox2.TabIndex = 28;
             groupBox2.TabStop = false;
-            groupBox2.Text = "RetryDelay";
+            groupBox2.Text = "Retry Delay";
             // 
             // retryDelay_numericUpDown
             // 
@@ -171,7 +173,7 @@
             groupBox5.Size = new Size(145, 58);
             groupBox5.TabIndex = 28;
             groupBox5.TabStop = false;
-            groupBox5.Text = "CheckFileSizeError";
+            groupBox5.Text = "File Size Error Margin";
             // 
             // checkFileSizeError_numericUpDown
             // 
@@ -251,5 +253,6 @@
         private NumericUpDown checkFileSizeError_numericUpDown;
         private GroupBox groupBox6;
         private GroupBox groupBox7;
+        private ToolTip toolTip1;
     }
 }

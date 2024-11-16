@@ -31,6 +31,13 @@ namespace CloudFolderBrowser.FormsSecondary
             retryDelay_numericUpDown.Value = ParentForm.RetryDelay;
 
             StartPosition = FormStartPosition.CenterParent;
+
+            toolTip1.SetToolTip(checkDownloadedFileSize_checkBox, "Check file size on disk and in cloud if checked. Redownload if mismatch");
+            toolTip1.SetToolTip(checkFileSizeError_numericUpDown, "Margin of error between file sizes. Value of 1.0 means sizes should be identical");
+            toolTip1.SetToolTip(retryDelay_numericUpDown, "Delay in ms between download retries");
+            toolTip1.SetToolTip(maxDownloadRetries_numericUpDown, "Maximum amount of download retries before file is skipped");
+            toolTip1.SetToolTip(folderNewFiles_checkBox, "Will download files into separate <New Files DATE> folder");
+            toolTip1.SetToolTip(overwriteMode_comboBox, "Default behavior if file with same name already exists on disk");
         }
 
         Dictionary<int, string> overwriteModes = new Dictionary<int, string>()
