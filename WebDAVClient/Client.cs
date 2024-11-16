@@ -13,6 +13,9 @@ using WebDAVClient.Helpers;
 using System.Net.Http;
 using WebDAVClient.HttpClient;
 using WebDAVClient.Model;
+using System.Collections;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using System.Security.Authentication;
 
 namespace WebDAVClient
 {
@@ -31,8 +34,8 @@ namespace WebDAVClient
         // http://webdav.org/specs/rfc4918.html#METHOD_PROPFIND
         private const string PropFindRequestContent =
             "<?xml version=\"1.0\" encoding=\"utf-8\" ?>" +
-            "<propfind xmlns=\"DAV:\">" +
-            "<allprop/>" +
+            "<D:propfind xmlns:d=\"DAV:\" xmlns:s=\"http://sabredav.org/ns\" xmlns:oc=\"http://owncloud.org/ns\" xmlns:nc=\"http://nextcloud.org/ns\" xmlns:ocs=\"http://open-collaboration-services.org/ns\">" +
+            "<D:allprop/>" +
             //"  <propname/>" +
             //"  <prop>" +
             //"    <creationdate/>" +
@@ -43,7 +46,7 @@ namespace WebDAVClient
             //"    <getetag/>" +
             //"    <resourcetype/>" +
             //"  </prop> " +
-            "</propfind>";
+            "</D:propfind>";
 
         private static readonly string AssemblyVersion = typeof (IClient).Assembly.GetName().Version.ToString();
 
@@ -233,8 +236,8 @@ namespace WebDAVClient
 
         public async Task<IEnumerable<Item>> ListShared(string path = "/", int? depth = 1)
         {
-            var listUri = new Uri($"{Server}/public.php/webdav/");
-
+            Uri listUri = new Uri($"{Server}{BasePath}");          
+           
             // Depth header: http://webdav.org/specs/rfc4918.html#rfc.section.9.1.4
             IDictionary<string, string> headers = new Dictionary<string, string>();
             if (depth != null)
@@ -250,12 +253,15 @@ namespace WebDAVClient
                 }
             }
 
+            string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Credentials.UserName + ":" + Credentials.Password));
+
+            headers.Add("Authorization", "Basic " + svcCredentials); //add auth just in case
 
             HttpResponseMessage response = null;
 
             try
-            {
-                response = await HttpRequest(listUri, PropFind, headers, Encoding.UTF8.GetBytes(PropFindRequestContent)).ConfigureAwait(false) ;
+            {                
+                response = await HttpRequest(listUri, PropFind, headers).ConfigureAwait(false) ;
 
                 if (response.StatusCode != HttpStatusCode.OK &&
                     (int)response.StatusCode != HttpStatusCode_MultiStatus)
@@ -294,7 +300,7 @@ namespace WebDAVClient
                     return result;
                 }
 
-            }
+            }           
             finally
             {
                 if (response != null)
@@ -689,7 +695,7 @@ namespace WebDAVClient
             try
             {
                 using (var registration = cancellationToken.Register(() => webClient.CancelAsync()))
-                {
+                {                    
                     webClient.Headers = new WebHeaderCollection();
                     webClient.Credentials = Credentials;
 
@@ -723,9 +729,11 @@ namespace WebDAVClient
         /// <param name="content"></param>
         private async Task<HttpResponseMessage> HttpRequest(Uri uri, HttpMethod method, IDictionary<string, string> headers = null, byte[] content = null)
         {
+            
             using (var request = new HttpRequestMessage(method, uri))
             {
-                
+                ServicePointManager.Expect100Continue = true;
+                request.Version = HttpVersion.Version20;
                 request.Headers.Connection.Add("Keep-Alive");
                 if (!string.IsNullOrWhiteSpace(UserAgent))
                 {
@@ -740,14 +748,13 @@ namespace WebDAVClient
                     {
                         request.Headers.Add(key, headers[key]);
                     }
-                }
-
+                }               
                 // Need to send along content?
                 if (content != null)
                 {
                     request.Content = new ByteArrayContent(content);
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
-                }              
+                }                      
                 return await _httpClientWrapper.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             }
         }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Drawing.Imaging;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -30,7 +31,7 @@ namespace CloudFolderBrowser
     {
         public MainFormModel Model { get; set; } = new MainFormModel();
 
-        string AppVersion = "0.10.33";
+        string AppVersion = "0.10.35";
 
         public bool UseProgressPanel = false;
 
@@ -60,7 +61,7 @@ namespace CloudFolderBrowser
 
         const double b2Mb = 1.0 / (1024 * 1024);
 
-        const string browserUserAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0";
+        const string browserUserAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0";
 
         //filter textbox 
         [DllImport("user32.dll")]
@@ -69,6 +70,8 @@ namespace CloudFolderBrowser
         public MainForm()
         {
             InitializeComponent();
+
+            Model.UserAgent = browserUserAgentString;
 
             Bluegrams.Application.PortableSettingsProvider.AllRoaming = true;
 
@@ -387,7 +390,7 @@ namespace CloudFolderBrowser
 
         async Task<bool> LoadPublicFolder(string cloudFolderUrl)
         {
-            ProgressStage.Report(1);
+            ProgressStage.Report(1); //set progress to loading web
             usingFogLink = false;
             if (cloudFolderUrl != "")
             {
@@ -406,19 +409,20 @@ namespace CloudFolderBrowser
                     cloudFolderUrl = @"https://" + cloudFolderUrl;
 
                 if (cloudFolderUrl.ToLower().Contains("rebrand.ly"))
-                    cloudFolderUrl = await Utility.GetFinalRedirect(cloudFolderUrl);
+                    cloudFolderUrl = await Utility.GetFinalRedirect(cloudFolderUrl, browserUserAgentString);
 
                 if (cloudFolderUrl == null ||
                     cloudFolderUrl.ToLower().Contains("rebrand.ly") ||
                     cloudFolderUrl.ToLower().Contains("rebrandly"))
                 {
                     MessageBox.Show("Timeout or link is dead");
+                    ProgressStage?.Report(2);  //set progress to finished
                     return false;
                 }
 
                 Model.CloudServiceType = Utility.GetCloudServiceType(cloudFolderUrl);
 
-                ProgressStage.Report(0);
+                ProgressStage.Report(0); //set progress to loading treeview
 
                 try
                 {
@@ -949,6 +953,18 @@ namespace CloudFolderBrowser
                     return false;
             }
 
+            if (code == 403)
+            {
+                MessageBox.Show("Failed to load folder: Forbidden");
+                return false;
+            }
+
+            if (code == 500)
+            {
+                MessageBox.Show("Failed to load folder: Server Error. Try later?");
+                return false;
+            }
+
             if (code == 504)
             {
                 MessageBox.Show("Failed to load folder: Connection Timeout");
@@ -1146,7 +1162,7 @@ namespace CloudFolderBrowser
                 key = @"https://" + key;
 
             if (publicFolderKey_textBox.Text.ToLower().Contains("rebrand.ly"))
-                key = await Utility.GetFinalRedirect(key);
+                key = await Utility.GetFinalRedirect(key, browserUserAgentString);
 
             string hashString = Utility.GetHashString(key);
 
@@ -1173,7 +1189,7 @@ namespace CloudFolderBrowser
                     if (checkStatus)
                     {
                         Model.CloudServiceType = Utility.GetCloudServiceType(key);
-                        if (Model.CloudServiceType == CloudServiceType.Allsync)
+                        if (Model.CloudServiceType == CloudServiceType.Allsync || Model.CloudServiceType == CloudServiceType.QCloud)
                         {
                             var success = await LoadAllsync(key, true);
                             if (success)

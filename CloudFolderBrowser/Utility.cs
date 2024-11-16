@@ -37,11 +37,11 @@ namespace CloudFolderBrowser
 
         }
 
-        public static async Task<string> GetFinalRedirect(string url)
+        public static async Task<string> GetFinalRedirect(string url, string userAgent)
         {
             ServicePointManager.ServerCertificateValidationCallback = (s, cert, chain, ssl) => true;
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls13;
+            
             if (string.IsNullOrWhiteSpace(url))
                 return url;
 
@@ -54,8 +54,12 @@ namespace CloudFolderBrowser
                 SocketsHttpHandler webRequestHandler = new SocketsHttpHandler();
                 webRequestHandler.AllowAutoRedirect = false;
                 HttpClient httpClient = new HttpClient(webRequestHandler);
+                httpClient.DefaultRequestVersion = HttpVersion.Version20;
+                httpClient.DefaultRequestHeaders.Add("User-Agent", userAgent);
+
                 try
                 {
+
                     HttpResponseMessage responseMessage = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
 
                     switch (responseMessage.StatusCode)

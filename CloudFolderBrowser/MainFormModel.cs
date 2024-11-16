@@ -1,4 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using CG.Web.MegaApiClient;
@@ -16,6 +19,8 @@ namespace CloudFolderBrowser
         public CloudServiceType CloudServiceType;
 
         public bool LoadedFromFile = false;
+
+        public string UserAgent = "";
 
 
         public async Task<List<CloudFile>> GetMissingFiles(List<CloudFolder> checkedFolders, List<CloudFolder> mixedFolders, string syncFolderPath, bool ignoreExistingFiles)
@@ -334,7 +339,7 @@ namespace CloudFolderBrowser
                 WriteToLog($"\n{DateTime.Now}\n {folderKey} - password {password} \n\n");
 
             }
-            UpdateWebdavClient(folderKey, password);              
+            CreateUpdateWebdavClient(folderKey, password);              
 
             if (onlyCheck)
             {
@@ -348,23 +353,33 @@ namespace CloudFolderBrowser
 
         public async Task<int> LoadAllsync(string folderKey, string password = "", IProgress<int> progress = null)
         {
+            
             WebDAVClient.Model.Item[] items;
             try
             {
+                ServicePointManager.Expect100Continue = true;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+                // Skip validation of SSL/TLS certificate
+                //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+
                 if (password != "")
-                    UpdateWebdavClient(folderKey, password);
-                items = (await webdavClient.ListShared(CloudPublicFolder.Path, 999)).ToArray();
+                    CreateUpdateWebdavClient(folderKey, password);
+                else
+                    CreateUpdateWebdavClient(folderKey, "null");
+
+                items = (await webdavClient.ListShared(CloudPublicFolder.Path, 999))?.ToArray();
+                if (items == null)
                 progress?.Report(1);
             }
             catch (WebDAVClient.Helpers.WebDAVException ex)
             {
                 return ex.GetHttpCode();                
+            }            
+            catch (Exception ex2)
+            {
+                MessageBox.Show("Bad url or no connection");
+                return 0;
             }
-            //catch (Exception ex2)
-            //{
-            //    MessageBox.Show("Bad url or no connection");
-            //    return;
-            //}
 
             password = (webdavClient as Client).Credentials.Password;
             if (savedPasswords.ContainsKey(folderKey))
@@ -473,16 +488,22 @@ namespace CloudFolderBrowser
 
         public NetworkCredential WebdavCredential = null;
 
-        void UpdateWebdavClient(string folderKey, string password = "")
+        void CreateUpdateWebdavClient(string folderKey, string password = "")
         {
             NetworkCredential webdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
             webdavClient = new Client(webdavCredential);
             webdavClient.Server = allsyncUrl;
-            webdavClient.BasePath = "/public.php/webdav/";
+            webdavClient.BasePath = $"/public.php/webdav/";
             Dictionary<string, string> customHeaders = new Dictionary<string, string>();
             customHeaders.Add("X-Requested-With", "XMLHttpRequest");
-            customHeaders.Add("Accept-Encoding", "gzip, deflate, br");            
-            webdavClient.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:95.0) Gecko/20100101 Firefox/95.0";
+            customHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
+            customHeaders.Add("Accept", @"*/*");
+            customHeaders.Add("Accept-Language", "en-US,en;q=0.5");
+
+            webdavClient.UserAgent = UserAgent;
+                //@"Mozilla/5.0 (Windows) mirall/3.14.3stable-Win64 (build 20241031) (Nextcloud, windows-10.0.22631 ClientArchitecture: x86_64 OsArchitecture: x86_64)";
+                //webdavClient.UserAgentVersion = "30.0.2.2";
+                //@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36";
             webdavClient.CustomHeaders = customHeaders;           
         }
     }
