@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
@@ -50,6 +52,13 @@ namespace CloudFolderBrowser
         {
             ProgressBar.Value = (int) e;
             ProgressLabel.Text = $"{(int)(e * FileInfo.Size / 100000000)}/{ (int)(FileInfo.Size / 1000000)} MB [{Math.Round(e,2)}%] {FileInfo.Name}";
+        }
+
+        void ProgreessChanged(long complete, long total)
+        {
+
+            double procentage = Math.Round(100.0 * (complete * 1.0 / total), 2);
+            Progress.Report(procentage);        
         }
 
         string EncodeAllsyncUrl(string url)
@@ -122,19 +131,21 @@ namespace CloudFolderBrowser
 
                 SavePath = dir + "\\" + filename;
 
+                var encodedUrl = new Uri(downloadPath);
+                var host = encodedUrl.Host;
+
                 if (ParentDownload.CloudService == CloudServiceType.Allsync)
-                {
-                    var encodedUrl = new Uri(downloadPath);
-                    var host = encodedUrl.Host;
+                {                   
                     downloadPath = $"https://{host}/public.php/webdav/{EncodeAllsyncUrl(FileInfo.Path)}";
                 }
                 if(ParentDownload.CloudService == CloudServiceType.QCloud)
-                {                                          
-                    downloadPath = $"https://efss.qloud.my/index.php/s/{_networkCredential.UserName}/download?path=/&files={HttpUtility.UrlEncode(FileInfo.Path)}";                  
+                {
+                    downloadPath = $"https://{host}/index.php/s/{_networkCredential.UserName}/download?path=/&files={HttpUtility.UrlEncode(FileInfo.Path)}";                  
                 }
                 try
                 {
-                    DownloadTask = DownloadFileAsync(downloadPath, SavePath, Progress, ParentDownload.CancellationTokenSource.Token, _networkCredential);
+                    DownloadTask = DownloadFileAsync(downloadPath, SavePath, _networkCredential, ParentDownload.CancellationTokenSource.Token, ProgreessChanged);
+
                     await DownloadTask;              
                 }
                 catch (WebException ex) when (ex.Status == WebExceptionStatus.RequestCanceled)
@@ -166,16 +177,16 @@ namespace CloudFolderBrowser
                 }
                 catch (Exception ex)
                 {
-                    if(ex.HResult == -2146233029) //|| ex.HResult == -2146233079)
+                    if(ParentDownload.CancellationTokenSource.IsCancellationRequested)//ex.HResult == -2146233029) //|| ex.HResult == -2146233079)
                     {
                         if (DownloadTask.IsCanceled)
                             DownloadTask.Dispose();
 
                         if (File.Exists(SavePath))
                             File.Delete(SavePath);
-
                         return;
                     }
+
                     var logFileName = $"download-log-{DateTime.Now.ToString("MM-dd-yyyy")}.txt";
                     string log = 
                         $"{DateTime.Now}\n" +
@@ -211,6 +222,102 @@ namespace CloudFolderBrowser
         }
 
 
+        //from https://github.com/dotnet/runtime/issues/31479 by waltdestler
+        /// <summary>
+        /// Downloads a file from the specified Uri into the specified stream.
+        /// </summary>
+        /// <param name="cancellationToken">An optional CancellationToken that can be used to cancel the in-progress download.</param>
+        /// <param name="progressCallback">If not null, will be called as the download progress. The first parameter will be the number of bytes downloaded so far, and the second the total size of the expected file after download.</param>
+        /// <returns>A task that is completed once the download is complete.</returns>
+        public async Task DownloadFileAsync(string downloadUri, string outputFile, NetworkCredential networkCredential, CancellationToken cancellationToken = default, Action<long, long> progressCallback = null)
+        {
+            var uri = new Uri(downloadUri);
+            Stream toStream = File.Create(outputFile);
+
+            var progressStream = progressCallback != null ? new ProgressStream(toStream) : toStream as Stream;
+            // for performance use original stream if no callback
+            if (progressCallback != null)
+                (progressStream as ProgressStream).UpdateProgress += progressCallback;
+          
+
+            if (uri == null)
+                throw new ArgumentNullException(nameof(uri));
+            if (toStream == null)
+                throw new ArgumentNullException(nameof(toStream));
+
+            if (uri.IsFile)
+            {
+                await using Stream file = File.OpenRead(uri.LocalPath);
+
+                if (progressCallback != null)
+                {
+                    long length = file.Length;
+                    byte[] buffer = new byte[4096];
+                    int read;
+                    int totalRead = 0;
+                    while ((read = await file.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
+                    {
+                        await toStream.WriteAsync(buffer, 0, read, cancellationToken).ConfigureAwait(false);
+                        totalRead += read;
+                        progressCallback(totalRead, length);
+                    }
+                    Debug.Assert(totalRead == length || length == -1);
+                }
+                else
+                {
+                    await file.CopyToAsync(toStream, cancellationToken).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                using HttpClient client = new HttpClient();
+                if(networkCredential != null)
+                {
+                    string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(networkCredential.UserName + ":" + networkCredential.Password));
+                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + svcCredentials);
+                }
+                using HttpResponseMessage response = await client.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+
+                if (!response.IsSuccessStatusCode) throw new Exception();
+
+                if (progressCallback != null)
+                {
+                    long length = response.Content.Headers.ContentLength ?? FileInfo.Size;
+                    await using Stream stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                    byte[] buffer = new byte[4096];
+                    int read;
+                    int totalRead = 0;
+
+                    try
+                    {
+                        while ((read = await stream.ReadAsync(buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false)) > 0)
+                        {
+                            await toStream.WriteAsync(buffer, 0, read, cancellationToken).ConfigureAwait(false);
+                            totalRead += read;
+                            progressCallback(totalRead, length);
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            toStream.Close();
+                            toStream.Dispose();
+                        }
+                        throw;
+                    }
+
+                    toStream.Close();
+                    toStream.Dispose();
+                    Debug.Assert(totalRead == length || length == -1);
+                }
+                else
+                {
+                    await response.Content.CopyToAsync(toStream).ConfigureAwait(false);
+                }
+            }
+        }
+
         public async Task DownloadFileAsync(string downloadUri, string outputFile, IProgress<double> progress, CancellationToken cancellationToken, NetworkCredential networkCredential)
         {            
             var headers = new Dictionary<string, string> { { "translate", "f" } };
@@ -234,19 +341,74 @@ namespace CloudFolderBrowser
                 {
                     progress.Report(e.ProgressPercentage);
                 };
-
-                //var ct = new CancellationTokenSource();
+               
                 await webClient.DownloadFileTaskAsync(downloadUri, outputFile); //.WaitAsync(new TimeSpan(99999), ct.Token);
 
                 if (File.Exists(SavePath) && ParentDownload.CheckDownloadedFileSize)                
                     if(new FileInfo(SavePath).Length * ParentDownload.CheckFileSizeError < FileInfo.Size)                    
                         RetryDownload();
-                                    
+                    
+                
+                //for download fail testing
                 //ct.CancelAfter(200);
                 //if (new Random().Next(0, 2) == 1)
                 //throw new WebException("", WebExceptionStatus.ConnectionClosed);
                 //throw new Exception();
             }
+        }
+    }
+
+    //from https://stackoverflow.com/a/77516636
+    public class ProgressStream : Stream
+    {
+        private Stream _input;
+        private long _progress;
+
+        public event Action<long, long>? UpdateProgress;
+
+        public ProgressStream(Stream input)
+        {
+            _input = input;
+        }
+
+        public override void Flush() => _input.Flush();
+
+        public override Task FlushAsync(CancellationToken cancellationToken = default) => _input.FlushAsync(cancellationToken);
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            int n = _input.Read(buffer, offset, count);
+            _progress += n;
+            UpdateProgress?.Invoke(_progress, _input.Length);
+            return n;
+        }     
+
+        public override async ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            int n = await _input.ReadAsync(buffer, cancellationToken);
+            _progress += n;
+            UpdateProgress?.Invoke(_progress, _input.Length);
+            return n;
+        }
+
+        protected override void Dispose(bool disposing) => _input.Dispose();
+
+        public override ValueTask DisposeAsync() => _input.DisposeAsync();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new System.NotImplementedException();
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new System.NotImplementedException();
+
+        public override void SetLength(long value) => throw new System.NotImplementedException();
+
+        public override bool CanRead => true;
+        public override bool CanSeek => false;
+        public override bool CanWrite => false;
+        public override long Length => _input.Length;
+        public override long Position
+        {
+            get { return _input.Position; }
+            set { throw new System.NotImplementedException(); }
         }
     }
 }
