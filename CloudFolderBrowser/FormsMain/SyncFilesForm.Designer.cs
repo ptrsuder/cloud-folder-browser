@@ -144,7 +144,7 @@
             // progressBar3
             // 
             progressBar3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            progressBar3.Location = new Point(882, 528);
+            progressBar3.Location = new Point(882, 527);
             progressBar3.Margin = new Padding(4, 3, 4, 3);
             progressBar3.Name = "progressBar3";
             progressBar3.Size = new Size(303, 27);
@@ -162,11 +162,10 @@
             // label1
             // 
             label1.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label1.AutoSize = true;
             label1.Location = new Point(884, 417);
             label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new Size(38, 15);
+            label1.Size = new Size(301, 15);
             label1.TabIndex = 9;
             label1.Text = "label1";
             toolTip1.SetToolTip(label1, "$\"{label1.Text}\"");
@@ -175,11 +174,10 @@
             // label2
             // 
             label2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label2.AutoSize = true;
             label2.Location = new Point(883, 465);
             label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new Size(38, 15);
+            label2.Size = new Size(302, 15);
             label2.TabIndex = 10;
             label2.Text = "label2";
             label2.Visible = false;
@@ -187,11 +185,10 @@
             // label3
             // 
             label3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label3.AutoSize = true;
             label3.Location = new Point(883, 512);
             label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
-            label3.Size = new Size(38, 15);
+            label3.Size = new Size(302, 15);
             label3.TabIndex = 11;
             label3.Text = "label3";
             label3.Visible = false;
@@ -199,11 +196,10 @@
             // label4
             // 
             label4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            label4.AutoSize = true;
             label4.Location = new Point(883, 557);
             label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
-            label4.Size = new Size(38, 15);
+            label4.Size = new Size(302, 15);
             label4.TabIndex = 12;
             label4.Text = "label4";
             label4.Visible = false;
