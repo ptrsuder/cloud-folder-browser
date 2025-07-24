@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -6,6 +7,8 @@ using System.Text.RegularExpressions;
 using System.Web;
 using CG.Web.MegaApiClient;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using WebDav;
 using WebDAVClient;
 using Exception = System.Exception;
 
@@ -22,9 +25,13 @@ namespace CloudFolderBrowser
 
         public string UserAgent = "";
 
+        public bool ValidateFileSize = false;
 
-        public async Task<List<CloudFile>> GetMissingFiles(List<CloudFolder> checkedFolders, List<CloudFolder> mixedFolders, string syncFolderPath, bool ignoreExistingFiles)
+
+        public async Task<List<CloudFile>> GetMissingFiles(List<CloudFolder> checkedFolders, List<CloudFolder> mixedFolders, string syncFolderPath, bool ignoreExistingFiles, bool validateFileSize)
         {
+            ValidateFileSize = validateFileSize;
+            
             List<CloudFile> missingFiles = new List<CloudFile>();
 
             DirectoryInfo syncFolderDirectory = new DirectoryInfo(syncFolderPath);
@@ -38,10 +45,11 @@ namespace CloudFolderBrowser
                     continue;
                 }
                 FileInfo[] flatSyncFolderFilesList = di.GetFiles("*", SearchOption.TopDirectoryOnly);
+
                 if (!ignoreExistingFiles)
                     missingFiles.AddRange(folder.Files);
                 else
-                    missingFiles.AddRange(await CompareFilesLists(folder.Files, flatSyncFolderFilesList, syncFolderPath));
+                    missingFiles.AddRange(await CompareFilesLists(folder.Files, flatSyncFolderFilesList, syncFolderPath, validateFileSize));
             }
 
             foreach (CloudFolder folder in checkedFolders)
@@ -57,12 +65,12 @@ namespace CloudFolderBrowser
                 if (!ignoreExistingFiles)
                     missingFiles.AddRange(folder.GetFlatFilesList());
                 else
-                    missingFiles.AddRange(await CompareFilesLists(flatCloudFolderFilesList, flatSyncFolderFilesList, syncFolderPath));
+                    missingFiles.AddRange(await CompareFilesLists(flatCloudFolderFilesList, flatSyncFolderFilesList, syncFolderPath, validateFileSize));
             }
             return missingFiles;
         }
 
-        async static Task<List<CloudFile>> CompareFilesLists(List<CloudFile> cloudFolderFileList, FileInfo[] syncFolderFileList, string syncFolderPath)
+        async static Task<List<CloudFile>> CompareFilesLists(List<CloudFile> cloudFolderFileList, FileInfo[] syncFolderFileList, string syncFolderPath, bool validateSize)
         {
             List<CloudFile> missingFiles = new List<CloudFile>();
 
@@ -74,7 +82,7 @@ namespace CloudFolderBrowser
                         Path = x.FullName.Replace(syncFolderPath, @"\").Replace(@"\", @"/") 
                     });
 
-                missingFiles = cloudFolderFileList.Except(localFiles, new FileComparer()).ToList();
+                missingFiles = cloudFolderFileList.Except(localFiles, new FileComparer() { CompareSize = validateSize }).ToList();
             });
 
             return missingFiles;
@@ -85,7 +93,29 @@ namespace CloudFolderBrowser
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
 
             MegaApiClient megaClient = new MegaApiClient();
-            megaClient.LoginAnonymous();
+
+            if (Properties.Settings.Default.loginedMega && Properties.Settings.Default.loginTokenMega != "")
+            {
+                var megaLoginToken = JsonConvert.DeserializeObject<MegaApiClient.LogonSessionToken>(
+                    Properties.Settings.Default.loginTokenMega, new JsonSerializerSettings()
+                    {
+                        TypeNameHandling = TypeNameHandling.Auto
+                    });
+                try
+                {
+                    await megaClient.LoginAsync(megaLoginToken);
+                }
+                catch
+                {
+                    await megaClient.LoginAnonymousAsync();
+                }
+                   
+            }
+            else
+            {
+                await megaClient.LoginAnonymousAsync();
+            }
+            
             int filecount = 0;
 
             url = url.Replace("#F!", "folder/").Replace("!", "#");
@@ -131,11 +161,13 @@ namespace CloudFolderBrowser
                     AllFolders = new List<CloudFolder>() { CloudPublicFolder };
                     foreach (var node in nodes)
                     {
+                        var decodedName = Utility.GetSafePathName(node.Name);
+
                         if (node.Type == NodeType.Directory)
                         {
                             if (node.Id == nodes.ElementAt(0).Id) //root node
                                 continue;
-                            CloudFolder subfolder = new CloudFolder(node.Name, node.CreationDate ?? DateTime.MinValue, DateTime.MinValue, node.Size);
+                            CloudFolder subfolder = new CloudFolder(decodedName, node.CreationDate ?? DateTime.MinValue, DateTime.MinValue, node.Size);
                             CloudFolder parentFolder = allfolders[node.ParentId];
                             subfolder.MegaNode = node;
                             subfolder.Path = parentFolder.Path + subfolder.Name + "/";
@@ -146,7 +178,7 @@ namespace CloudFolderBrowser
                         }
                         if (node.Type == NodeType.File)
                         {
-                            CloudFile file = new CloudFile(node.Name, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
+                            CloudFile file = new CloudFile(decodedName, node.CreationDate ?? DateTime.MinValue, node.ModificationDate ?? DateTime.MinValue, node.Size);
                             CloudFolder parentFolder = allfolders[node.ParentId];
                             file.Path = parentFolder.Path + file.Name;
                             file.MegaNode = node;                            
@@ -353,12 +385,11 @@ namespace CloudFolderBrowser
 
         public async Task<int> LoadAllsync(string folderKey, string password = "", IProgress<int> progress = null)
         {
-            
             WebDAVClient.Model.Item[] items;
             try
             {
-                ServicePointManager.Expect100Continue = true;
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
+                //ServicePointManager.Expect100Continue = true;
+                //ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Tls13;
                 // Skip validation of SSL/TLS certificate
                 //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
 
@@ -491,29 +522,43 @@ namespace CloudFolderBrowser
         void CreateUpdateWebdavClient(string folderKey, string password = "")
         {
             NetworkCredential webdavCredential = new NetworkCredential { UserName = folderKey, Password = password };
+
+            var proxy = new WebProxy
+            {
+                Address = new Uri($"https://127.0.0.1:8888"),
+                BypassProxyOnLocal = false,
+                UseDefaultCredentials = false,
+            };
+
             webdavClient = new Client(webdavCredential);
             webdavClient.Server = allsyncUrl;
             webdavClient.BasePath = $"/public.php/webdav/";
             Dictionary<string, string> customHeaders = new Dictionary<string, string>();
             customHeaders.Add("X-Requested-With", "XMLHttpRequest");
-            customHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
+            //customHeaders.Add("Accept-Encoding", "gzip, deflate, br, zstd");
             customHeaders.Add("Accept", @"*/*");
             customHeaders.Add("Accept-Language", "en-US,en;q=0.5");
 
             webdavClient.UserAgent = UserAgent;
-                //@"Mozilla/5.0 (Windows) mirall/3.14.3stable-Win64 (build 20241031) (Nextcloud, windows-10.0.22631 ClientArchitecture: x86_64 OsArchitecture: x86_64)";
-                //webdavClient.UserAgentVersion = "30.0.2.2";
-                //@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36";
+           
             webdavClient.CustomHeaders = customHeaders;           
         }
     }
 
     class FileComparer : IEqualityComparer<CloudFile>
     {
+        public bool CompareSize = false;
+        public int ErrorMargin = 1;
         public bool Equals(CloudFile x, CloudFile y)
         {
             var a = WebUtility.UrlDecode(x.Path);
             var b = WebUtility.UrlDecode(y.Path);
+
+            if(CompareSize)
+            {
+                bool correctSize = Math.Abs(x.Size - y.Size) <= 10;
+                return (a == b) && correctSize;
+            }
 
             return (a == b);
         }

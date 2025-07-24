@@ -124,6 +124,7 @@ namespace WebDAVClient
                 handler.Proxy = proxy;
             if (handler.SupportsAutomaticDecompression)
                 handler.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+            handler.SslProtocols = SslProtocols.Tls12 | SslProtocols.Tls11 | SslProtocols.Tls13 | SslProtocols.Ssl2 | SslProtocols.Ssl3;
             if (credential != null)
             {
                 handler.Credentials = credential;
@@ -132,11 +133,12 @@ namespace WebDAVClient
             else
             {
                 handler.UseDefaultCredentials = true;
-            }
+            }            
+
 
             var client = new System.Net.Http.HttpClient(handler);           
             
-            client.DefaultRequestHeaders.ExpectContinue = false;
+            client.DefaultRequestHeaders.ExpectContinue = false;            
             client.Timeout = new TimeSpan(0, 10, 0);
             System.Net.Http.HttpClient uploadClient = null; 
             if (uploadTimeout != null)
@@ -236,7 +238,7 @@ namespace WebDAVClient
 
         public async Task<IEnumerable<Item>> ListShared(string path = "/", int? depth = 1)
         {
-            Uri listUri = new Uri($"{Server}{BasePath}");          
+             Uri listUri = new Uri($"{Server}{BasePath}");          
            
             // Depth header: http://webdav.org/specs/rfc4918.html#rfc.section.9.1.4
             IDictionary<string, string> headers = new Dictionary<string, string>();
@@ -244,7 +246,6 @@ namespace WebDAVClient
             {
                 headers.Add("Depth", depth.ToString());
             }
-
             if (CustomHeaders != null)
             {
                 foreach (var keyValuePair in CustomHeaders)
@@ -252,23 +253,51 @@ namespace WebDAVClient
                     headers.Add(keyValuePair);
                 }
             }
-
+           
             string svcCredentials = Convert.ToBase64String(Encoding.ASCII.GetBytes(Credentials.UserName + ":" + Credentials.Password));
 
             headers.Add("Authorization", "Basic " + svcCredentials); //add auth just in case
 
             HttpResponseMessage response = null;
+          
+            //var httpClient = new System.Net.Http.HttpClient(handler);
+            //httpClient.DefaultRequestVersion = HttpVersion.Version20;
+            //httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+           
+            //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+            //HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PROPFIND"), "https://cyoa.allsync.com/public.php/webdav/");
+            ////request.Version = HttpVersion.Version11;
+            //request.Headers.Add("Authorization", "Basic b3dXb3I2NHlMVG5nRGszOm51bGw=");
+            //request.Headers.Add("Depth", "1");
+            //request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0");
+            //request.Headers.Add("X-Requested-With", "XMLHttpRequest");
+            //request.Headers.Add("Accept", "*/*");
+            ////request.Headers.Add("DNT", "1");
+            ////request.Headers.Add("Connection", "keep-alive");
+            ////request.Headers.Add("", "");
+            ////request.Headers.Add("", "");            
+
+            ////request.Content = new StringContent("", Encoding.UTF8, "application/xml");
+
+            //var response1 = await httpClient.SendAsync(request);
+
+            //var responseBody = await response1.Content.ReadAsStringAsync();
+
+            //throw new WebDAVException((int)response1.StatusCode, "");
 
             try
             {                
-                response = await HttpRequest(listUri, PropFind, headers).ConfigureAwait(false) ;
+                response = await HttpRequest(listUri, PropFind, headers, Encoding.UTF8.GetBytes(PropFindRequestContent)).ConfigureAwait(false) ;
 
                 if (response.StatusCode != HttpStatusCode.OK &&
                     (int)response.StatusCode != HttpStatusCode_MultiStatus)
                 {
+                    var res = await response.Content.ReadAsStringAsync().ConfigureAwait(false);                 
+                   
+
                     throw new WebDAVException((int)response.StatusCode, "Failed retrieving items in folder.");
                 }
-
+               
                 using (var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false))
                 {
                     var items = ResponseParser.ParseItems(stream);
@@ -306,7 +335,7 @@ namespace WebDAVClient
                 if (response != null)
                     response.Dispose();
             }
-        }
+        }       
 
         /// <summary>
         /// List all files present on the server.
@@ -733,8 +762,10 @@ namespace WebDAVClient
             using (var request = new HttpRequestMessage(method, uri))
             {
                 ServicePointManager.Expect100Continue = true;
-                request.Version = HttpVersion.Version20;
+                request.Version = HttpVersion.Version20;                
                 request.Headers.Connection.Add("Keep-Alive");
+                //request.Headers.Add("Depth", "1");
+
                 if (!string.IsNullOrWhiteSpace(UserAgent))
                 {
                     request.Headers.Add("User-Agent", UserAgent);
@@ -748,13 +779,18 @@ namespace WebDAVClient
                     {
                         request.Headers.Add(key, headers[key]);
                     }
-                }               
+                }
+
+                //var xmlContent = "<?xml version=\"1.0\" encoding=\"utf-8\"?><d:propfind xmlns:d=\"DAV:\"><d:prop><d:getlastmodified/><d:getetag/></d:prop></d:propfind>";
+                //request.Content = new StringContent(xmlContent, Encoding.UTF8, "application/xml");
+
+
                 // Need to send along content?
                 if (content != null)
                 {
                     request.Content = new ByteArrayContent(content);
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("text/xml");
-                }                      
+                }
                 return await _httpClientWrapper.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             }
         }

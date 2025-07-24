@@ -16,7 +16,7 @@ namespace WebDAVClient.HttpClient
 
         public Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, HttpCompletionOption responseHeadersRead)
         {
-            return _httpClient.SendAsync(request, responseHeadersRead);
+             return _httpClient.SendAsync(request, responseHeadersRead);
         }
 
         public Task<HttpResponseMessage> SendUploadAsync(HttpRequestMessage request)

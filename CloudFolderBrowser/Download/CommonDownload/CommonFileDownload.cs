@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Windows.Forms;
+using Aga.Controls.Tree;
 using WebDAVClient;
 
 namespace CloudFolderBrowser
@@ -97,7 +98,14 @@ namespace CloudFolderBrowser
             DialogResult overwriteFile = DialogResult.Yes;
             if (file.Exists && file.Length >= 0.999 * FileInfo.Size)
             {
-                switch (ParentDownload.OverwriteMode)
+                var identicalSize = file.Length == FileInfo.Size;
+
+                if (!identicalSize)
+                {
+                    overwriteFile = DialogResult.Yes;
+                }
+                else
+                    switch (ParentDownload.OverwriteMode)
                 {
                     case 0:
                         overwriteFile = DialogResult.No;
@@ -344,8 +352,8 @@ namespace CloudFolderBrowser
                
                 await webClient.DownloadFileTaskAsync(downloadUri, outputFile); //.WaitAsync(new TimeSpan(99999), ct.Token);
 
-                if (File.Exists(SavePath) && ParentDownload.CheckDownloadedFileSize)                
-                    if(new FileInfo(SavePath).Length * ParentDownload.CheckFileSizeError < FileInfo.Size)                    
+                if (File.Exists(SavePath) && ParentDownload.CheckDownloadedFileSize && RemainedRetries > 0)                
+                    if(new FileInfo(SavePath).Length < FileInfo.Size * ParentDownload.CheckFileSizeError)                    
                         RetryDownload();
                     
                 

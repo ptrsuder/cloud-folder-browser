@@ -9,6 +9,7 @@ using System.Web;
 using System.Xml;
 using Aga.Controls.Tree;
 using Aga.Controls.Tree.NodeControls;
+using Bluegrams.Application;
 using CG.Web.MegaApiClient;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
@@ -31,7 +32,7 @@ namespace CloudFolderBrowser
     {
         public MainFormModel Model { get; set; } = new MainFormModel();
 
-        string AppVersion = "0.10.35";
+        string AppVersion = "0.10.38";
 
         public bool UseProgressPanel = false;
 
@@ -61,7 +62,7 @@ namespace CloudFolderBrowser
 
         const double b2Mb = 1.0 / (1024 * 1024);
 
-        const string browserUserAgentString = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0";
+        const string browserUserAgentString = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.108 Safari/537.36";
 
         //filter textbox 
         [DllImport("user32.dll")]
@@ -73,6 +74,7 @@ namespace CloudFolderBrowser
 
             Model.UserAgent = browserUserAgentString;
 
+            PortableSettingsProvider.ApplyProvider(Properties.Settings.Default);
             Bluegrams.Application.PortableSettingsProvider.AllRoaming = true;
 
             //copy local settings to roaming
@@ -1018,6 +1020,7 @@ namespace CloudFolderBrowser
             //{
             if (megaClient.IsLoggedIn)
                 megaClient.Logout();
+
             var loginToken = await megaClient.LoginAsync(login, password);
 
             Properties.Settings.Default.loginTokenMega = JsonConvert.SerializeObject(loginToken, new JsonSerializerSettings()
@@ -1099,6 +1102,7 @@ namespace CloudFolderBrowser
                $" {Math.Round(freeGb, 2)}" +
                $" GB out of {totalSpace / 1024} GB";
         }
+        
         public void LogoutMega()
         {
             try
@@ -1309,7 +1313,7 @@ namespace CloudFolderBrowser
                 return;
             }
 
-            var missingFiles = await Model.GetMissingFiles(checkedFolders, mixedFolders, syncFolder.Path, hideExistingFiles_checkBox.Checked);
+            var missingFiles = await Model.GetMissingFiles(checkedFolders, mixedFolders, syncFolder.Path, hideExistingFiles_checkBox.Checked, true);
 
             if (missingFiles.Count > 0)
             {

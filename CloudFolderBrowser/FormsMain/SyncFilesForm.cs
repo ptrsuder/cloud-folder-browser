@@ -51,9 +51,33 @@ namespace CloudFolderBrowser
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, int Msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
+        public void UpdateSettings()
+        {
+            OverwriteMode = Properties.Settings.Default.overwriteMode;
+            MaximumDownloads = Properties.Settings.Default.maximumDownloads;
+            RetryDelay = Properties.Settings.Default.retryDelay;
+            RetryMax = Properties.Settings.Default.retryMax;
+            CheckFileSizeError = Properties.Settings.Default.checkFileSizeError;
+            FolderNewFiles = Properties.Settings.Default.folderNewFiles;
+            CheckDownloadedFileSize = Properties.Settings.Default.checkDownloadedFileSize;
+        }
+
         public SyncFilesForm(MainForm parentForm, CloudFolder newFilesFolder, MainFormModel model)
         {
             InitializeComponent();
+
+            if (Properties.Settings.Default.maximumDownloads == 0)
+            {
+                //default settings
+                Properties.Settings.Default.overwriteMode = OverwriteMode;
+                Properties.Settings.Default.maximumDownloads = MaximumDownloads;
+                Properties.Settings.Default.retryDelay = RetryDelay;
+                Properties.Settings.Default.retryMax = RetryMax;
+                Properties.Settings.Default.checkFileSizeError = CheckFileSizeError;
+                Properties.Settings.Default.folderNewFiles = FolderNewFiles;
+                Properties.Settings.Default.checkDownloadedFileSize = CheckDownloadedFileSize;
+            }
+            UpdateSettings();
 
             MainForm = parentForm;
             Model = model;
@@ -495,7 +519,7 @@ namespace CloudFolderBrowser
             stopDownload_button.Visible = true;
         }
 
-        private void DownloadMega()
+        private async Task DownloadMega()
         {
             checkedFiles = new List<CloudFile>();
             checkedFilesSize = 0;
@@ -520,11 +544,37 @@ namespace CloudFolderBrowser
             if (megaApiClient == null)
             {
                 megaApiClient = new MegaApiClient();
-                megaApiClient.LoginAnonymous();
+                if (Properties.Settings.Default.loginedMega && Properties.Settings.Default.loginTokenMega != "")
+                {
+                    var megaLoginToken = JsonConvert.DeserializeObject<MegaApiClient.LogonSessionToken>(
+                        Properties.Settings.Default.loginTokenMega, new JsonSerializerSettings()
+                        {
+                            TypeNameHandling = TypeNameHandling.Auto
+                        });
+                    try
+                    {
+                        await megaApiClient.LoginAsync(megaLoginToken);
+                    }
+                    catch
+                    {
+                        await megaApiClient.LoginAnonymousAsync();
+                    }
+
+                }
+                else
+                {                    
+                    await megaApiClient.LoginAnonymousAsync();
+                }                
             }
 
             Download = new MegaDownload(megaApiClient, checkedFiles, usedProgressBars, usedLabels, toolTip1,
                 MainForm.syncFolderPath, OverwriteMode, FolderNewFiles, Model.CloudPublicFolder.PublicKey);
+            Download.MaxDownloadRetries = RetryMax;
+            Download.RetryDelay = RetryDelay;
+
+            Download.CheckFileSizeError = CheckFileSizeError;
+            Download.CheckDownloadedFileSize = CheckDownloadedFileSize;
+
             Download.DownloadCompleted += Download_DownloadCompleted;
             Download.Start();
 
@@ -911,6 +961,6 @@ namespace CloudFolderBrowser
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             new SyncSettingsForm(this).ShowDialog();
-        }
+        }       
     }
 }

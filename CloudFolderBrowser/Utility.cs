@@ -13,6 +13,15 @@ namespace CloudFolderBrowser
 {
     internal static class Utility
     {
+        static public string GetSafePathName(string name)
+        {
+            string safeName = name;
+            foreach (var ch in Path.GetInvalidFileNameChars())
+                safeName = safeName.Replace(ch, '_');           
+            safeName = safeName.TrimEnd();
+            return safeName;
+        }
+
         static public string[] ParsePath(string path, bool includeFilename = false)
         {
             string pattern = @"([^/]+)/";

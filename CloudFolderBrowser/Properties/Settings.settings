@@ -2,41 +2,59 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="CloudFolderBrowser.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="lastSyncFolderPath" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="lastSyncFolderPath" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="publicFoldersJson" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="publicFoldersJson" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="loginedYandex" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.Boolean" Scope="User">
+    <Setting Name="loginedYandex" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="loginedMega" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.Boolean" Scope="User">
+    <Setting Name="loginedMega" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="accessTokenYandex" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="accessTokenYandex" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="secretFolderUrl" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="savedPasswordsJson" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="savedPasswordsJson" Provider="Bluegrams.Application.PortableSettingsProvider" Type="System.String" Scope="User">
+    <Setting Name="loginTokenMega" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="loginTokenMega" Type="System.String" Scope="User">
+    <Setting Name="megaLogin" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="megaLogin" Type="System.String" Scope="User">
+    <Setting Name="megaPassword" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="megaPassword" Type="System.String" Scope="User">
+    <Setting Name="fogLinkAddress" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="fogLinkAddress" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="useProgressBar" Type="System.Boolean" Scope="User">
+    <Setting Name="useProgressBar" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="overwriteMode" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="maximumDownloads" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="retryDelay" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="retryMax" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="checkFileSizeError" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0</Value>
+    </Setting>
+    <Setting Name="folderNewFiles" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="checkDownloadedFileSize" Provider="Bluegrams.Application.PortableSettingsProvider" Roaming="true" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

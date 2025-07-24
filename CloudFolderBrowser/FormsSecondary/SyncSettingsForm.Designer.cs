@@ -222,6 +222,8 @@
             Controls.Add(folderNewFiles_checkBox);
             Name = "SyncSettingsForm";
             Text = "Sync Settings";
+            FormClosing += SyncSettingsForm_FormClosing;
+            Load += SyncSettingsForm_Load;
             ((System.ComponentModel.ISupportInitialize)maxDownloadRetries_numericUpDown).EndInit();
             ((System.ComponentModel.ISupportInitialize)maximumDownloads_numericUpDown).EndInit();
             groupBox1.ResumeLayout(false);

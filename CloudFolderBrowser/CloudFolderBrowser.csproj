@@ -68,6 +68,7 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\GitHub\MegaApiClient\MegaApiClient\MegaApiClient.csproj" />
     <ProjectReference Include="..\Aga.Controls\Aga.Controls.csproj">
       <Project>{e73bb233-d88b-44a7-a98f-d71ee158381d}</Project>
       <Name>Aga.Controls</Name>
@@ -87,7 +88,6 @@
   <ItemGroup>
     <PackageReference Include="CircularProgressBar" Version="2.8.0.16" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
-    <PackageReference Include="MegaApiClientAlt" Version="*" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="nulastudio.NetBeauty" Version="2.1.4.1" />
     <PackageReference Include="PortableSettingsProvider" Version="0.2.4" />

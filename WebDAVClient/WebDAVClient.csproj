@@ -28,4 +28,10 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CurlThin" Version="0.0.7" />
+    <PackageReference Include="CurlThin.Native" Version="0.0.8" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="WebDAV-Client" Version="1.1.2" />
+  </ItemGroup>
 </Project>

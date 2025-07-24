@@ -23,13 +23,6 @@ namespace CloudFolderBrowser.FormsSecondary
             overwriteMode_comboBox.DisplayMember = "Value";
             overwriteMode_comboBox.ValueMember = "Key";
 
-            overwriteMode_comboBox.SelectedIndex = ParentForm.OverwriteMode;
-            maximumDownloads_numericUpDown.Value = ParentForm.MaximumDownloads;
-
-            checkFileSizeError_numericUpDown.Value = (decimal)ParentForm.CheckFileSizeError;
-            maxDownloadRetries_numericUpDown.Value = ParentForm.RetryMax;
-            retryDelay_numericUpDown.Value = ParentForm.RetryDelay;
-
             StartPosition = FormStartPosition.CenterParent;
 
             toolTip1.SetToolTip(checkDownloadedFileSize_checkBox, "Check file size on disk and in cloud if checked. Redownload if mismatch");
@@ -50,37 +43,69 @@ namespace CloudFolderBrowser.FormsSecondary
 
         private void maximumDownloads_numericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            ParentForm.MaximumDownloads = (int)maximumDownloads_numericUpDown.Value;
+            
+            Properties.Settings.Default.Save();
         }
 
         private void overwriteMode_comboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ParentForm.OverwriteMode = (int)overwriteMode_comboBox.SelectedIndex;
+            
+            Properties.Settings.Default.Save();
         }
 
         private void folderNewFiles_checkBox_CheckedChanged(object sender, EventArgs e)
         {
-            ParentForm.FolderNewFiles = folderNewFiles_checkBox.Checked;
+            
+            Properties.Settings.Default.Save();
         }
 
         private void maxDownloadRetries_numericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            ParentForm.RetryMax = (int)maxDownloadRetries_numericUpDown.Value;
+           
+            Properties.Settings.Default.Save();
         }
 
         private void retryDelay_numericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            ParentForm.RetryDelay = (int)retryDelay_numericUpDown.Value;
+            
+            Properties.Settings.Default.Save();
         }
 
         private void checkFileSizeError_numericUpDown_ValueChanged(object sender, EventArgs e)
         {
-            ParentForm.CheckFileSizeError = (double)checkFileSizeError_numericUpDown.Value;
+            
+            Properties.Settings.Default.Save();
         }
 
         private void checkDownloadedFileSize_checkBox_CheckedChanged(object sender, EventArgs e)
         {
-            ParentForm.CheckDownloadedFileSize = checkDownloadedFileSize_checkBox.Checked;
+            
+            Properties.Settings.Default.Save();
+        }
+
+        private void SyncSettingsForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Properties.Settings.Default.maximumDownloads = (int)maximumDownloads_numericUpDown.Value;
+            Properties.Settings.Default.overwriteMode = (int)overwriteMode_comboBox.SelectedIndex;
+            Properties.Settings.Default.folderNewFiles = folderNewFiles_checkBox.Checked;
+            Properties.Settings.Default.retryMax = (int)maxDownloadRetries_numericUpDown.Value;
+            Properties.Settings.Default.checkFileSizeError = (double)checkFileSizeError_numericUpDown.Value;
+            Properties.Settings.Default.checkDownloadedFileSize = checkDownloadedFileSize_checkBox.Checked;
+            Properties.Settings.Default.retryDelay = (int)retryDelay_numericUpDown.Value;
+            ParentForm.UpdateSettings();
+        }
+
+        private void SyncSettingsForm_Load(object sender, EventArgs e)
+        {
+            overwriteMode_comboBox.SelectedIndex = Properties.Settings.Default.overwriteMode;
+            maximumDownloads_numericUpDown.Value = Properties.Settings.Default.maximumDownloads;
+
+            checkDownloadedFileSize_checkBox.Checked = Properties.Settings.Default.checkDownloadedFileSize;
+            checkFileSizeError_numericUpDown.Value = (decimal)Properties.Settings.Default.checkFileSizeError;
+            maxDownloadRetries_numericUpDown.Value = Properties.Settings.Default.maximumDownloads;
+            retryDelay_numericUpDown.Value = Properties.Settings.Default.retryDelay;
+
+            folderNewFiles_checkBox.Checked = Properties.Settings.Default.folderNewFiles;
         }
     }
 }

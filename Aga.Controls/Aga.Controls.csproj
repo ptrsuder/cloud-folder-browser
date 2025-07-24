@@ -212,6 +212,9 @@
     <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.editorconfig">
+      <Link>.editorconfig</Link>
+    </None>
     <None Include="Resources\minus.bmp" />
     <None Include="Resources\plus.bmp" />
     <None Include="Resources\check.bmp" />

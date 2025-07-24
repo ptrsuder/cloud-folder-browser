@@ -52,27 +52,35 @@ namespace CloudFolderBrowser
             var folderPath = Path.GetDirectoryName(SavePath);
             Directory.CreateDirectory(folderPath);
             FileInfo file = new FileInfo(SavePath);
+
             DialogResult overwriteFile = DialogResult.Yes;
             if (file.Exists)
             {
-                switch (ParentDownload.OverwriteMode)
+                var identicalSize = file.Length == Node.Size;
+
+                if(!identicalSize)
                 {
-                    case 0:
-                        overwriteFile = DialogResult.No;
-                        break;
-                    case 1:
-                        overwriteFile = DialogResult.Yes;
-                        break;
-                    case 2:
-                        if (Node.ModificationDate > file.CreationTime)
-                            overwriteFile = DialogResult.Yes;
-                        else
-                            overwriteFile = DialogResult.No;
-                        break;
-                    case 3:
-                        overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
-                        break;
+                    overwriteFile = DialogResult.Yes;
                 }
+                else
+                    switch (ParentDownload.OverwriteMode)
+                    {
+                        case 0:
+                            overwriteFile = DialogResult.No;
+                            break;
+                        case 1:
+                            overwriteFile = DialogResult.Yes;
+                            break;
+                        case 2:
+                            if (Node.ModificationDate > file.CreationTime)
+                                overwriteFile = DialogResult.Yes;
+                            else
+                                overwriteFile = DialogResult.No;
+                            break;
+                        case 3:
+                            overwriteFile = MessageBox.Show($"File [{file.Name}] already exists. Overwrite?", "", MessageBoxButtons.YesNo);
+                            break;
+                    }
                 if (overwriteFile == DialogResult.Yes)
                     file.Delete();
             }
@@ -90,6 +98,10 @@ namespace CloudFolderBrowser
                             DownloadTask = MegaClient.DownloadFileAsync(Node, SavePath, Progress, ParentDownload.CancellationTokenSource.Token);
                     }
                     await DownloadTask;
+
+                    if (File.Exists(SavePath) && ParentDownload.CheckDownloadedFileSize && RemainedRetries > 0)
+                        if (new FileInfo(SavePath).Length < Node.Size * ParentDownload.CheckFileSizeError)
+                            RetryDownload();
                 }
                 catch (Exception ex)
                 {
@@ -125,7 +137,12 @@ namespace CloudFolderBrowser
             DownloadFailed = false;
             ProgressBar.Value = 0;
             ProgressLabel.Text = "";
+
+            if (File.Exists(SavePath))
+                File.Delete(SavePath);
+
             await StartDownload();
+
             if (DownloadFailed)
                 return;
         }
