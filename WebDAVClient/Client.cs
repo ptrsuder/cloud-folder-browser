@@ -258,32 +258,7 @@ namespace WebDAVClient
 
             headers.Add("Authorization", "Basic " + svcCredentials); //add auth just in case
 
-            HttpResponseMessage response = null;
-          
-            //var httpClient = new System.Net.Http.HttpClient(handler);
-            //httpClient.DefaultRequestVersion = HttpVersion.Version20;
-            //httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
-           
-            //ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
-            //HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("PROPFIND"), "https://cyoa.allsync.com/public.php/webdav/");
-            ////request.Version = HttpVersion.Version11;
-            //request.Headers.Add("Authorization", "Basic b3dXb3I2NHlMVG5nRGszOm51bGw=");
-            //request.Headers.Add("Depth", "1");
-            //request.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0");
-            //request.Headers.Add("X-Requested-With", "XMLHttpRequest");
-            //request.Headers.Add("Accept", "*/*");
-            ////request.Headers.Add("DNT", "1");
-            ////request.Headers.Add("Connection", "keep-alive");
-            ////request.Headers.Add("", "");
-            ////request.Headers.Add("", "");            
-
-            ////request.Content = new StringContent("", Encoding.UTF8, "application/xml");
-
-            //var response1 = await httpClient.SendAsync(request);
-
-            //var responseBody = await response1.Content.ReadAsStringAsync();
-
-            //throw new WebDAVException((int)response1.StatusCode, "");
+            HttpResponseMessage response = null;         
 
             try
             {                

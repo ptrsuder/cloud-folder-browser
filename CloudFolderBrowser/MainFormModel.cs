@@ -8,7 +8,6 @@ using System.Web;
 using CG.Web.MegaApiClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using WebDav;
 using WebDAVClient;
 using Exception = System.Exception;
 
